@@ -3,139 +3,206 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-  <title>Имя — Product Designer</title>
-  <meta
-    name="description"
-    content="Портфолио продуктового дизайнера: исследования, интерфейсы и продуктовые кейсы."
-  >
-
+  <title>Редизайн Главного экрана</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
   <style>
-    * {
-      box-sizing: border-box;
-    }
-
-    body {
-      max-width: 1100px;
-      margin: 0 auto;
-      padding: 32px;
-      font-family: Arial, sans-serif;
-      color: #171717;
-      background: #f7f7f7;
-    }
-
-    header {
-      padding: 80px 0;
-    }
-
-    h1 {
-      max-width: 800px;
-      margin: 0 0 24px;
-      font-size: clamp(48px, 8vw, 96px);
-      line-height: 0.95;
-      letter-spacing: -0.06em;
-    }
-
-    header p {
-      max-width: 600px;
-      font-size: 22px;
-      line-height: 1.5;
-      color: #555;
-    }
-
-    h2 {
-      margin-top: 80px;
-      font-size: 36px;
-    }
-
-    .projects {
-      display: grid;
-      grid-template-columns: repeat(2, 1fr);
-      gap: 24px;
-    }
-
-    .project {
-      min-height: 320px;
-      padding: 32px;
-      border-radius: 24px;
-      color: white;
-      background: #222;
-      text-decoration: none;
-    }
-
-    .project h3 {
-      margin: 0 0 12px;
-      font-size: 32px;
-    }
-
-    .project p {
-      color: #ccc;
-      line-height: 1.5;
-    }
-
-    footer {
-      margin-top: 100px;
-      padding: 40px 0;
-      border-top: 1px solid #ddd;
-    }
-
-    footer a {
-      color: inherit;
-    }
-
-    @media (max-width: 700px) {
-      body {
-        padding: 20px;
-      }
-
-      header {
-        padding: 48px 0;
-      }
-
-      .projects {
-        grid-template-columns: 1fr;
-      }
-    }
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'Montserrat', sans-serif; background: #fff; color: #000; -webkit-font-smoothing: antialiased; }
+    .page { max-width: 1920px; margin: 0 auto; padding: 100px 100px 300px; }
+    .container { display: flex; flex-direction: column; gap: 60px; }
+    .header { background: #f5f5f5; border-radius: 32px; position: relative; display: flex; min-height: 539px; overflow: hidden; }
+    .header__image-left { position: absolute; top: 0; right: 0; width: 700px; height: 539px; background: linear-gradient(135deg, #a8c0ff, #3f6fff); z-index: 0; }
+    .header__content { position: relative; z-index: 2; display: flex; flex-direction: column; gap: 40px; padding: 90px 60px; max-width: 830px; }
+    .header__badges { display: flex; gap: 12px; flex-wrap: wrap; }
+    .badge { padding: 4px 10px; border-radius: 6px; font-size: 11px; font-weight: 600; letter-spacing: 0.04em; text-transform: uppercase; line-height: 1; }
+    .badge--app { background: #e2e2f8; color: #4f53fc; }
+    .badge--ecom { background: #dbf0e8; color: #10ad73; }
+    .badge--discovery { background: #f3e2ec; color: #ea348e; }
+    .badge--uxui { background: #d4eaf7; color: #0f87bd; }
+    .header__text { display: flex; flex-direction: column; gap: 16px; }
+    .header__title { font-size: 72px; font-weight: 700; line-height: 1.04; }
+    .header__subtitle { font-size: 20px; font-weight: 400; line-height: 1.4; color: #525252; }
+    .header__author { display: flex; align-items: center; gap: 16px; }
+    .header__avatar { width: 52px; height: 52px; border-radius: 50%; background: #a8c0ff; flex-shrink: 0; }
+    .header__author-info { display: flex; flex-direction: column; gap: 4px; }
+    .header__author-name { font-size: 14px; font-weight: 600; }
+    .header__author-role { font-size: 12px; color: #525252; }
+    .header__image-right { position: absolute; top: 0; right: 0; width: 700px; height: 539px; z-index: 1; background: linear-gradient(135deg, #7baaf7, #4a7af5 50%, #3060d0); }
+    .content { max-width: 955px; margin: 0 auto; display: flex; flex-direction: column; gap: 100px; }
+    .section { display: flex; flex-direction: column; gap: 20px; }
+    .section__title { font-size: 40px; font-weight: 600; line-height: 1.04; }
+    .section__text { font-size: 20px; line-height: 1.6; }
+    .results-list { display: flex; flex-direction: column; gap: 32px; }
+    .result-item { display: flex; align-items: flex-start; gap: 20px; }
+    .result-item__dot-wrapper { width: 8px; padding-top: 10px; flex-shrink: 0; }
+    .result-item__dot { width: 8px; height: 8px; border-radius: 50%; background: #000; }
+    .result-item__text { font-size: 20px; line-height: 1.6; }
+    .result-item__text .medium { font-weight: 500; }
+    .image-placeholder { width: 100%; border-radius: 16px; background: #d0dfff; display: flex; align-items: center; justify-content: center; color: #5a7ec2; font-size: 16px; font-weight: 500; }
+    .section-with-image { display: flex; flex-direction: column; gap: 40px; }
+    .metrics-text .metrics-heading { font-weight: 600; }
+    .separator { width: 100%; height: 1px; background: #dadada; }
+    .conclusion-heading { font-weight: 600; }
+    .footer-text { font-size: 40px; font-weight: 600; line-height: 1.04; }
+    .numbered-text .num { font-weight: 700; }
   </style>
 </head>
-
 <body>
-  <header>
-    <p>Имя Фамилия · Product Designer</p>
-
-    <h1>Проектирую продукты, которыми удобно пользоваться</h1>
-
-    <p>
-      Исследую пользовательские проблемы, проектирую интерфейсы
-      и помогаю командам улучшать продуктовые метрики.
-    </p>
-  </header>
-
-  <main>
-    <h2>Избранные проекты</h2>
-
-    <section class="projects">
-      <a class="project" href="#">
-        <h3>Название проекта</h3>
-        <p>
-          Как мы переработали onboarding и увеличили завершение регистрации.
-        </p>
-      </a>
-
-      <a class="project" href="#">
-        <h3>Название проекта</h3>
-        <p>
-          Исследование, продуктовая гипотеза, дизайн решения и результаты.
-        </p>
-      </a>
-    </section>
-  </main>
-
-  <footer>
-    <p>
-      Связаться:
-      <a href="mailto:hello@example.com">hello@example.com</a>
-    </p>
-  </footer>
+  <div class="page">
+    <div class="container">
+      <div class="header">
+        <div class="header__image-left"><!-- IMAGE --></div>
+        <div class="header__content">
+          <div class="header__badges">
+            <span class="badge badge--app">App</span>
+            <span class="badge badge--ecom">E-com</span>
+            <span class="badge badge--discovery">Discovery</span>
+            <span class="badge badge--uxui">UX/UI</span>
+          </div>
+          <div class="header__text">
+            <h1 class="header__title">Редизайн Главного экрана</h1>
+            <p class="header__subtitle">Масштабная переработка навигации и начального вьюпорта</p>
+          </div>
+          <div class="header__author">
+            <div class="header__avatar"><!-- IMAGE --></div>
+            <div class="header__author-info">
+              <span class="header__author-name">Кисаров Илья</span>
+              <span class="header__author-role">Senior Product Designer</span>
+            </div>
+          </div>
+        </div>
+        <div class="header__image-right"><!-- IMAGE --></div>
+      </div>
+      <div class="content">
+        <div class="section">
+          <h2 class="section__title">О задаче</h2>
+          <p class="section__text">Нужно было переработать Главный экран продукта, чтобы он стал более полезным и информативным для пользователей.<br><br>В рамках задачи была изменена логика навигации и пересмотрено расположение контентных блоков. Основной фокус был на том, чтобы пользователь быстрее находил ключевые разделы, лучше понимал доступные возможности продукта и получал больше релевантной информации уже на первом экране.<br><br>Решение включало обновление структуры главного экрана, перераспределение приоритетов между блоками контента и упрощение пользовательского пути по основным сценариям.</p>
+        </div>
+        <div class="section">
+          <h2 class="section__title">Результаты</h2>
+          <div class="results-list">
+            <div class="result-item">
+              <div class="result-item__dot-wrapper"><div class="result-item__dot"></div></div>
+              <p class="result-item__text">Средние показатели всех полок выросли — <span class="medium">в 2 раза</span> увеличился суммарный CR добавления в корзину и закладки</p>
+            </div>
+            <div class="result-item">
+              <div class="result-item__dot-wrapper"><div class="result-item__dot"></div></div>
+              <p class="result-item__text"><span class="medium">В 2 раза</span> увеличился CR добавления в корзину из полки «Персональные рекомендации»</p>
+            </div>
+            <div class="result-item">
+              <div class="result-item__dot-wrapper"><div class="result-item__dot"></div></div>
+              <p class="result-item__text">CTR баннеров снизился на 50%, НО так как раздел акций переместился в шапку, то он стал <span class="medium">в 3 раза чаще</span> посещаться.</p>
+            </div>
+            <div class="result-item">
+              <div class="result-item__dot-wrapper"><div class="result-item__dot"></div></div>
+              <p class="result-item__text">Навигационные пути не изменились</p>
+            </div>
+            <div class="result-item">
+              <div class="result-item__dot-wrapper"><div class="result-item__dot"></div></div>
+              <p class="result-item__text">После редизайна стало больше положительных отзывов в сторах. Кликабельность элемента «Оцените приложение» выросла <span class="medium">в 30 раз</span> — с 17 до 500 кликов.</p>
+            </div>
+          </div>
+        </div>
+        <div class="section">
+          <h2 class="section__title">Моя роль в проекте</h2>
+          <p class="section__text">В роли Senior Product Designer полностью отвечал за продуктовую проработку и дизайн-решение для обновления Главного экрана.<br><br>В ходе анализа текущего UX выявил ограничения в навигации и структуре экрана: существующее решение не в полной мере помогало пользователям быстро находить нужные разделы и получать полезную информацию.<br><br>На основе полученных данных была подготовлена концепция нового Главного экрана: пересмотрена навигация, изменена иерархия контентных блоков и усилена информативность начального вьюпорта.</p>
+        </div>
+        <div class="section">
+          <h2 class="section__title">Цели</h2>
+          <p class="section__text">Основная цель проекта — повысить ценность Главного экрана как ключевой точки входа в продукт.<br>Сделать экран более удобным и полезным для пользователей: улучшить навигацию по разделам, повысить информативность контентных блоков и помочь пользователям быстрее находить релевантные для них сценарии.<br>Отдельный фокус был на персонализации: Главный экран должен был лучше адаптироваться под потребности пользователя и показывать более релевантный контент.</p>
+        </div>
+        <div class="section">
+          <h2 class="section__title">Мои гипотезы</h2>
+          <p class="section__text">Если пересобрать навигацию и сгруппировать разделы по более понятной логике, то пользователям будет проще находить нужные сценарии и контент.<br>Если разместить блок персональных рекомендаций в начальном вьюпорте, то пользователи быстрее увидят релевантные товары.<br>Если убрать баннеры из начального вьюпорта, это не должно негативно повлиять на маркетинговые показатели.</p>
+        </div>
+        <div class="section-with-image">
+          <div class="section">
+            <h2 class="section__title">Что было «ДО» редизайна</h2>
+            <p class="section__text">Блок с разделами был представлен в виде круглых иконок. Со временем количество разделов увеличивалось, из-за чего блок перегружался и хуже сканировался.</p>
+          </div>
+          <div class="image-placeholder" style="height: 634px;">IMAGE</div>
+        </div>
+        <div class="section">
+          <h2 class="section__title">Какие метрики запросил из аналитики</h2>
+          <p class="section__text metrics-text"><span class="metrics-heading">Данные по полкам — CR в добавление товаров в Корзину и Закладки </span>Аналитика показала, что полка «Персональные рекомендации» даёт самый высокий CR среди других полок.<br><span class="metrics-heading">Данные по переходам с Главного экрана</span> Нужно было понять, куда пользователи чаще всего переходят. Популярные переходы: 1) Поиск • 2) Закладки • 3) Профиль • 4) PDP из полок • 5) Корзина<br><span class="metrics-heading">Данные по баннерам — видимость и CTR каждого баннера</span> Чем дальше баннер находился в слайдере, тем меньше пользователей его видели.</p>
+        </div>
+        <div class="section-with-image">
+          <div class="section">
+            <h2 class="section__title">Что было изменено в интерфейсе</h2>
+            <p class="section__text numbered-text"><span class="num">( 1 )</span> Основные контентные разделы — «Акции», «Подборки», «Читай-журнал» и «Циклы» — были одной сущностью, поэтому я вынес их в шапку в виде табов и расставил по приоритету.<br><br>В новой навигации пользователь может свободно переключаться между разделами без возврата на предыдущий экран.<br><br>Так удалось убрать лишний шаг назад и сделать взаимодействие более непрерывным.</p>
+          </div>
+          <div class="image-placeholder" style="height: 820px;">IMAGE</div>
+        </div>
+        <div class="section-with-image">
+          <div class="section">
+            <p class="section__text numbered-text"><span class="num">( 2 )</span> С помощью акцентного фона создал визуальную многослойность и отделил контентную часть от целевых действий пользователя.<br><br>Также добавил персонализированное приветствие, чтобы экран воспринимался более живым.</p>
+          </div>
+          <div class="image-placeholder" style="height: 607px;">IMAGE</div>
+        </div>
+        <div class="section-with-image">
+          <div class="section">
+            <p class="section__text numbered-text"><span class="num">( 3 )</span> В карусель были вынесены целевые действия: «Открыть QR-код», «ЯвМ» и «Купить сертификат».<br><br>Также пользователь сразу видит, сколько бонусов скоро сгорит, без перехода в таб «Профиль».</p>
+          </div>
+          <div class="image-placeholder" style="height: 972px;">IMAGE</div>
+          <div class="image-placeholder" style="height: 1032px;">IMAGE</div>
+        </div>
+        <div class="section-with-image">
+          <div class="section">
+            <p class="section__text numbered-text"><span class="num">( 4 )</span> Остальные разделы с посадочными страницами были перенесены ниже, в блок «Интересные разделы».</p>
+          </div>
+          <div class="image-placeholder" style="height: 1568px;">IMAGE</div>
+        </div>
+        <div class="section-with-image">
+          <div class="section">
+            <p class="section__text numbered-text"><span class="num">( 5 )</span> Полка с персональными рекомендациями попадает в начальный вьюпорт и сразу оказывается в зоне внимания.<br><br>Если персональные рекомендации ещё не сформированы, полка скрывается, а на её месте показывается полка «Новинки».</p>
+          </div>
+          <div class="image-placeholder" style="height: 982px;">IMAGE</div>
+        </div>
+        <div class="section-with-image">
+          <div class="section">
+            <p class="section__text numbered-text"><span class="num">( 6 )</span> После существенного обновления Главной было важно объяснить пользователям, что изменилось.<br><br>Для этого был добавлен информационный баннер и онбординг.</p>
+          </div>
+          <div class="image-placeholder" style="height: 932px;">IMAGE</div>
+        </div>
+        <div class="section">
+          <h2 class="section__title">Итоги ABC-теста</h2>
+          <div style="display: flex; flex-direction: column; gap: 32px;">
+            <p class="section__text">Был запущен ABC-тест, в котором сравнивали три варианта Главного экрана.<br><br>Вариант A — текущий дизайн.<br>Вариант B — новый дизайн с одной баннерной зоной.<br>Вариант C — новый дизайн с двумя баннерными зонами.</p>
+            <div class="results-list">
+              <div class="result-item">
+                <div class="result-item__dot-wrapper"><div class="result-item__dot"></div></div>
+                <p class="result-item__text">Средние показатели всех полок выросли — <span class="medium">в 2 раза</span> увеличился суммарный CR</p>
+              </div>
+              <div class="result-item">
+                <div class="result-item__dot-wrapper"><div class="result-item__dot"></div></div>
+                <p class="result-item__text"><span class="medium">В 2 раза</span> увеличился CR из полки «Персональные рекомендации»</p>
+              </div>
+              <div class="result-item">
+                <div class="result-item__dot-wrapper"><div class="result-item__dot"></div></div>
+                <p class="result-item__text">CTR баннеров снизился на 50%, НО раздел акций стал <span class="medium">в 3 раза чаще</span> посещаться.</p>
+              </div>
+              <div class="result-item">
+                <div class="result-item__dot-wrapper"><div class="result-item__dot"></div></div>
+                <p class="result-item__text">Навигационные пути не изменились</p>
+              </div>
+              <div class="result-item">
+                <div class="result-item__dot-wrapper"><div class="result-item__dot"></div></div>
+                <p class="result-item__text">Кликабельность «Оцените приложение» выросла <span class="medium">в 30 раз</span> — с 17 до 500 кликов.</p>
+              </div>
+            </div>
+            <div class="separator"></div>
+            <div class="section__text">
+              <p style="margin-bottom: 20px;">✅ <span class="conclusion-heading">Гипотеза с навигацией подтвердилась</span><br>Средние показатели всех полок выросли, суммарный CR увеличился в 2 раза.</p>
+              <p style="margin-bottom: 20px;">✅ <span class="conclusion-heading">Гипотеза с персональными рекомендациями подтвердилась</span><br>CR добавления в корзину из «Персональных рекомендаций» вырос в 2 раза.</p>
+              <p>✅ <span class="conclusion-heading">Гипотеза с баннерами подтвердилась</span><br>Раздел «Акции» стал посещаться в 3 раза чаще.</p>
+            </div>
+          </div>
+        </div>
+        <p class="footer-text">😍 Спасибо за внимание 👏</p>
+      </div>
+    </div>
+  </div>
 </body>
 </html>
