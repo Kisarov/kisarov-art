@@ -226,6 +226,10 @@ body {
   line-height: 1.6;
 }
 
+.text-medium {
+  font-weight: 500;
+}
+
 .text-green-medium {
   font-weight: 500;
   color: #0D8C5E;
