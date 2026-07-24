@@ -36,11 +36,11 @@ body {
 
 .header__image-left {
   position: absolute;
-  top: -100px;
-  right: 500px;
+  top: -357px;
+  right: -284px;
   z-index: 0;
-  width: 500px;
-  height: 500px;
+  width: 924px;
+  height: 924px;
   border-radius: 50%;
   background: #6366f1;
   filter: blur(100px);
