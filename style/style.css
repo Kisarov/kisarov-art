@@ -34,7 +34,19 @@ body {
   border-radius: 32px;
 }
 
-.header__image-left,
+.header__image-left {
+  position: absolute;
+  top: -100px;
+  right: 500px;
+  z-index: 0;
+  width: 500px;
+  height: 500px;
+  border-radius: 50%;
+  background: #6366f1;
+  filter: blur(100px);
+  pointer-events: none;
+}
+
 .header__image-right {
   position: absolute;
   top: 0;
@@ -44,15 +56,10 @@ body {
   overflow: hidden;
 }
 
-.header__image-left {
-  z-index: 0;
-}
-
 .header__image-right {
   z-index: 1;
 }
 
-.header__image-left img,
 .header__image-right img {
   display: block;
   width: 100%;
