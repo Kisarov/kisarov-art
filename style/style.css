@@ -226,8 +226,9 @@ body {
   line-height: 1.6;
 }
 
-.result-item__text .medium {
+.text-green-medium {
   font-weight: 500;
+  color: #0D8C5E;
 }
 
 .image-placeholder {
