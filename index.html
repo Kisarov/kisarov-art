@@ -5,48 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Редизайн Главного экрана</title>
   <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <style>
-    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
-    body { font-family: 'Montserrat', sans-serif; background: #fff; color: #000; -webkit-font-smoothing: antialiased; }
-    .page { max-width: 1920px; margin: 0 auto; padding: 100px 100px 300px; }
-    .container { display: flex; flex-direction: column; gap: 60px; }
-    .header { background: #f5f5f5; border-radius: 32px; position: relative; display: flex; min-height: 539px; overflow: hidden; }
-    .header__image-left { position: absolute; top: 0; right: 0; width: 700px; height: 539px; background: linear-gradient(135deg, #a8c0ff, #3f6fff); z-index: 0; }
-    .header__content { position: relative; z-index: 2; display: flex; flex-direction: column; gap: 40px; padding: 90px 60px; max-width: 830px; }
-    .header__badges { display: flex; gap: 12px; flex-wrap: wrap; }
-    .badge { padding: 4px 10px; border-radius: 6px; font-size: 11px; font-weight: 600; letter-spacing: 0.04em; text-transform: uppercase; line-height: 1; }
-    .badge--app { background: #e2e2f8; color: #4f53fc; }
-    .badge--ecom { background: #dbf0e8; color: #10ad73; }
-    .badge--discovery { background: #f3e2ec; color: #ea348e; }
-    .badge--uxui { background: #d4eaf7; color: #0f87bd; }
-    .header__text { display: flex; flex-direction: column; gap: 16px; }
-    .header__title { font-size: 72px; font-weight: 700; line-height: 1.04; }
-    .header__subtitle { font-size: 20px; font-weight: 400; line-height: 1.4; color: #525252; }
-    .header__author { display: flex; align-items: center; gap: 16px; }
-    .header__avatar { width: 52px; height: 52px; border-radius: 50%; background: #a8c0ff; flex-shrink: 0; }
-    .header__author-info { display: flex; flex-direction: column; gap: 4px; }
-    .header__author-name { font-size: 14px; font-weight: 600; }
-    .header__author-role { font-size: 12px; color: #525252; }
-    .header__image-right { position: absolute; top: 0; right: 0; width: 700px; height: 539px; z-index: 1; background: linear-gradient(135deg, #7baaf7, #4a7af5 50%, #3060d0); }
-    .content { max-width: 955px; margin: 0 auto; display: flex; flex-direction: column; gap: 100px; }
-    .section { display: flex; flex-direction: column; gap: 20px; }
-    .section__title { font-size: 40px; font-weight: 600; line-height: 1.04; }
-    .section__text { font-size: 20px; line-height: 1.6; }
-    .results-list { display: flex; flex-direction: column; gap: 32px; }
-    .result-item { display: flex; align-items: flex-start; gap: 20px; }
-    .result-item__dot-wrapper { width: 8px; padding-top: 10px; flex-shrink: 0; }
-    .result-item__dot { width: 8px; height: 8px; border-radius: 50%; background: #000; }
-    .result-item__text { font-size: 20px; line-height: 1.6; }
-    .result-item__text .medium { font-weight: 500; }
-    .image-placeholder { width: 100%; border-radius: 16px; background: #d0dfff; display: flex; align-items: center; justify-content: center; color: #5a7ec2; font-size: 16px; font-weight: 500; }
-    .image-placeholder img { width: 100%; height: auto; display: block; }
-    .section-with-image { display: flex; flex-direction: column; gap: 40px; }
-    .metrics-text .metrics-heading { font-weight: 600; }
-    .separator { width: 100%; height: 1px; background: #dadada; }
-    .conclusion-heading { font-weight: 600; }
-    .footer-text { font-size: 40px; font-weight: 600; line-height: 1.04; }
-    .numbered-text .num { font-weight: 700; }
-  </style>
+  <link rel="stylesheet" href="../kisarov-art/style/style.css">
 </head>
 <body>
   <div class="page">
