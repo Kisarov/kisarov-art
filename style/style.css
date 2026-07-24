@@ -278,3 +278,13 @@ body {
 .numbered-text .num {
   font-weight: 700;
 }
+
+.section__list {
+  padding-left: 24px;
+  font-size: 20px;
+  line-height: 1.6;
+}
+
+.section__list li + li {
+  margin-top: 16px;
+}
