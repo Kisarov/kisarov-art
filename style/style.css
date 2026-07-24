@@ -289,10 +289,6 @@ body {
   line-height: 1.6;
 }
 
-.section__list li::marker {
-  font-size: 12px;
-}
-
 .section__list li + li {
   margin-top: 20px;
 }
