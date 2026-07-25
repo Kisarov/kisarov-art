@@ -289,7 +289,7 @@ body {
 
   .header__image-right {
     width: 52%;
-    height: 480px;
+    height: auto;
   }
 
   .content {
