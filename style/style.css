@@ -45,8 +45,8 @@ body {
   border-radius: 32px;
   overflow: hidden;
 
-  -webkit-clip-path: inset(0 round 32px);
-  clip-path: inset(0 round 32px);
+  -webkit-transform: translateZ(0);
+  transform: translateZ(0);
 }
 
 .header__image-left {
