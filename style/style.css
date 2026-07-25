@@ -250,9 +250,8 @@ body {
 <!-- ======== -->
 <!-- Adaptive -->
 <!-- ======== -->
-@media (max-width: 1600px) { }
 
-@media (max-width: 1400px) {
+@media (max-width: 1440px) {
   .page {
     padding: 60px 60px 240px;
   }
