@@ -386,9 +386,12 @@ body {
     gap: 56px;
   }
 
-  .section__title,
-  .footer-text {
+  .section__title {
     font-size: 28px;
+  }
+
+  .footer-text {
+    font-size: 20px;
   }
 
   .section__text,
