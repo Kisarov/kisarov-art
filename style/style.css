@@ -291,6 +291,7 @@ body {
 
   .header {
     min-height: 480px;
+    border-radius: 24px;
   }
 
   .header__content {
@@ -329,6 +330,7 @@ body {
   .header {
     flex-direction: column;
     min-height: auto;
+    border-radius: 20px;
   }
 
   .header__content {
