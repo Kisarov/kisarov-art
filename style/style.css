@@ -235,10 +235,6 @@ body {
   line-height: 1.04;
 }
 
-.numbered-text .num {
-  font-weight: 700;
-}
-
 .section__list {
   padding-left: 24px;
   font-size: 20px;
