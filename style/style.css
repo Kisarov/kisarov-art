@@ -44,6 +44,9 @@ body {
   border: 1px solid #e6e6e6;
   border-radius: 32px;
   overflow: hidden;
+
+  -webkit-clip-path: inset(0 round 32px);
+  clip-path: inset(0 round 32px);
 }
 
 .header__image-left {
