@@ -29,10 +29,10 @@ body {
   position: relative;
   display: flex;
   min-height: 539px;
-  overflow: hidden;
   background: #f5f5f5;
   border: 1px solid #e6e6e6;
   border-radius: 32px;
+  overflow: hidden;
 }
 
 .header__image-left {
@@ -316,7 +316,6 @@ body {
   .header {
     flex-direction: column;
     min-height: auto;
-    border-radius: 24px;
   }
 
   .header__content {
@@ -359,10 +358,6 @@ body {
 @media (max-width: 480px) {
   .page {
     padding: 16px 12px 80px;
-  }
-
-  .header {
-    border-radius: 20px;
   }
 
   .header__content {
