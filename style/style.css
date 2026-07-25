@@ -260,6 +260,7 @@ body {
   }
 
   .header__image-right {
+    right: -120px;
     width: 52%;
     height: auto;
   }
