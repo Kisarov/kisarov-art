@@ -250,6 +250,25 @@ body {
 <!-- ======== -->
 <!-- Adaptive -->
 <!-- ======== -->
+@media (max-width: 1440px) {
+  .page {
+    padding: 60px 60px 240px;
+  }
+
+  .header__title {
+    font-size: 60px;
+  }
+
+  .header__image-right {
+    width: 620px;
+  }
+
+  .header__content {
+    max-width: 720px;
+    padding: 70px 48px;
+  }
+}
+
 @media (max-width: 1024px) {
   .page {
     padding: 40px 32px 180px;
