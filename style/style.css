@@ -259,10 +259,6 @@ body {
     font-size: 60px;
   }
 
-  .header__image-right {
-    width: 620px;
-  }
-
   .header__content {
     max-width: 720px;
     padding: 70px 48px;
