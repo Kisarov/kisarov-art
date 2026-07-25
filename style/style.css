@@ -51,15 +51,12 @@ body {
 
 .header__image-right {
   position: absolute;
-  top: 0;
+  bottom: 0;
   right: 0;
   width: 752px;
   height: 539px;
-  overflow: hidden;
-}
-
-.header__image-right {
   z-index: 1;
+  overflow: hidden;
 }
 
 .header__image-right img {
