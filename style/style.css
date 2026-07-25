@@ -203,15 +203,8 @@ body {
 }
 
 .image-placeholder {
-  display: flex;
-  align-items: center;
-  justify-content: center;
   width: 100%;
-  color: #5a7ec2;
-  background: #d0dfff;
-  border-radius: 16px;
-  font-size: 16px;
-  font-weight: 500;
+  overflow: hidden;
 }
 
 .image-placeholder img {
