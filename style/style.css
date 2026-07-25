@@ -250,6 +250,7 @@ body {
 <!-- ======== -->
 <!-- Adaptive -->
 <!-- ======== -->
+@media (max-width: 1600px) {}
 
 @media (max-width: 1440px) {
   .page {
