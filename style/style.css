@@ -250,11 +250,7 @@ body {
 <!-- ======== -->
 <!-- Adaptive -->
 <!-- ======== -->
-@media (max-width: 1600px) {
-  body {
-    outline: 10px solid red;
-  }
-}
+@media (max-width: 1600px) { }
 
 @media (max-width: 1400px) {
   .page {
@@ -266,7 +262,7 @@ body {
   }
 
   .header__image-right {
-    right: -120px;
+    right: -80px;
     width: 52%;
     height: auto;
   }
