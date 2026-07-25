@@ -219,10 +219,6 @@ body {
   gap: 40px;
 }
 
-.metrics-text .metrics-heading {
-  font-weight: 600;
-}
-
 .separator {
   width: 100%;
   height: 1px;
