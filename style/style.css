@@ -367,7 +367,7 @@ body {
 .card__content {
   display: flex;
   flex-direction: column;
-  gap: 19px;
+  gap: 20px;
 }
 
 .card__badges {
@@ -485,6 +485,10 @@ body {
   
   .card__image {
     border-radius: 24px;
+  }
+
+  .card__content {
+    gap: 16px;
   }
 }
 
@@ -656,6 +660,6 @@ body {
   }
   
   .card__content {
-    gap: 16px;
+    gap: 12px;
   }
 }
