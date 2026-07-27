@@ -343,6 +343,8 @@ body {
 .card__image {
   width: 100%;
   overflow: hidden;
+  border-radius: 32px; 
+  border: 1px solid #e6e6e6;
 }
 
 .card__image img {
