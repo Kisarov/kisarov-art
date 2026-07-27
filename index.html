@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Новый раздел Авторов</title>
+  <title>Новое флоу бронирования</title>
   <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="../kisarov-art/style/style.css">
 </head>
@@ -11,7 +11,7 @@
   <div class="page">
     <div class="container">
       <div class="header">
-        <div class="header__image-left" style="background: #20ACBB;"></div>
+        <div class="header__image-left""></div>
         <div class="header__content">
           <div class="header__badges">
             <span class="badge badge--app">App</span>
@@ -20,8 +20,8 @@
             <span class="badge badge--uxui">UX/UI</span>
           </div>
           <div class="header__text">
-            <h1 class="header__title">Новый раздел «Авторы»</h1>
-            <p class="header__subtitle">Переработка экрана автора, чтобы он стал более <br>полезным для выбора книг и помогал пользователям <br>в поиске контента</p>
+            <h1 class="header__title">Новое флоу бронирования</h1>
+            <p class="header__subtitle">Упрощаю пользовательский путь, <br>сокращая процесс оформления до одного клика</p>
           </div>
           <div class="header__author">
             <div class="header__avatar"><img src="../kisarov-art/img/avatar.png" alt="Кисаров Илья"></div>
@@ -31,65 +31,77 @@
             </div>
           </div>
         </div>
-        <div class="header__image-right"><img src="../kisarov-art/img/new_section_author/cover_interface.png"></div>
+        <div class="header__image-right"><img src="../kisarov-art/img/new_flow_booking/cover_interface.png"></div>
       </div>
       
       <div class="content">
         <div class="section">
           <h2 class="section__title">О задаче</h2>
-          <p class="section__text">Нужно было переработать экран автора, чтобы он стал более полезным для выбора книг и помогал пользователям в поиске контента. <br><br> Анализ поведения пользователей и решений на рынке показал, что текущий экран давал недостаточно информации для дальнейшего взаимодействия: пользователь мог посмотреть книги автора, но не всегда понимал, что изучить дальше. <br><br> В рамках задачи была пересмотрена структура экрана и добавлены новые точки для поиска контента: циклы произведений, похожие авторы и книги с похожей тематикой. Предполагалось, что это упростит навигацию, поможет пользователям быстрее находить интересные книги и положительно повлияет на ключевые продуктовые метрики.</p>
+          <p class="section__text">Упростить повторное бронирование, автоматически подставляя магазин из предыдущей брони и позволяя оформить заказ в один клик без перехода на карту</p>
         </div>
         
         <div class="section-with-image">
           <div class="section">
             <h2 class="section__title">Результаты</h2>
             <ul class="section__list">
-              <li>CR в корзину <span class="text-green-medium">увеличился на 3.7 п.п.</span></li>
-              <li>CR в закладки <span class="text-green-medium">увеличился на 2.23 п.п.</span></li>
+              <li>CR в бронирование <span class="text-green-medium">увеличилось на 6.6 п.п.</span></li>
+              <li>Доля бронирований от остальных типов заказов <span class="text-green-medium">увеличилась на 2.1 п.п.</span></li>
             </ul>
           </div>
-          <div class="image-placeholder""><img src="../kisarov-art/img/new_section_author/result_screen.png" alt="Что получилось"></div>
+          <div class="image-placeholder""><img src="../kisarov-art/img/new_flow_booking/result_screen.png" alt="Что получилось"></div>
         </div>
         
         <div class="section">
           <h2 class="section__title">Моя роль в проекте</h2>
-          <p class="section__text">Отвечал за UX/UI-дизайн и продуктовую проработку экрана. С помощью JTBD определил основные работы пользователей на экране автора и определил, какие разделы и типы контента могут быть полезны им при выборе книг. <br><br> На основе этого сформировал структуру экрана, расставил приоритеты между контентными блоками и подготовил итоговые макеты.</p>
+          <p class="section__text">Я проанализировал текущий флоу бронирования, определил лишний шаг с повторным выбором магазина и проработал сценарий бронирования в один клик. Продумал автоматическую подстановку магазина из предыдущей брони, пользовательские сценарии и логику изменения выбранного магазина.</p>
         </div>
         
         <div class="section">
-          <h2 class="section__title">Цели</h2>
-          <ul class="section__list">
-            <li><span class="text-medium">Основная цель проекта</span> — повысить конверсию в корзину.</li>
-            <li>Упростить поиск книг на экране автора и помочь пользователям находить интересные для себя произведения, о которых они могли раньше не подозревать.</li>
-          </ul>
+          <h2 class="section__title">Боли</h2>
+          <p class="section__text">На данный момент у пользователей, которые уже ранее бронировали товар на сайте, остаётся длинный флоу с последующим выбором адреса</p>
         </div>
 
         <div class="section">
-          <h2 class="section__title">Джобы</h2>
-          <ul class="section__list">
-            <li>Я хочу видеть больше информации об авторе, чтобы понимать кто это</li>
-            <li>Я хочу видеть все книги автора, чтобы не искать их все вручную</li>
-            <li>Я хочу видеть все циклы автора, чтобы не искать их все вручную и иметь возможность видеть книги в хронологической последовательности</li>
-            <li>Я хочу видеть похожих авторов, чтобы иметь возможность открыть для себя интересные книги другого автора</li>
-            <li>Я хочу видеть книги похожих авторов</li>
-            <li>Я хочу видеть статьи, в которых упоминаются книги автора</li>
-            <li>Я хочу знать какая книга автора сейчас самая популярная, это может меня замотивировать её купить</li>
-            <li>Я хочу видеть книги с автографом автора, чтобы иметь возможность для коллекционирования</li>
-          </ul>
+          <h2 class="section__title">Гипотезы</h2>
+          <p class="section__text">Упрощение флоу бронирования повысит CR в оформленную бронь и увеличит общее количество бронирований</p>
         </div>
 
         <div class="section">
-          <h2 class="section__title">Мои гипотезы</h2>
-          <p class="section__text">Основываясь на анализе существующих данных по поведению пользователей на страницах авторов, если обогатим эти страницы дополнительной полезной информацией (циклы автора, похожие авторы, книги похожих авторов и т.д.), то пользователям станет проще ориентироваться и находить интересные книги</p>
+          <h2 class="section__title">О пользователях</h2>
+          <p class="section__text">Постоянные пользователи, покупающие товар в Читай-городе. Часто набегу бронирующие книжку и готовые забрать заказ прямо сейчас.</p>
         </div>
 
         <div class="section">
           <h2 class="section__title">Метрики</h2>
           <ul class="section__list">
-            <li>CR в корзину и закладки</li>
-            <li>Кол-во просмотров/переходов и CTR по новым блокам</li>
+            <li>CR в бронирование</li>
+            <li>Доля бронирований от остальных типов заказов</li>
           </ul>
         </div>
+        
+
+        <div class="section-with-image">
+          <div class="section">
+            <h2 class="section__title">Изменения во флоу</h2>
+            <p class="section__text">Изначально и <span class="text-medium">первичное</span>, и <span class="text-medium">повторное</span> бронирование требовало прохождения полного длинного флоу:</p>
+          </div>
+          <div class="image-placeholder""><img src="../kisarov-art/img/new_flow_booking/change_flow_01.png" alt="Изменения во флоу 01"></div>
+        </div>
+
+        <div class="section-with-image">
+          <div class="section">
+            <p class="section__text">В новом варианте <span class="text-medium">первичное</span> бронирование проходит по следующему флоу:</p>
+          </div>
+          <div class="image-placeholder""><img src="../kisarov-art/img/new_flow_booking/change_flow_01.png" alt="Изменения во флоу 02"></div>
+        </div>
+
+        <div class="section-with-image">
+          <div class="section">
+            <p class="section__text">А <span class="text-medium">повторное</span> бронирование будет вообще в два клика:</p>
+          </div>
+          <div class="image-placeholder""><img src="../kisarov-art/img/new_flow_booking/change_flow_01.png" alt="Изменения во флоу 03"></div>
+        </div>
+        
         
         <div class="section-with-image">
           <div class="section">
