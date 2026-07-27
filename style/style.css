@@ -352,7 +352,7 @@ body {
   width: 100%;
   height: auto;
   object-fit: cover;
-  transition: transform 0.4s ease;
+  transition: transform 0.12s ease-out;
   transform-origin: center;
 }
 
@@ -381,7 +381,7 @@ body {
   font-weight: 600;
   line-height: 1.04;
   color: #000;
-  transition: color 0.25s ease;
+  transition: color 0.12s ease-out;
 }
 
 .card__description {
