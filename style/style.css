@@ -352,7 +352,7 @@ body {
   width: 100%;
   height: auto;
   object-fit: cover;
-  transition: transform 0.12s ease;
+  transition: transform 0.24s ease;
   transform-origin: center;
 }
 
