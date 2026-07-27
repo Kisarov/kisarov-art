@@ -416,6 +416,14 @@ body {
     max-width: 720px;
     padding: 70px 48px;
   }
+
+  .hero {
+    padding-bottom: 80px;
+  }
+  
+  .card__title {
+    font-size: 36px;
+  }
 }
 
 @media (max-width: 1024px) {
@@ -449,6 +457,34 @@ body {
 
   .content {
     max-width: 800px;
+  }
+
+  .hero {
+    padding-bottom: 64px;
+  }
+  
+  .hero__name,
+  .card__title {
+    font-size: 32px;
+  }
+  
+  .hero__bio,
+  .hero__skills,
+  .hero__link,
+  .card__description {
+    font-size: 18px;
+  }
+  
+  .projects {
+    gap: 72px 24px;
+  }
+  
+  .card {
+    gap: 24px;
+  }
+  
+  .card__image {
+    border-radius: 24px;
   }
 }
 
@@ -502,6 +538,34 @@ body {
   .section__list {
     font-size: 18px;
   }
+
+  .hero {
+    gap: 16px;
+    padding-bottom: 56px;
+  }
+  
+  .hero__links {
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 12px 24px;
+  }
+  
+  .projects {
+    grid-template-columns: 1fr;
+    gap: 64px;
+  }
+  
+  .card {
+    gap: 24px;
+  }
+  
+  .card__image {
+    border-radius: 20px;
+  }
+  
+  .card__title {
+    font-size: 32px;
+  }
 }
 
 @media (max-width: 480px) {
@@ -549,5 +613,49 @@ body {
 
   .section-with-image {
     gap: 28px;
+  }
+
+  .hero {
+    gap: 16px;
+    padding-bottom: 48px;
+  }
+  
+  .hero__avatar {
+    width: 96px;
+    height: 96px;
+  }
+  
+  .hero__name,
+  .card__title {
+    font-size: 28px;
+  }
+  
+  .hero__bio,
+  .hero__skills,
+  .hero__link,
+  .card__description {
+    font-size: 16px;
+  }
+  
+  .hero__links {
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+  }
+  
+  .projects {
+    gap: 48px;
+  }
+  
+  .card {
+    gap: 20px;
+  }
+  
+  .card__image {
+    border-radius: 16px;
+  }
+  
+  .card__content {
+    gap: 16px;
   }
 }
