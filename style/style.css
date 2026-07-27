@@ -273,11 +273,7 @@ body {
 }
 
 
-
-
-
-
-
+/* index */
 .hero {
   display: flex;
   flex-direction: column;
@@ -340,15 +336,14 @@ body {
   text-decoration: underline;
 }
 
-/* Projects Grid */
 .projects {
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 30px 100px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 100px 30px;
 }
 
-/* Card */
 .card {
+  min-width: 0;
   display: flex;
   flex-direction: column;
   gap: 30px;
