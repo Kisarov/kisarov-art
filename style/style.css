@@ -280,7 +280,7 @@ body {
   align-items: center;
   text-align: center;
   gap: 20px;
-  padding: 105px 0;
+  padding: 0 0 105px 0;
 }
 
 .hero__avatar {
