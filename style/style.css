@@ -391,7 +391,31 @@ body {
   color: #000;
 }
 
+.back-button {
+  position: fixed;
+  left: 50%;
+  bottom: 32px;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 48px;
+  padding: 0 24px;
+  border-radius: 999px;
+  background: #000;
+  color: #fff;
+  font-size: 16px;
+  font-weight: 600;
+  line-height: 1;
+  text-decoration: none;
+  transform: translateX(-50%);
+  transition: transform 0.2s ease, opacity 0.2s ease;
+}
 
+.back-button:hover, 
+.back-button:active {
+  background: #222;
+}
 
 
 /* ==================================== */
