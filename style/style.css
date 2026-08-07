@@ -39,6 +39,7 @@ body {
   position: relative;
   isolation: isolate;
   display: flex;
+  align-items: center;
   min-height: 539px;
   background: #f5f5f5;
   border: 1px solid #e6e6e6;
