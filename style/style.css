@@ -108,26 +108,6 @@ body {
   text-transform: uppercase;
 }
 
-.badge--app {
-  color: #4f53fc;
-  background: #e2e2f8;
-}
-
-.badge--ecom {
-  color: #10ad73;
-  background: #dbf0e8;
-}
-
-.badge--discovery {
-  color: #ea348e;
-  background: #f3e2ec;
-}
-
-.badge--uxui {
-  color: #0f87bd;
-  background: #d4eaf7;
-}
-
 .badge--coming-soon {
   color: #d86111;
   background: #f8ede2;
@@ -593,6 +573,10 @@ body {
   
   .card__title {
     font-size: 32px;
+  }
+
+  .back-button {
+    bottom: 16px;
   }
 }
 
