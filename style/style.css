@@ -507,6 +507,7 @@ body {
   }
 
   .header {
+    align-items: top;
     flex-direction: column;
     min-height: auto;
     border-radius: 20px;
