@@ -89,7 +89,7 @@ body {
   flex-direction: column;
   gap: 40px;
   max-width: 830px;
-  padding: 90px 60px;
+  padding: 60px 60px;
 }
 
 .header__badges {
@@ -418,7 +418,7 @@ body {
 
   .header__content {
     max-width: 720px;
-    padding: 70px 48px;
+    padding: 48px 48px;
   }
 
   .hero {
@@ -442,7 +442,7 @@ body {
 
   .header__content {
     max-width: 58%;
-    padding: 56px 40px;
+    padding: 40px 40px;
   }
 
   .header__title {
@@ -513,7 +513,7 @@ body {
 
   .header__content {
     max-width: none;
-    padding: 40px 28px;
+    padding: 28px 28px;
   }
 
   .header__title {
@@ -587,7 +587,7 @@ body {
 
   .header__content {
     gap: 32px;
-    padding: 32px 20px;
+    padding: 20px 20px;
   }
 
   .header__title {
