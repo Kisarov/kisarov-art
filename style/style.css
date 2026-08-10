@@ -521,6 +521,7 @@ body {
   .header__content {
     max-width: none;
     padding: 40px 28px 0px;
+    gap: 28px;
   }
 
   .header__title {
@@ -552,6 +553,10 @@ body {
   .section__text,
   .section__list {
     font-size: 18px;
+  }
+
+  .caption {
+    font-size: 16px;
   }
 
   .hero {
