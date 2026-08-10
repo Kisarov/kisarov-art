@@ -598,8 +598,7 @@ body {
   }
 
   .header__content {
-    gap: 32px;
-    padding: 20px 20px;
+    gap: 20px;
   }
 
   .header__title {
