@@ -23,6 +23,27 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 
+/* Все заголовки, включая добавленные позже в HTML. */
+h1, h2, h3, h4, h5, h6, [role="heading"] {
+  font-family: "Unbounded", sans-serif;
+  font-optical-sizing: auto;
+  font-style: normal;
+  overflow-wrap: anywhere;
+}
+
+.weight-hover-word {
+  display: inline-block;
+  width: max-content;
+  max-width: 100%;
+  vertical-align: baseline;
+}
+
+.weight-hover-letter {
+  display: inline-block;
+  white-space: pre;
+  text-align: center;
+}
+
 .page {
   max-width: 1920px;
   margin: 0 auto;
