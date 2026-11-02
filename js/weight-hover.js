@@ -1,7 +1,7 @@
 /* Адаптация эффекта weight-hover для заголовков портфолио.
  * Принцип эффекта: dovvstudio.com, изменение wght по расстоянию до мыши.
  * data-weight-rest — исходный вес (по умолчанию из CSS),
- * data-weight-near — вес рядом с курсором (200), data-radius — радиус (400 px).
+ * data-weight-near — вес рядом с курсором (200), data-radius — радиус (150 px).
  */
 (() => {
   const motion = matchMedia('(prefers-reduced-motion: reduce)');
@@ -70,7 +70,7 @@
         element,
         rest: Number(element.dataset.weightRest || getComputedStyle(element).fontWeight) || 600,
         near: Number(element.dataset.weightNear ?? 200),
-        radius: Math.max(1, Number(element.dataset.radius) || 400),
+        radius: Math.max(1, Number(element.dataset.radius) || 150),
         letters: []
       };
       // Сохраняем вложенную разметку, ссылки и явные переносы строк.
