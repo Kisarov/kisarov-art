@@ -9,9 +9,10 @@
       this.canvas = document.createElement('canvas');
       this.canvas.id = 'screen-paint-overlay';
       this.canvas.setAttribute('aria-hidden', 'true');
-      this.canvas.style.cssText = 'position:fixed;inset:0;width:100%;height:100%;z-index:50;pointer-events:none';
+      this.canvas.style.cssText = 'position:fixed;inset:0;width:100%;height:100%;z-index:-1;pointer-events:none';
       this.context = this.canvas.getContext('2d');
       if (!this.context) return;
+      document.body.style.isolation = 'isolate';
       document.body.append(this.canvas);
       this.frame = 0;
       this.previousTime = 0;
@@ -76,12 +77,12 @@
       }
     }
     update(time) {
-      if (time - this.lastMoveTime > 2000) { this.clear(); return; }
+      if (time - this.lastMoveTime > 1000) { this.clear(); return; }
       const dt = Math.min(2, Math.max(0.25, this.previousTime ? (time - this.previousTime) / 16.67 : 1));
       this.previousTime = time;
       const velocityDecay = Math.pow(0.96, dt);
       const colorDecay = Math.pow(0.981, dt);
-      const fade = Math.max(0, 1 - Math.max(0, time - this.lastMoveTime - 500) / 1500);
+      const fade = Math.max(0, 1 - Math.max(0, time - this.lastMoveTime - 250) / 750);
       let energy = 0;
       this.next.fill(0);
       for (let y = 1; y < this.height - 1; y++) {
