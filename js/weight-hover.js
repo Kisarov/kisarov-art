@@ -70,7 +70,7 @@
         element,
         rest: Number(element.dataset.weightRest || getComputedStyle(element).fontWeight) || 600,
         near: Number(element.dataset.weightNear ?? 200),
-        radius: Math.max(1, Number(element.dataset.radius) || 250),
+        radius: Math.max(1, Number(element.dataset.radius) || 350),
         letters: []
       };
       // Сохраняем вложенную разметку, ссылки и явные переносы строк.
