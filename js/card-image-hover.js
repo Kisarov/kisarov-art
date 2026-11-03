@@ -1,298 +1,346 @@
 (() => {
   'use strict';
 
-  const hoverDuration = 500;
-  const hoverSegments = 24;
-  const cameraDistance = 41.18;
-  const cameraSlope = 2 * Math.tan(53.4 * Math.PI / 360);
-  const hoverShader = `
-    uniform vec2 u_viewport;
-    uniform vec2 u_res;
-    varying vec3 vFlat;
-    const float CAMERA_DISTANCE = 41.18;
-    const float CAMERA_SLOPE = 2.0 * tan(radians(53.4) * 0.5);
-
-uniform float u_leanA; 
-uniform float u_leanW; 
-float leanRamp(float s) {
-	s = clamp(s, -1.0, 1.0);
-	return s * (1.5 - 0.5 * s * s);
-}
-float leanSlope(float s) {
-	s = min(abs(s), 1.0);
-	return 1.5 * (1.0 - s * s);
-}
-vec4 lean(vec4 w, float k) {
-	if (u_leanW > 0.001 && k > 0.001) {
-		w.z += u_leanA * leanRamp(w.x / u_leanW) * k;
-	}
-	return w;
-}
-const float SHEET_PI = 3.141592653589793;
-const float SHEET_BANK = -0.16;
-const float SHEET_DIAG = 0.03;
-const float SHEET_WAVE = 0.0;
-const float SHEET_WAVE_F = 0.8;
-const float SHEET_WAVE_PH = 0.35;
-const float SHEET_REAR_Y = 0.1;
-const float SHEET_REAR_Z = 0.2;
-const float SHEET_VTWIST = 1.8;
-uniform float u_sheetW; 
-uniform float u_sheetD; 
-uniform float u_sheetT; 
-uniform float u_sheetC; 
-uniform float u_sheetP; 
-uniform float u_sheetV; 
-uniform float u_hover;  
-uniform float u_dent;   
-const float SHEET_TAIL = 1.0;
-const float SHEET_SHIFT = -0.2;
-float sheetQ(float wx) {
-	return wx / max(u_sheetW, 0.0001) * u_sheetT + SHEET_SHIFT;
-}
-float sheetShape(float q) {
-	return mix(1.0 - q * q, sin(SHEET_PI * q), u_sheetC) * exp(-SHEET_TAIL * q * q);
-}
-float sheetShapeSlope(float q) {
-	float g = exp(-SHEET_TAIL * q * q);
-	float bowl = -2.0 * q * (1.0 + SHEET_TAIL * (1.0 - q * q));
-	float ess = SHEET_PI * cos(SHEET_PI * q) - 2.0 * SHEET_TAIL * q * sin(SHEET_PI * q);
-	return mix(bowl, ess, u_sheetC) * g;
-}
-float sheetZ(float wx) {
-	return -u_sheetD * sheetShape(sheetQ(wx));
-}
-float sheetRoll(float wx) {
-	if (u_sheetW < 0.001) return 0.0;
-	return SHEET_BANK * sheetShapeSlope(sheetQ(wx)) / SHEET_PI * u_sheetC * u_sheetP;
-}
-vec4 sheetWind(vec4 w) {
-	float a = sheetRoll(w.x);
-	if (u_sheetV > 0.001 && u_sheetW > 0.001 && u_sheetP > 0.001) {
-		float qe = w.x / u_sheetW;
-		a += SHEET_VTWIST * u_sheetV * smoothstep(0.3, 0.9, abs(qe)) * sign(qe) * u_sheetP;
-	}
-	if (abs(a) < 0.0001) return w;
-	float s = sin(a);
-	float c = cos(a);
-	return vec4(w.x, w.y * c - w.z * s, w.y * s + w.z * c, w.w);
-}
-vec4 sheet(vec4 w) {
-	w = sheetWind(w);
-	w.z += sheetZ(w.x) * u_sheetP;
-	if (u_sheetW > 0.001) {
-		float qw = w.x / u_sheetW;
-		w.y += SHEET_DIAG * w.x * u_sheetP;
-		w.y += SHEET_WAVE * u_sheetW *
-			sin(SHEET_PI * (qw * SHEET_WAVE_F + SHEET_WAVE_PH)) * u_sheetP;
-		if (u_sheetV > 0.001) {
-			float m = 1.0 - smoothstep(-1.0, 0.3, qw);
-			w.y += SHEET_REAR_Y * u_sheetW * u_sheetV * m * u_sheetP;
-			w.z += SHEET_REAR_Z * u_sheetW * u_sheetV * m * u_sheetP;
-		}
-	}
-	return w;
-}
-float sheetDome(vec2 uv) {
-	vec2 q = uv * 2.0 - 1.0;
-	return (1.0 - q.x * q.x) * (1.0 - q.y * q.y);
-}
-float sheetShade(float wx, vec2 uv, float resY) {
-	if (u_sheetD < 0.001) return 0.0;
-	float d = u_sheetW > 0.001 && u_sheetP > 0.001
-		? clamp((u_sheetD - sheetZ(wx)) / (2.0 * u_sheetD), 0.0, 1.0) * u_sheetP
-		: 0.0;
-	if (u_hover > 0.0001) {
-		d += (u_hover * u_dent * resY * sheetDome(uv)) / (2.0 * u_sheetD);
-	}
-	return clamp(d, 0.0, 1.0);
-}
-float sheetOffset(float wx, vec2 uv, float resY) {
-	float z = 0.0;
-	if (u_sheetW > 0.001 && u_sheetP > 0.001 && u_sheetD > 0.001) z += sheetZ(wx) * u_sheetP;
-	if (u_leanW > 0.001) z += u_leanA * leanRamp(wx / u_leanW) * u_sheetP;
-	if (u_hover > 0.0001) z -= u_hover * u_dent * resY * sheetDome(uv);
-	return z;
-}
-vec3 sheetNormal(float wx, vec2 uv, vec2 res) {
-	float dzdx = 0.0;
-	float dzdy = 0.0;
-	if (u_sheetW > 0.001 && u_sheetP > 0.001 && u_sheetD > 0.001) {
-		dzdx += -u_sheetD * sheetShapeSlope(sheetQ(wx)) * u_sheetT / u_sheetW * u_sheetP;
-	}
-	if (u_leanW > 0.001) {
-		dzdx += (u_leanA / u_leanW) * leanSlope(wx / u_leanW) * u_sheetP;
-	}
-	if (u_hover > 0.0001) {
-		vec2 q = uv * 2.0 - 1.0;
-		float a = u_hover * u_dent;
-		dzdx += 4.0 * a * res.y * q.x * (1.0 - q.y * q.y) / max(res.x, 0.0001);
-		dzdy += 4.0 * a * q.y * (1.0 - q.x * q.x);
-	}
-	vec3 n = normalize(vec3(-dzdx, -dzdy, 1.0));
-	float a = sheetRoll(wx);
-	if (abs(a) > 0.0001) {
-		float s = sin(a);
-		float c = cos(a);
-		n = vec3(n.x, n.y * c - n.z * s, n.y * s + n.z * c);
-	}
-	return n;
+  const vertexShader = `
+attribute vec2 position;
+varying vec2 vUv;
+void main() {
+  vUv = position;
+  gl_Position = vec4(position * 2.0 - 1.0, 0.0, 1.0);
 }
   `;
 
-  const vertexMain = `
-    if (u_hover > 0.0001) {
-      vec2 cardUv = vec2(clamp(position.x, 0.0, 1.0), position.y);
-      float padding = min(position.x, 0.0) * u_domPadding.x
-                    + max(position.x - 1.0, 0.0) * u_domPadding.y;
-      vec3 basePos = vec3(cardUv * u_domWH - u_domPivot + vec2(padding, 0.0), 0.0);
-      v_uv = vec2(cardUv.x + padding / u_domWH.x, 1.0 - cardUv.y);
-      float depth = u_hover * u_dent * u_res.y * sheetDome(cardUv);
-      vec3 screenPos = getScreenPosition(basePos);
-      vFlat = (screenPos + vec3(-u_viewport.x * 0.5, u_viewport.y * 0.5, 0.0))
-            * (CAMERA_SLOPE * CAMERA_DISTANCE / u_viewport.y);
-      gl_Position = projectionMatrix * modelViewMatrix * vec4(screenPos, 1.0);
-      gl_Position.w += depth / CAMERA_DISTANCE;
-      return;
-    }
-    vFlat = (getScreenPosition(getBasePosition(position))
-          + vec3(-u_viewport.x * 0.5, u_viewport.y * 0.5, 0.0))
-          * (CAMERA_SLOPE * CAMERA_DISTANCE / u_viewport.y);
+  const trailShader = `
+uniform sampler2D u_prev;
+uniform vec2 u_texel;
+uniform float u_decay;
+uniform float u_diff;
+uniform vec2 u_pos;
+uniform float u_amp;
+uniform float u_rad;
+uniform float u_aspect;
+varying vec2 vUv;
+void main() {
+	float c = texture2D(u_prev, vUv).r;
+	float n = texture2D(u_prev, vUv + vec2(u_texel.x, 0.0)).r
+		+ texture2D(u_prev, vUv - vec2(u_texel.x, 0.0)).r
+		+ texture2D(u_prev, vUv + vec2(0.0, u_texel.y)).r
+		+ texture2D(u_prev, vUv - vec2(0.0, u_texel.y)).r;
+	float h = mix(c, n * 0.25, u_diff) * u_decay;
+	vec2 d = vUv - u_pos;
+	vec2 q = vec2(d.x, d.y / u_aspect);
+	h += u_amp * exp(-dot(q, q) / (u_rad * u_rad));
+	gl_FragColor = vec4(min(h, 1.5), 0.0, 0.0, 1.0);
+}
   `;
 
-  const fragmentShader = `${hoverShader}
-    uniform vec2 u_domXY;
-    uniform vec2 u_domPivot;
-    uniform vec3 u_position;
-    uniform vec4 u_quaternion;
-
-    vec2 cardHoverMaskUv(vec2 baseUv, vec2 screenUv, float rippleOffset) {
-      if (u_hover <= 0.0001) return baseUv;
-      vec2 offset = vec2(screenUv.x, 1.0 - screenUv.y) * u_viewport
-                  - u_domXY - u_domPivot - u_position.xy;
-      float sine = 2.0 * u_quaternion.z * u_quaternion.w;
-      float cosine = 1.0 - 2.0 * u_quaternion.z * u_quaternion.z;
-      vec2 local = vec2(cosine * offset.x + sine * offset.y, -sine * offset.x + cosine * offset.y);
-      return vec2(0.5 + local.x / u_domWH.x - rippleOffset, 0.5 - local.y / u_domWH.y);
-    }
-
-    uniform vec3 cameraPosition;
-    uniform float u_shade;
-    uniform float u_shadeS;
-
-
-const vec3 LIGHT_DIR = normalize(vec3(-0.4, 0.5, 1.0));
-const float LIGHT_GLOSS = 48.0;
-const float LIGHT_SPEC = 0.35;
-const float LIGHT_DIFF = 0.12;
-vec3 sheetLit(vec3 col, vec3 n, vec3 v, float amt) {
-	if (amt < 0.001) return col;
-	float d = dot(n, LIGHT_DIR) * 0.5 + 0.5;
-	col *= 1.0 - LIGHT_DIFF * amt * (1.0 - d);
-	vec3 h = normalize(LIGHT_DIR + v);
-	return col + pow(max(dot(n, h), 0.0), LIGHT_GLOSS) * LIGHT_SPEC * amt;
-}
-
-    vec3 applyCardLighting(vec3 color, vec2 vUv) {
-      vec4 tex = vec4(color, 1.0);
-      if (u_shade > 0.001) {
-		float depth = sheetShade(vFlat.x, vUv, u_res.y);
-		tex.rgb = mix(tex.rgb, vec3(0.059), u_shade * 0.8 * pow(depth, u_shadeS));
-		vec3 p = vFlat + vec3(0.0, 0.0, sheetOffset(vFlat.x, vUv, u_res.y));
-		tex.rgb = sheetLit(
-			tex.rgb,
-			sheetNormal(vFlat.x, vUv, u_res),
-			normalize(cameraPosition - p),
-			u_shade
+  const postShader = `
+uniform sampler2D u_scene;
+uniform vec2 u_aspect;
+uniform float u_ballA;
+uniform float u_ballWarp;
+uniform float u_ballShade;
+uniform vec2 u_ballEdge;
+uniform sampler2D u_trail;
+uniform vec2 u_trailTexel;
+varying vec2 vUv;
+void main() {
+  vec4 page = texture2D(u_scene, vUv);
+  if (u_ballA > 0.001) {
+		vec2 e = u_trailTexel * 1.5;
+		vec2 g = vec2(
+			texture2D(u_trail, vUv + vec2(e.x, 0.0)).r - texture2D(u_trail, vUv - vec2(e.x, 0.0)).r,
+			texture2D(u_trail, vUv + vec2(0.0, e.y)).r - texture2D(u_trail, vUv - vec2(0.0, e.y)).r
 		);
+		vec2 pw = vec2(vUv.x - 0.5, (vUv.y - 0.5) / u_aspect.x);
+		float edge = 1.0 - smoothstep(u_ballEdge.x, u_ballEdge.y, length(pw));
+		vec2 off = g * u_ballWarp * u_ballA * edge;
+		vec2 buv = clamp(vUv + off, 0.0, 1.0);
+		float m = smoothstep(0.0, 0.002, length(off));
+		vec4 sampleColor = texture2D(u_scene, buv);
+		vec3 warped = sampleColor.rgb / max(sampleColor.a, 0.0001);
+		float shade = dot(-g, normalize(vec2(-0.3, 1.0))) * u_ballShade * u_ballA * edge;
+		float lum = dot(warped, vec3(0.2126, 0.7152, 0.0722));
+		float head = 1.0 - smoothstep(0.7, 0.95, lum);
+		warped *= 1.0 + clamp(shade, -0.5, 0.5) * head;
+		page = mix(page, vec4(warped * sampleColor.a, sampleColor.a), m);
 	}
-      return tex.rgb;
-    }
-
+  gl_FragColor = page;
+}
   `;
 
-  const vertices = [0, 0, 1, 0, 0, 1, 0, 1, 1, 0, 1, 1];
-  for (let row = 0; row < hoverSegments; row++) {
-    const top = row / hoverSegments;
-    const bottom = (row + 1) / hoverSegments;
-    for (let column = -1; column <= hoverSegments; column++) {
-      const left = column < 0 ? -1 : column / hoverSegments;
-      const right = column === hoverSegments ? 2 : (column + 1) / hoverSegments;
-      vertices.push(left, top, right, top, left, bottom, left, bottom, right, top, right, bottom);
-    }
-  }
-  const vertexData = new Float32Array(vertices);
+  const trailWidth = 256;
+  const dissipation = 4;
+  const diffusion = 40;
+  const radius = 0.04;
+  const tensionStart = 0.025;
+  const tensionRange = 0.08;
+  const warp = -0.045;
+  const shade = -1.2;
 
-  function amountAt(tween, time) {
-    if (!tween) return 0;
-    const progress = Math.max(0, Math.min(1, (time - tween.start) / hoverDuration));
-    const eased = progress === 1 ? 1 : 1 - Math.pow(2, -10 * progress);
-    return tween.from + (tween.to - tween.from) * eased;
+  const packedHeight = `
+float heightAt(sampler2D field, vec2 uv) {
+  return dot(texture2D(field, uv).rg, vec2(1.5, 1.5 / 255.0));
+}
+vec4 packHeight(float height) {
+  float scaled = height / 1.5;
+  float fine = fract(scaled * 255.0);
+  return vec4(scaled - fine / 255.0, fine, 0.0, 1.0);
+}
+  `;
+
+  function packedShader(source) {
+    return packedHeight + source
+      .replace(/texture2D\((u_prev|u_trail), ((?:[^()\n]|\([^()\n]*\))+)\)\.r/g, 'heightAt($1, $2)')
+      .replace('vec4(min(h, 1.5), 0.0, 0.0, 1.0)', 'packHeight(min(h, 1.5))');
+  }
+
+  function compile(gl, fragment, names) {
+    const program = gl.createProgram();
+    for (const [type, source] of [[gl.VERTEX_SHADER, vertexShader], [gl.FRAGMENT_SHADER, 'precision highp float;\n' + fragment]]) {
+      const shader = gl.createShader(type);
+      gl.shaderSource(shader, source);
+      gl.compileShader(shader);
+      if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
+        const message = gl.getShaderInfoLog(shader);
+        gl.deleteShader(shader);
+        gl.deleteProgram(program);
+        throw new Error(message);
+      }
+      gl.attachShader(program, shader);
+      gl.deleteShader(shader);
+    }
+    gl.bindAttribLocation(program, 0, 'position');
+    gl.linkProgram(program);
+    if (!gl.getProgramParameter(program, gl.LINK_STATUS)) {
+      const message = gl.getProgramInfoLog(program);
+      gl.deleteProgram(program);
+      throw new Error(message);
+    }
+    return { program, uniforms: Object.fromEntries(names.map(name => [name, gl.getUniformLocation(program, name)])) };
+  }
+
+  function target(gl, width, height, type) {
+    const texture = gl.createTexture();
+    const framebuffer = gl.createFramebuffer();
+    if (!texture || !framebuffer) {
+      gl.deleteTexture(texture);
+      gl.deleteFramebuffer(framebuffer);
+      return null;
+    }
+    gl.activeTexture(gl.TEXTURE3);
+    gl.bindTexture(gl.TEXTURE_2D, texture);
+    for (const name of [gl.TEXTURE_MIN_FILTER, gl.TEXTURE_MAG_FILTER]) gl.texParameteri(gl.TEXTURE_2D, name, gl.LINEAR);
+    for (const name of [gl.TEXTURE_WRAP_S, gl.TEXTURE_WRAP_T]) gl.texParameteri(gl.TEXTURE_2D, name, gl.CLAMP_TO_EDGE);
+    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, width, height, 0, gl.RGBA, type, null);
+    gl.bindFramebuffer(gl.FRAMEBUFFER, framebuffer);
+    gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, texture, 0);
+    const complete = gl.checkFramebufferStatus(gl.FRAMEBUFFER) === gl.FRAMEBUFFER_COMPLETE;
+    gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+    if (!complete) {
+      gl.deleteFramebuffer(framebuffer);
+      gl.deleteTexture(texture);
+      return null;
+    }
+    return { texture, framebuffer, width, height };
   }
 
   window.createCardImageHover = (covers, schedule, canHover) => {
-    let tweens = new WeakMap();
     let gl;
-    let amountUniform;
-    let viewportUniform;
-    let surfaceUniform;
-    let sheetWidthUniform;
-    let sheetDepthUniform;
-    let worldScale = 1;
+    let cardProgram;
+    let paint;
+    let composite;
+    let ready = false;
+    let useHalfFloat;
+    let trail = [];
+    let scene;
+    let fresh = false;
+    let side = 0;
+    let drawing = false;
+    let pointer = null;
+    let energy = 0;
+    let presence = { from: 0, to: 0, start: 0 };
 
-    for (const cover of covers) {
-      const setHover = (event, to) => {
-        if (event.pointerType !== 'mouse' || !canHover()) return;
-        const start = performance.now();
-        tweens.set(cover, { from: amountAt(tweens.get(cover), start), to, start });
+    function amountAt(time) {
+      const progress = Math.max(0, Math.min(1, (time - presence.start) / (presence.to ? 350 : 250)));
+      return presence.from + (presence.to - presence.from) * (1 - Math.pow(1 - progress, 3));
+    }
+
+    function show(to) {
+      if (presence.to === to) return;
+      const start = performance.now();
+      presence = { from: amountAt(start), to, start };
+    }
+
+    for (const { box } of covers) {
+      box.addEventListener('pointermove', event => {
+        if (event.pointerType !== 'mouse' || !ready || !canHover()) return;
+        const { clientX: x, clientY: y } = event;
+        if (!pointer) pointer = { x, y, smoothX: x, smoothY: y };
+        pointer.x = x;
+        pointer.y = y;
+        show(1);
         schedule();
-      };
-      cover.box.addEventListener('pointerenter', event => setHover(event, 1));
-      cover.box.addEventListener('pointerleave', event => setHover(event, 0));
+      }, { passive: true });
+      box.addEventListener('pointerleave', event => {
+        if (event.pointerType !== 'mouse' || !pointer) return;
+        pointer = null;
+        show(0);
+        schedule();
+      });
+    }
+
+    function release(buffer) {
+      if (!buffer) return;
+      gl.deleteFramebuffer(buffer.framebuffer);
+      gl.deleteTexture(buffer.texture);
+    }
+
+    function preparePaint(packed) {
+      if (paint) gl.deleteProgram(paint.program);
+      if (composite) gl.deleteProgram(composite.program);
+      paint = compile(gl, packed ? packedShader(trailShader) : trailShader,
+        ['u_prev', 'u_texel', 'u_decay', 'u_diff', 'u_pos', 'u_amp', 'u_rad', 'u_aspect']);
+      composite = compile(gl, packed ? packedShader(postShader) : postShader,
+        ['u_scene', 'u_aspect', 'u_ballA', 'u_ballWarp', 'u_ballShade', 'u_ballEdge', 'u_trail', 'u_trailTexel']);
+    }
+
+    function makeBuffers(width, height, rows) {
+      if (!scene || scene.width !== width || scene.height !== height) {
+        release(scene);
+        scene = target(gl, width, height, gl.UNSIGNED_BYTE);
+      }
+      if (trail[0]?.height !== rows) {
+        trail.forEach(release);
+        const type = useHalfFloat || gl.UNSIGNED_BYTE;
+        trail = [target(gl, trailWidth, rows, type), target(gl, trailWidth, rows, type)];
+        if (useHalfFloat && trail.some(buffer => !buffer)) {
+          trail.forEach(release);
+          useHalfFloat = null;
+          preparePaint(true);
+          trail = [target(gl, trailWidth, rows, gl.UNSIGNED_BYTE), target(gl, trailWidth, rows, gl.UNSIGNED_BYTE)];
+        }
+        fresh = false;
+      }
+      return Boolean(scene && trail.every(Boolean));
+    }
+
+    function restore() {
+      gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+      gl.useProgram(cardProgram);
+      gl.enable(gl.BLEND);
+      gl.activeTexture(gl.TEXTURE0);
     }
 
     return {
-      vertexShader: hoverShader,
-      vertexMain,
-      fragmentShader,
-      maskUv: 'cardHoverMaskUv(baseUv, screenUv, rippleOffset)',
-      fragmentColor: 'color = applyCardLighting(color, v_uv);',
-      vertices: vertexData,
       init(context, program) {
         gl = context;
-        amountUniform = gl.getUniformLocation(program, 'u_hover');
-        viewportUniform = gl.getUniformLocation(program, 'u_viewport');
-        surfaceUniform = gl.getUniformLocation(program, 'u_res');
-        sheetWidthUniform = gl.getUniformLocation(program, 'u_sheetW');
-        sheetDepthUniform = gl.getUniformLocation(program, 'u_sheetD');
-        gl.uniform1f(gl.getUniformLocation(program, 'u_dent'), 0.1);
-        gl.uniform1f(gl.getUniformLocation(program, 'u_shade'), 1);
-        gl.uniform1f(gl.getUniformLocation(program, 'u_shadeS'), 1);
-        gl.uniform1f(gl.getUniformLocation(program, 'u_sheetT'), 1.15);
-        gl.uniform1f(gl.getUniformLocation(program, 'u_sheetC'), 1);
-        gl.uniform1f(gl.getUniformLocation(program, 'u_sheetP'), 0);
-        gl.uniform1f(gl.getUniformLocation(program, 'u_sheetV'), 0);
-        gl.uniform1f(gl.getUniformLocation(program, 'u_leanA'), 0);
-        gl.uniform1f(gl.getUniformLocation(program, 'u_leanW'), 0);
-        gl.uniform3f(gl.getUniformLocation(program, 'cameraPosition'), 0, 0, cameraDistance);
-      },
-      resize(width, height) {
-        worldScale = cameraSlope * cameraDistance / height;
-        gl.uniform2f(viewportUniform, width, height);
-        gl.uniform1f(sheetWidthUniform, width * worldScale * 0.5);
-        gl.uniform1f(sheetDepthUniform, width * worldScale * 0.5 * 0.2);
+        cardProgram = program;
+        ready = false;
+        paint = composite = scene = null;
+        trail = [];
+        fresh = drawing = false;
+        const half = gl.getExtension('OES_texture_half_float');
+        useHalfFloat = half && gl.getExtension('OES_texture_half_float_linear') &&
+          gl.getExtension('EXT_color_buffer_half_float') && half.HALF_FLOAT_OES;
+        try {
+          preparePaint(!useHalfFloat);
+          ready = true;
+        } catch (error) {
+          console.warn('Card image hover:', error);
+        }
       },
       reset() {
-        tweens = new WeakMap();
+        pointer = null;
+        presence = { from: 0, to: 0, start: 0 };
+        energy = 0;
+        fresh = drawing = false;
       },
-      draw(cover, time) {
-        const tween = tweens.get(cover);
-        const amount = amountAt(tween, time);
-        gl.uniform1f(amountUniform, amount);
-        gl.uniform2f(surfaceUniform, Math.ceil(cover.rect.width) * worldScale, Math.ceil(cover.rect.height) * worldScale);
-        if (amount > 0.0001) gl.drawArrays(gl.TRIANGLES, 6, vertexData.length / 2 - 6);
-        else gl.drawArrays(gl.TRIANGLES, 0, 6);
-        return Boolean(tween && time < tween.start + hoverDuration);
+      begin(time, dt, width, height, pixelWidth, pixelHeight) {
+        if (!ready) return false;
+        const amount = amountAt(time);
+        energy *= Math.exp(-dissipation * dt);
+        let amplitude = 0;
+        let settling = false;
+        if (pointer) {
+          const follow = 1 - Math.exp(-7 * dt);
+          pointer.smoothX += (pointer.x - pointer.smoothX) * follow;
+          pointer.smoothY += (pointer.y - pointer.smoothY) * follow;
+          const distance = Math.hypot(pointer.x - pointer.smoothX, pointer.y - pointer.smoothY);
+          settling = distance > 0.25;
+          if (amount > 0.001) {
+            const tension = Math.tanh(Math.max(0, distance / width - tensionStart) / tensionRange);
+            amplitude = tension * tension;
+          }
+        }
+        energy = Math.max(energy, amplitude);
+        if (energy <= 0.004) {
+          fresh = false;
+          return settling;
+        }
+        const rows = Math.max(1, Math.round(trailWidth * height / width));
+        try {
+          if (!makeBuffers(pixelWidth, pixelHeight, rows)) throw new Error('Unable to allocate hover buffers');
+        } catch (error) {
+          ready = false;
+          restore();
+          console.warn('Card image hover:', error);
+          return false;
+        }
+        gl.disable(gl.BLEND);
+        if (!fresh) {
+          for (const buffer of trail) {
+            gl.bindFramebuffer(gl.FRAMEBUFFER, buffer.framebuffer);
+            gl.clear(gl.COLOR_BUFFER_BIT);
+          }
+          fresh = true;
+        }
+        gl.useProgram(paint.program);
+        const u = paint.uniforms;
+        gl.activeTexture(gl.TEXTURE3);
+        gl.bindTexture(gl.TEXTURE_2D, trail[side].texture);
+        gl.uniform1i(u.u_prev, 3);
+        gl.uniform2f(u.u_texel, 1 / trailWidth, 1 / rows);
+        gl.uniform1f(u.u_decay, Math.exp(-dissipation * dt));
+        gl.uniform1f(u.u_diff, 1 - Math.exp(-diffusion * dt));
+        gl.uniform2f(u.u_pos, pointer ? pointer.x / width : 0, pointer ? 1 - pointer.y / height : 0);
+        gl.uniform1f(u.u_amp, amplitude);
+        gl.uniform1f(u.u_rad, radius);
+        gl.uniform1f(u.u_aspect, width / height);
+        side = 1 - side;
+        gl.bindFramebuffer(gl.FRAMEBUFFER, trail[side].framebuffer);
+        gl.viewport(0, 0, trailWidth, rows);
+        gl.drawArrays(gl.TRIANGLES, 0, 6);
+        restore();
+        if (amount > 0.001) {
+          drawing = true;
+          gl.bindFramebuffer(gl.FRAMEBUFFER, scene.framebuffer);
+          gl.useProgram(composite.program);
+          gl.uniform2f(composite.uniforms.u_aspect, width / height, 1);
+          gl.uniform1f(composite.uniforms.u_ballA, amount);
+          gl.useProgram(cardProgram);
+        }
+        return true;
+      },
+      end() {
+        if (!drawing) return;
+        drawing = false;
+        gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+        gl.disable(gl.BLEND);
+        gl.useProgram(composite.program);
+        const u = composite.uniforms;
+        gl.activeTexture(gl.TEXTURE3);
+        gl.bindTexture(gl.TEXTURE_2D, scene.texture);
+        gl.uniform1i(u.u_scene, 3);
+        gl.activeTexture(gl.TEXTURE4);
+        gl.bindTexture(gl.TEXTURE_2D, trail[side].texture);
+        gl.uniform1i(u.u_trail, 4);
+        gl.uniform2f(u.u_trailTexel, 1 / trailWidth, 1 / trail[side].height);
+        gl.uniform1f(u.u_ballWarp, warp);
+        gl.uniform1f(u.u_ballShade, shade);
+        gl.uniform2f(u.u_ballEdge, 0.22, 0.5);
+        gl.drawArrays(gl.TRIANGLES, 0, 6);
+        restore();
       }
     };
   };
