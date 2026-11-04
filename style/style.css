@@ -9,9 +9,9 @@
 html {
   -webkit-text-size-adjust: 100%;
   text-size-adjust: 100%;
-  cursor: url("../img/cursor.png") 1 1, auto;
-  cursor: -webkit-image-set(url("../img/cursor.png") 1x, url("../img/cursor@2x.png") 2x) 1 1, auto;
-  cursor: image-set(url("../img/cursor.png") 1x, url("../img/cursor@2x.png") 2x) 1 1, auto;
+  cursor: url("../img/system/cursor.png") 1 1, auto;
+  cursor: -webkit-image-set(url("../img/system/cursor.png") 1x, url("../img/system/cursor@2x.png") 2x) 1 1, auto;
+  cursor: image-set(url("../img/system/cursor.png") 1x, url("../img/system/cursor@2x.png") 2x) 1 1, auto;
 }
 
 a,
@@ -21,9 +21,9 @@ select,
 label:has(input[type="checkbox"]),
 [role="button"],
 input[type="submit"] {
-  cursor: url("../img/cursor-hand.png") 11 1, pointer;
-  cursor: -webkit-image-set(url("../img/cursor-hand.png") 1x, url("../img/cursor-hand@2x.png") 2x) 11 1, pointer;
-  cursor: image-set(url("../img/cursor-hand.png") 1x, url("../img/cursor-hand@2x.png") 2x) 11 1, pointer;
+  cursor: url("../img/system/cursor-hand.png") 11 1, pointer;
+  cursor: -webkit-image-set(url("../img/system/cursor-hand.png") 1x, url("../img/system/cursor-hand@2x.png") 2x) 11 1, pointer;
+  cursor: image-set(url("../img/system/cursor-hand.png") 1x, url("../img/system/cursor-hand@2x.png") 2x) 11 1, pointer;
 }
 
 img {
