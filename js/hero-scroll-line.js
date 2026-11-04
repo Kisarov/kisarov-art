@@ -42,6 +42,7 @@ varying vec3 v_color;varying vec2 v_uv;void main(){float d=length(v_uv-.5)*2.;gl
   const color0 = [90 / 255, 144 / 255, 1];
   const color1 = [42 / 255, 56 / 255, 238 / 255];
   const aoThreshold = 0.555;
+  const marginX = -0.05;
   const clamp = value => Math.max(0, Math.min(1, value));
   const lerp = (from, to, ratio) => from + (to - from) * ratio;
   const projection = new Float32Array([1, 0, 0, 0, 0, 1, 0, 0, 0, 0, -1, 0, -1, 1, 0, 1]);
@@ -142,6 +143,17 @@ varying vec3 v_color;varying vec2 v_uv;void main(){float d=length(v_uv-.5)*2.;gl
     });
   }
 
+  function firstVisibleProgress(radius) {
+    const { CP, position } = geometry;
+    const visibleX = -marginX - radius;
+    let next = 3;
+    while (next < CP.length - 3 && CP[next] < visibleX) next += 3;
+    const previous = next - 3;
+    const fraction = clamp((visibleX - CP[previous]) / (CP[next] - CP[previous]));
+    const visibleRatio = lerp(position[previous + 2], position[next + 2], fraction);
+    return Math.sqrt(visibleRatio / 2);
+  }
+
   function draw() {
     frame = 0;
     if (!ready || motion.matches || document.hidden) { canvas.hidden = true; return; }
@@ -150,14 +162,23 @@ varying vec3 v_color;varying vec2 v_uv;void main(){float d=length(v_uv-.5)*2.;gl
     const top = hero.getBoundingClientRect().top;
     const size = Math.hypot(width, height);
     const anchorY = top + avatar.offsetHeight + 8;
-    const originX = -0.05 * size;
+    const originX = marginX * size;
     const originY = anchorY + geometry.CP[1] * size;
-    const progress = clamp((window.scrollY - initialScroll) / (1.3 * height));
-    const show = progress < 0.5 ? 2 * progress * progress : 1 - 2 * (1 - progress) ** 2;
-    if (!width || !height || show === 0 || originY - 0.718671 * size >= height || originY + 0.0141946 * size <= 0) {
+    const scroll = window.scrollY - initialScroll;
+    if (!width || !height || scroll <= 0 || originY - 0.718671 * size >= height || originY + 0.0141946 * size <= 0) {
       canvas.hidden = true;
       return;
     }
+
+    const radius = 0.008 * lerp(2, 1, clamp((width - 540) / (1920 - 540)));
+    const firstVisible = firstVisibleProgress(radius);
+    const scrollProgress = clamp(scroll / (1.3 * height));
+    if (scrollProgress < firstVisible / 2) {
+      canvas.hidden = true;
+      return;
+    }
+    const progress = lerp(firstVisible / (2 - firstVisible), 1, scrollProgress);
+    const show = progress < 0.5 ? 2 * progress * progress : 1 - 2 * (1 - progress) ** 2;
 
     const dpr = Math.min(window.devicePixelRatio || 1, 1.5);
     const pixelWidth = Math.round(width * dpr);
@@ -170,7 +191,6 @@ varying vec3 v_color;varying vec2 v_uv;void main(){float d=length(v_uv-.5)*2.;gl
     projection[0] = 2 / width;
     projection[5] = 2 / height;
 
-    const radius = 0.008 * lerp(2, 1, clamp((width - 540) / (1920 - 540)));
     use(line, [3, 3, 1], size, originX, -originY);
     gl.uniform1f(line.locations.u_showRatio, show);
     gl.uniform1f(line.locations.u_radius, radius);
