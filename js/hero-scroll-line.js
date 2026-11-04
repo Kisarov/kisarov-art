@@ -6,6 +6,7 @@
   const motion = matchMedia('(prefers-reduced-motion: reduce)');
   if (!avatar || motion.matches || new URLSearchParams(location.search).has('static')) return;
 
+  const initialScroll = window.scrollY;
   const modelUrl = new URL('../img/system/line_reel.buf', document.currentScript.src);
   const canvas = document.createElement('canvas');
   const gl = canvas.getContext('webgl', { alpha: true, antialias: false, depth: false });
@@ -148,10 +149,10 @@ varying vec3 v_color;varying vec2 v_uv;void main(){float d=length(v_uv-.5)*2.;gl
     const height = window.innerHeight;
     const top = hero.getBoundingClientRect().top;
     const size = Math.hypot(width, height);
-    const anchorY = top + avatar.offsetHeight / 2;
+    const anchorY = top + avatar.offsetHeight + 8;
     const originX = -0.05 * size;
     const originY = anchorY + geometry.CP[1] * size;
-    const progress = clamp((0.4 * height - top) / (1.3 * height));
+    const progress = clamp((window.scrollY - initialScroll) / (1.3 * height));
     const show = progress < 0.5 ? 2 * progress * progress : 1 - 2 * (1 - progress) ** 2;
     if (!width || !height || show === 0 || originY - 0.718671 * size >= height || originY + 0.0141946 * size <= 0) {
       canvas.hidden = true;
