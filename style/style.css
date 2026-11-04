@@ -310,10 +310,22 @@ h1, h2, h3, h4, h5, h6, [role="heading"] {
 }
 
 .hero__name {
+  position: relative;
   font-size: 40px;
   font-weight: 600;
   line-height: 1.04;
   color: #000;
+}
+
+.hero__intro-layer {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.hero__intro-strip {
+  position: absolute;
+  background: #ee421b;
 }
 
 .hero__bio {
