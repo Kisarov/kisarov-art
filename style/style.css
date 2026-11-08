@@ -293,7 +293,7 @@ h1, h2, h3, h4, h5, h6, [role="heading"] {
   text-align: left;
   gap: clamp(24px, 4vw, 72px);
   padding: 0 0 105px 0;
-  overflow: clip;
+  overflow-x: clip;
 }
 
 .hero__content {
@@ -307,10 +307,10 @@ h1, h2, h3, h4, h5, h6, [role="heading"] {
 
 .hero__cube {
   position: relative;
+  align-self: stretch;
   justify-self: end;
   width: 100%;
   max-width: 640px;
-  aspect-ratio: 2 / 3;
 }
 
 .hero__cube canvas {
