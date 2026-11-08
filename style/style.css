@@ -330,7 +330,7 @@ h1, h2, h3, h4, h5, h6, [role="heading"] {
   align-items: center;
   text-align: left;
   gap: clamp(24px, 4vw, 72px);
-  padding: 0 0 105px 0;
+  padding: 150px 0 200px 0;
   overflow-x: clip;
 }
 
