@@ -40,8 +40,8 @@ uniform vec3 u_color0;uniform vec3 u_color1;uniform float u_mixRatio;uniform flo
   const endFragment = fragmentHeader + `#define GLSLIFY 1
 varying vec3 v_color;varying vec2 v_uv;void main(){float d=length(v_uv-.5)*2.;gl_FragColor.rgb=v_color;gl_FragColor.a=smoothstep(1.,1.-fwidth(d),d);}`;
 
-  const color0 = [90 / 255, 144 / 255, 1];
-  const color1 = [42 / 255, 56 / 255, 238 / 255];
+  const color0 = readPaletteColor('--color-scroll-line-end').rgba.slice(0, 3);
+  const color1 = readPaletteColor('--color-scroll-line-start').rgba.slice(0, 3);
   const aoThreshold = 0.555;
   const marginX = -0.05;
   const clamp = value => Math.max(0, Math.min(1, value));
