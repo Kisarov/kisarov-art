@@ -176,8 +176,7 @@ uniform sampler2D u_texture;uniform vec2 u_delta;varying vec2 v_uv;void main(){v
       this.previous = this.target(this.current.width, this.current.height);
       this.low = this.target(this.canvas.width >> 3, this.canvas.height >> 3);
       this.blurred = this.target(this.low.width, this.low.height);
-      this.background = (getComputedStyle(document.body).backgroundColor.match(/[\d.]+/g) || ['255', '255', '255'])
-        .slice(0, 3).map(value => Number(value) / 255);
+      this.background = readPaletteColor('--color-page-bg').rgba.slice(0, 3);
       this.clear(true);
     }
 
