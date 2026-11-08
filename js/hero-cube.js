@@ -3,7 +3,12 @@
 
   const element = document.querySelector('.hero__cube');
   if (!element) return;
-  const response = await fetch(new URL('../img/system/hero-cube.buf', document.currentScript.src));
+  const geometryUrl = new URL('../img/system/hero-cube.buf', document.currentScript.src);
+  const narrowScreen = matchMedia('(width < 768px)');
+  if (narrowScreen.matches) {
+    await new Promise(resolve => narrowScreen.addEventListener('change', resolve, { once: true }));
+  }
+  const response = await fetch(geometryUrl);
   if (!response.ok) throw new Error(`Hero cube geometry: HTTP ${response.status}`);
   const geometry = await response.arrayBuffer();
   const [COUNT, vertexCount] = new Uint32Array(geometry, 0, 2);
@@ -344,9 +349,9 @@
         this.canvas = replacement;
         this.renderer = new CanvasRenderer(this.canvas);
       }
-      element.addEventListener('pointermove', event => this.move(event), { passive: true });
-      element.addEventListener('pointerleave', () => this.release());
-      element.addEventListener('pointercancel', () => this.release());
+      element.parentElement.addEventListener('pointermove', event => this.move(event), { passive: true });
+      element.parentElement.addEventListener('pointerleave', () => this.release());
+      element.parentElement.addEventListener('pointercancel', () => this.release());
       window.addEventListener('blur', () => this.release());
       this.motion.addEventListener('change', () => {
         this.release();
@@ -383,8 +388,11 @@
 
     resize() {
       const rect = this.canvas.getBoundingClientRect();
-      if (!rect.width || !rect.height) return;
-      const dpr = Math.min(devicePixelRatio || 1, 2);
+      if (!rect.width || !rect.height) {
+        this.release();
+        return;
+      }
+      const dpr = Math.min(devicePixelRatio || 1, 2, 2048 / Math.max(rect.width, rect.height));
       if (rect.width === this.width && rect.height === this.height && dpr === this.dpr) return;
       const previousScale = this.scale;
       this.width = rect.width;
@@ -450,7 +458,7 @@
     }
 
     move(event) {
-      if (staticPreview || this.motion.matches || event.pointerType === 'touch') return;
+      if (narrowScreen.matches || staticPreview || this.motion.matches || event.pointerType === 'touch') return;
       const rect = this.canvas.getBoundingClientRect();
       this.mouse.x = event.clientX - rect.left;
       this.mouse.y = event.clientY - rect.top;
@@ -568,7 +576,7 @@
     }
 
     sync() {
-      if (staticPreview || this.motion.matches || document.hidden || !this.visible) {
+      if (narrowScreen.matches || staticPreview || this.motion.matches || document.hidden || !this.visible) {
         this.stop();
       } else if (!this.frame) {
         this.previousTime = 0;
