@@ -15,7 +15,8 @@
   /* Кнопки */
   --color-button-bg: #000;
   --color-button-text: #fff;
-  --color-button-primary-bg-hover: #222;
+  --color-button-primary-bg-hover: var(--color-page-bg);
+  --color-button-primary-text-hover: var(--color-text);
   --color-button-back-bg-hover: #303030;
   --color-button-outline: #0003;
   --color-button-outline-hover: #000;
@@ -414,7 +415,7 @@ h1, h2, h3, h4, h5, h6, [role="heading"] {
   justify-content: center;
   height: 48px;
   padding: 0 24px;
-  border-radius: 100px;
+  border-radius: 12px;
   font-family: inherit;
   font-size: 15px;
   font-weight: 500;
@@ -423,12 +424,83 @@ h1, h2, h3, h4, h5, h6, [role="heading"] {
 }
 
 .hero__link--primary {
+  --hero-link-fill-duration: 380ms;
+  --hero-link-fill-ease: cubic-bezier(0.22, 0.61, 0.36, 1);
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
   color: var(--color-button-text);
   background: var(--color-button-bg);
 }
 
-.hero__link--primary:hover {
+.hero__link--primary::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
   background: var(--color-button-primary-bg-hover);
+  border-radius: inherit;
+  box-shadow: inset 0 0 0 1px var(--color-button-bg);
+  transform: scaleY(0);
+  transform-origin: bottom;
+  transition: transform var(--hero-link-fill-duration) var(--hero-link-fill-ease);
+}
+
+.hero__link--primary:has(.hero__link-ink):is(:hover, :focus-visible)::before {
+  transform: scaleY(1);
+}
+
+.hero__link-ink {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: inherit;
+  color: var(--color-button-primary-text-hover);
+  pointer-events: none;
+  clip-path: inset(100% 0 0);
+  transition: clip-path var(--hero-link-fill-duration) var(--hero-link-fill-ease);
+}
+
+.hero__link--primary:is(:hover, :focus-visible) .hero__link-ink {
+  clip-path: inset(0);
+}
+
+.hero__link-label {
+  line-height: 1.4;
+}
+
+.hero__link-word {
+  display: inline-flex;
+  vertical-align: top;
+}
+
+.hero__link-char-mask {
+  overflow: hidden;
+}
+
+.hero__link-char {
+  display: block;
+  text-shadow: 0 1lh currentColor;
+  transition: transform 420ms cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+.hero__link--primary:is(:hover, :focus-visible) .hero__link-char {
+  transform: translateY(-100%);
+  transition-delay: calc(var(--hero-link-fill-duration) + min(var(--hero-link-char-index) * 20ms, 200ms));
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hero__link--primary::before,
+  .hero__link-ink,
+  .hero__link-char {
+    transition: none;
+  }
+
+  .hero__link--primary:is(:hover, :focus-visible) .hero__link-char {
+    transform: none;
+  }
 }
 
 .hero__link--secondary {
