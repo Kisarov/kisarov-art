@@ -2,9 +2,10 @@
   'use strict';
 
   const hero = document.querySelector('.hero');
-  const avatar = hero?.querySelector('.hero__avatar');
   const motion = matchMedia('(prefers-reduced-motion: reduce)');
-  if (!avatar || motion.matches || new URLSearchParams(location.search).has('static')) return;
+  if (!hero || motion.matches || new URLSearchParams(location.search).has('static')) return;
+
+  const compact = matchMedia('(max-width: 480px)');
 
   const initialScroll = window.scrollY;
   const modelUrl = new URL('../img/system/line_reel.buf', document.currentScript.src);
@@ -161,7 +162,7 @@ varying vec3 v_color;varying vec2 v_uv;void main(){float d=length(v_uv-.5)*2.;gl
     const height = window.innerHeight;
     const top = hero.getBoundingClientRect().top;
     const size = Math.hypot(width, height);
-    const anchorY = top + avatar.offsetHeight + 108;
+    const anchorY = top + (compact.matches ? 204 : 228);
     const originX = marginX * size;
     const originY = anchorY + geometry.CP[1] * size;
     const scroll = window.scrollY - initialScroll;
