@@ -340,7 +340,7 @@ h1, h2, h3, h4, h5, h6, [role="heading"] {
   display: flex;
   flex-direction: column;
   align-items: flex-start;
-  gap: 20px;
+  gap: 12px;
 }
 
 .hero__cube {
@@ -364,7 +364,8 @@ h1, h2, h3, h4, h5, h6, [role="heading"] {
 }
 
 .hero__name {
-  font-size: 40px;
+  margin-bottom: 8px;
+  font-size: clamp(44px, 8vw, 80px);
   font-weight: 600;
   line-height: 1.04;
   text-wrap: balance;
@@ -379,25 +380,28 @@ h1, h2, h3, h4, h5, h6, [role="heading"] {
   clip-path: inset(-0.15em -0.15em 0);
 }
 
-.hero__bio {
-  max-width: 955px;
-  font-size: 20px;
+.hero__person,
+.hero__bio,
+.hero__skills {
+  font-size: 15px;
   font-weight: 400;
   line-height: 1.6;
   color: var(--color-text);
 }
 
-.hero__skills {
-  font-size: 20px;
-  font-weight: 400;
-  line-height: 1.6;
-  color: var(--color-text);
+.hero__person {
+  font-weight: 500;
+}
+
+.hero__bio {
+  max-width: 54ch;
 }
 
 .hero__links {
   display: flex;
   flex-wrap: wrap;
   gap: 12px;
+  margin-top: 8px;
 }
 
 .hero__link {
@@ -433,10 +437,6 @@ h1, h2, h3, h4, h5, h6, [role="heading"] {
 }
 
 @media (max-width: 809.98px) {
-  .hero__content {
-    gap: 16px;
-  }
-
   .hero__links {
     flex-direction: column;
     width: 100%;
@@ -447,7 +447,12 @@ h1, h2, h3, h4, h5, h6, [role="heading"] {
 @media (width < 768px) {
   .hero {
     grid-template-columns: minmax(0, 1fr);
+    padding-top: clamp(28px, 8vw, 48px);
     overflow: visible;
+  }
+
+  .hero__name {
+    font-size: clamp(36px, 12.5vw, 64px);
   }
 
   .hero__cube {
@@ -617,13 +622,10 @@ h1, h2, h3, h4, h5, h6, [role="heading"] {
     padding-bottom: 64px;
   }
   
-  .hero__name,
   .card__title {
     font-size: 32px;
   }
   
-  .hero__bio,
-  .hero__skills,
   .card__description {
     font-size: 18px;
   }
@@ -779,13 +781,10 @@ h1, h2, h3, h4, h5, h6, [role="heading"] {
     padding-bottom: 48px;
   }
   
-  .hero__name,
   .card__title {
     font-size: 28px;
   }
   
-  .hero__bio,
-  .hero__skills,
   .card__description {
     font-size: 16px;
   }
