@@ -14,6 +14,7 @@
   <script src="js/intro-reveal.js" defer></script>
   <script src="js/screen-paint.js" defer></script>
   <script src="js/hero-scroll-line.js" defer></script>
+  <script src="js/hero-cube.js" defer></script>
   <script src="js/card-image-hover.js" defer></script>
   <script src="js/card-scroll-warp.js" defer></script>
 </head>
@@ -23,16 +24,16 @@
 
       <!-- Hero Section -->
       <section class="hero">
-        <div class="hero__avatar">
-          <img src="../kisarov-art/img/avatar.png" alt="Илья Кисаров">
+        <div class="hero__content">
+          <h1 class="hero__name">Илья Кисаров • Product designer</h1>
+          <p class="hero__bio">В своей работе всегда стремлюсь проектировать интерфейсы, которые одновременно удобны пользователю и приносят бизнесу измеримую ценность</p>
+          <p class="hero__skills">E-com, Telecom Saas, Dating • B2C, B2B</p>
+          <div class="hero__links">
+            <a href="http://t.me/iananaz" target="_blank" class="hero__link hero__link--primary">Связаться в telegram</a>
+            <a href="https://drive.google.com/file/d/12_Z9RBafmloS2RiC_0VtZUABC2Uxm3ab/view?usp=sharing" target="_blank" class="hero__link hero__link--secondary">Посмотреть CV (Resume)</a>
+          </div>
         </div>
-        <h1 class="hero__name">Илья Кисаров • Product designer</h1>
-        <p class="hero__bio">В своей работе всегда стремлюсь проектировать интерфейсы, которые одновременно удобны пользователю и приносят бизнесу измеримую ценность</p>
-        <p class="hero__skills">E-com, Telecom Saas, Dating • B2C, B2B</p>
-        <div class="hero__links">
-          <a href="http://t.me/iananaz" target="_blank" class="hero__link hero__link--primary">Связаться в telegram</a>
-          <a href="https://drive.google.com/file/d/12_Z9RBafmloS2RiC_0VtZUABC2Uxm3ab/view?usp=sharing" target="_blank" class="hero__link hero__link--secondary">Посмотреть CV (Resume)</a>
-        </div>
+        <div class="hero__cube" aria-hidden="true"><canvas></canvas></div>
       </section>
 
       <!-- Projects Grid -->
