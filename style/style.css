@@ -1,3 +1,37 @@
+:root {
+  /* Фоны и границы */
+  --color-page-bg: #fff;
+  --color-case-header-bg: #f5f5f5;
+  --color-border: #e6e6e6;
+  --color-divider: #dadada;
+
+  /* Текст и ссылки */
+  --color-text: #000;
+  --color-text-secondary: #525252;
+  --color-caption: #777;
+  --color-text-positive: #0d8c5e;
+  --color-card-link-hover: #1858c7;
+
+  /* Кнопки */
+  --color-button-bg: #000;
+  --color-button-text: #fff;
+  --color-button-primary-bg-hover: #222;
+  --color-button-back-bg-hover: #303030;
+  --color-button-outline: #0003;
+  --color-button-outline-hover: #000;
+
+  /* Подсветка и бейджи кейсов */
+  --color-case-glow: #6366f1;
+  --color-case-glow-authors: #20acbb;
+  --color-badge-bg: #f8ede2;
+  --color-badge-text: #d86111;
+
+  /* Линия при прокрутке и частицы куба */
+  --color-scroll-line-start: #2a38ee;
+  --color-scroll-line-end: #5a90ff;
+  --color-cube-particles: #c4c4c4;
+}
+
 *,
 *::before,
 *::after {
@@ -33,8 +67,8 @@ img {
 
 body {
   font-family: 'Montserrat', Arial, Helvetica, sans-serif;
-  background: #fff;
-  color: #000;
+  background: var(--color-page-bg);
+  color: var(--color-text);
   -webkit-font-smoothing: antialiased;
 }
 
@@ -77,8 +111,8 @@ h1, h2, h3, h4, h5, h6, [role="heading"] {
   display: flex;
   align-items: center;
   min-height: 539px;
-  background: #f5f5f5;
-  border: 1px solid #e6e6e6;
+  background: var(--color-case-header-bg);
+  border: 1px solid var(--color-border);
   border-radius: 32px;
   overflow: hidden;
 
@@ -94,11 +128,15 @@ h1, h2, h3, h4, h5, h6, [role="heading"] {
   width: 924px;
   height: 924px;
   border-radius: 50%;
-  background: #6366f1;
+  background: var(--color-case-glow);
   opacity: 0.14;
   -webkit-filter: blur(100px);
   filter: blur(100px);
   pointer-events: none;
+}
+
+.header__image-left--authors {
+  background: var(--color-case-glow-authors);
 }
 
 .header__image-right {
@@ -146,8 +184,8 @@ h1, h2, h3, h4, h5, h6, [role="heading"] {
 }
 
 .badge--coming-soon {
-  color: #d86111;
-  background: #f8ede2;
+  color: var(--color-badge-text);
+  background: var(--color-badge-bg);
 }
 
 .header__text {
@@ -163,7 +201,7 @@ h1, h2, h3, h4, h5, h6, [role="heading"] {
 }
 
 .header__subtitle {
-  color: #525252;
+  color: var(--color-text-secondary);
   font-size: 20px;
   font-weight: 400;
   line-height: 1.4;
@@ -202,7 +240,7 @@ h1, h2, h3, h4, h5, h6, [role="heading"] {
 }
 
 .header__author-role {
-  color: #525252;
+  color: var(--color-text-secondary);
   font-size: 12px;
 }
 
@@ -234,7 +272,7 @@ h1, h2, h3, h4, h5, h6, [role="heading"] {
 .caption {
   font-size: 18px;
   line-height: 1.6;
-  color: #777;
+  color: var(--color-caption);
 }
 
 .text-medium {
@@ -243,7 +281,7 @@ h1, h2, h3, h4, h5, h6, [role="heading"] {
 
 .text-green-medium {
   font-weight: 600;
-  color: #0D8C5E;
+  color: var(--color-text-positive);
 }
 
 .section-with-image {
@@ -256,7 +294,7 @@ h1, h2, h3, h4, h5, h6, [role="heading"] {
   width: 100%;
   height: 1px;
   margin: 12px 0;
-  background: #dadada;
+  background: var(--color-divider);
 }
 
 .conclusion-heading {
@@ -330,7 +368,7 @@ h1, h2, h3, h4, h5, h6, [role="heading"] {
   font-weight: 600;
   line-height: 1.04;
   text-wrap: balance;
-  color: #000;
+  color: var(--color-text);
 }
 
 .hero__name[data-intro-reveal="waiting"] {
@@ -346,14 +384,14 @@ h1, h2, h3, h4, h5, h6, [role="heading"] {
   font-size: 20px;
   font-weight: 400;
   line-height: 1.6;
-  color: #000;
+  color: var(--color-text);
 }
 
 .hero__skills {
   font-size: 20px;
   font-weight: 400;
   line-height: 1.6;
-  color: #000;
+  color: var(--color-text);
 }
 
 .hero__links {
@@ -377,21 +415,21 @@ h1, h2, h3, h4, h5, h6, [role="heading"] {
 }
 
 .hero__link--primary {
-  color: #fff;
-  background: #000;
+  color: var(--color-button-text);
+  background: var(--color-button-bg);
 }
 
 .hero__link--primary:hover {
-  background: #222;
+  background: var(--color-button-primary-bg-hover);
 }
 
 .hero__link--secondary {
-  color: #000;
-  box-shadow: inset 0 0 0 1px #0003;
+  color: var(--color-text);
+  box-shadow: inset 0 0 0 1px var(--color-button-outline);
 }
 
 .hero__link--secondary:hover {
-  box-shadow: inset 0 0 0 1px #000;
+  box-shadow: inset 0 0 0 1px var(--color-button-outline-hover);
 }
 
 @media (max-width: 809.98px) {
@@ -436,7 +474,7 @@ h1, h2, h3, h4, h5, h6, [role="heading"] {
   width: 100%;
   overflow: hidden;
   border-radius: 32px; 
-  border: 1px solid #e6e6e6;
+  border: 1px solid var(--color-border);
 }
 
 .card__image img {
@@ -449,7 +487,7 @@ h1, h2, h3, h4, h5, h6, [role="heading"] {
 }
 
 .card:hover .card__title {
-  color: #1858c7;
+  color: var(--color-card-link-hover);
 }
 
 .card:hover .card__image img {
@@ -472,7 +510,7 @@ h1, h2, h3, h4, h5, h6, [role="heading"] {
   font-size: 40px;
   font-weight: 600;
   line-height: 1.04;
-  color: #000;
+  color: var(--color-text);
   transition: color 0.12s ease;
 }
 
@@ -480,7 +518,7 @@ h1, h2, h3, h4, h5, h6, [role="heading"] {
   font-size: 20px;
   font-weight: 400;
   line-height: 1.6;
-  color: #000;
+  color: var(--color-text);
 }
 
 .back-button {
@@ -494,8 +532,8 @@ h1, h2, h3, h4, h5, h6, [role="heading"] {
   height: 48px;
   padding: 0 24px 0 22px;
   border-radius: 999px;
-  background: #000;
-  color: #fff;
+  background: var(--color-button-bg);
+  color: var(--color-button-text);
   font-size: 16px;
   font-weight: 600;
   line-height: 1;
@@ -506,7 +544,7 @@ h1, h2, h3, h4, h5, h6, [role="heading"] {
 
 .back-button:hover, 
 .back-button:active {
-  background: #303030;
+  background: var(--color-button-back-bg-hover);
 }
 
 
