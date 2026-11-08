@@ -98,7 +98,6 @@
     }
     reveal(hero.querySelector('.hero__bio'), 0);
     reveal(hero.querySelector('.hero__skills'), 120);
-    reveal(hero.querySelector('.hero__avatar'), 360);
     reveal(hero.querySelector('.hero__links'), 360);
     hero.style.visibility = visibility;
     hero.addEventListener('focusin', finishEntrance, { once: true });
