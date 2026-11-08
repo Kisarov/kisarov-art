@@ -318,7 +318,7 @@ h1, h2, h3, h4, h5, h6, [role="heading"] {
   top: 50%;
   left: 20%;
   display: block;
-  width: 250%;
+  width: 150%;
   height: auto;
   aspect-ratio: 1;
   transform: translate(-50%, -50%);
