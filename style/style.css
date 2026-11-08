@@ -340,7 +340,6 @@ h1, h2, h3, h4, h5, h6, [role="heading"] {
   display: flex;
   flex-direction: column;
   align-items: flex-start;
-  gap: 12px;
 }
 
 .hero__cube {
@@ -364,8 +363,8 @@ h1, h2, h3, h4, h5, h6, [role="heading"] {
 }
 
 .hero__name {
-  margin-bottom: 8px;
-  font-size: clamp(44px, 8vw, 80px);
+  margin-bottom: 20px;
+  font-size: 100px;
   font-weight: 600;
   line-height: 1.04;
   text-wrap: balance;
@@ -390,18 +389,23 @@ h1, h2, h3, h4, h5, h6, [role="heading"] {
 }
 
 .hero__person {
+  margin-bottom: 4px;
   font-weight: 500;
 }
 
 .hero__bio {
   max-width: 54ch;
+  margin-bottom: 12px;
+}
+
+.hero__skills {
+  margin-bottom: 32px;
 }
 
 .hero__links {
   display: flex;
   flex-wrap: wrap;
   gap: 12px;
-  margin-top: 8px;
 }
 
 .hero__link {
@@ -449,10 +453,6 @@ h1, h2, h3, h4, h5, h6, [role="heading"] {
     grid-template-columns: minmax(0, 1fr);
     padding-top: clamp(28px, 8vw, 48px);
     overflow: visible;
-  }
-
-  .hero__name {
-    font-size: clamp(36px, 12.5vw, 64px);
   }
 
   .hero__cube {
@@ -585,6 +585,12 @@ h1, h2, h3, h4, h5, h6, [role="heading"] {
   }
 }
 
+@media (width < 1200px) {
+  .hero__name {
+    font-size: 80px;
+  }
+}
+
 @media (max-width: 1024px) {
   .page {
     padding: 40px 32px 180px;
@@ -620,6 +626,10 @@ h1, h2, h3, h4, h5, h6, [role="heading"] {
 
   .hero {
     padding-bottom: 64px;
+  }
+
+  .hero__name {
+    font-size: 64px;
   }
   
   .card__title {
@@ -706,6 +716,10 @@ h1, h2, h3, h4, h5, h6, [role="heading"] {
   .hero {
     gap: 16px;
     padding-bottom: 56px;
+  }
+
+  .hero__name {
+    font-size: 48px;
   }
   
   .projects {
