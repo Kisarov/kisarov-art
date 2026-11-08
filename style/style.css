@@ -424,7 +424,8 @@ h1, h2, h3, h4, h5, h6, [role="heading"] {
 }
 
 .hero__link--primary {
-  --hero-link-fill-duration: 380ms;
+  --hero-link-fill-duration: 300ms;
+  --hero-link-roll-delay: 260ms;
   --hero-link-fill-ease: cubic-bezier(0.22, 0.61, 0.36, 0.7);
   position: relative;
   isolation: isolate;
@@ -488,7 +489,7 @@ h1, h2, h3, h4, h5, h6, [role="heading"] {
 
 .hero__link--primary:is(:hover, :focus-visible) .hero__link-char {
   transform: translateY(-100%);
-  transition-delay: calc(var(--hero-link-fill-duration) + min(var(--hero-link-char-index) * 20ms, 200ms));
+  transition-delay: calc(var(--hero-link-roll-delay) + min(var(--hero-link-char-index) * 20ms, 200ms));
 }
 
 @media (prefers-reduced-motion: reduce) {
