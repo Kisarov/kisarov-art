@@ -16,6 +16,7 @@
   const normals = new Float32Array(geometry, 8 + positions.byteLength, positions.length);
   const vertices = new Float32Array(geometry, 8 + positions.byteLength + normals.byteLength, vertexCount * 3);
   const indices = new Uint16Array(geometry, 8 + positions.byteLength + normals.byteLength + vertices.byteLength);
+  const pointColor = readPaletteColor('--color-cube-particles');
   const staticPreview = new URLSearchParams(location.search).has('static');
   const AURA_COUNT = 220;
   const BEAT_GAP = 0.5;
@@ -93,13 +94,14 @@
         }`, `#version 300 es
         precision highp float;
         in float visible;
+        uniform vec4 pointColor;
         out vec4 color;
         void main() {
           if (visible < 0.5) discard;
           float radius = length(gl_PointCoord - 0.5);
           float alpha = 1.0 - smoothstep(0.5 - fwidth(radius), 0.5, radius);
           if (alpha <= 0.0) discard;
-          color = vec4(vec3(196.0/255.0), alpha);
+          color = vec4(pointColor.rgb, pointColor.a * alpha);
         }`);
       this.meshArray = gl.createVertexArray();
       gl.bindVertexArray(this.meshArray);
@@ -125,6 +127,8 @@
       gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
       this.framebuffer = gl.createFramebuffer();
       this.uniforms = new Map();
+      gl.useProgram(this.pointProgram);
+      gl.uniform4fv(this.uniform(this.pointProgram, 'pointColor'), pointColor.rgba);
     }
 
     program(vertexSource, fragmentSource) {
@@ -280,7 +284,7 @@
       }
       if (cube.projectedDirty) cube.project();
       this.ctx.clearRect(0, 0, cube.width, cube.height);
-      this.ctx.fillStyle = '#c4c4c4';
+      this.ctx.fillStyle = pointColor.css;
       this.ctx.beginPath();
       for (let i = 0; i < COUNT; i++) {
         const restX = cube.projected[i * 2];
@@ -487,7 +491,7 @@
 
     drawAura() {
       const ctx = this.renderer.ctx;
-      ctx.fillStyle = '#c4c4c4';
+      ctx.fillStyle = pointColor.css;
       ctx.beginPath();
       for (const point of this.aura) {
         const radius = point.size;
