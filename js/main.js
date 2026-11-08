@@ -31,14 +31,10 @@
       label.append(word);
     }
 
+    const ink = document.createElement('span');
+    ink.className = 'hero__link-ink';
+    ink.append(label.cloneNode(true));
     if (!link.hasAttribute('aria-label')) link.setAttribute('aria-label', text);
-    link.replaceChildren(label);
-
-    if (link.classList.contains('hero__link--primary')) {
-      const ink = document.createElement('span');
-      ink.className = 'hero__link-ink';
-      ink.append(label.cloneNode(true));
-      link.append(ink);
-    }
+    link.replaceChildren(label, ink);
   }
 })();
