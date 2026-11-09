@@ -626,7 +626,7 @@ h1, h2, h3, h4, h5, h6, [role="heading"] {
 .scroll-hint {
   position: absolute;
   top: 110px;
-  right: 44px;
+  right: var(--page-gutter);
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -674,7 +674,6 @@ h1, h2, h3, h4, h5, h6, [role="heading"] {
     top: auto;
     right: 0;
     bottom: 56px;
-    margin-right: calc(44px - var(--page-gutter));
   }
 }
 
