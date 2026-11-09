@@ -74,4 +74,55 @@
     });
     motion.addEventListener('change', stopRoll);
   }
+
+  const heroContent = document.querySelector('.hero__content');
+  if (!heroContent || new URLSearchParams(location.search).has('static')) return;
+
+  const finePointer = matchMedia('(pointer: fine)');
+  const layers = [...heroContent.querySelectorAll('[data-depth]')].map(element => ({
+    element,
+    distance: 18 * Number(element.dataset.depth)
+  }));
+  const target = { x: 0, y: 0 };
+  const position = { x: 0, y: 0 };
+  let parallaxFrame = 0;
+
+  function drawParallax() {
+    parallaxFrame = 0;
+    position.x += (target.x - position.x) * 0.08;
+    position.y += (target.y - position.y) * 0.08;
+    for (const { element, distance } of layers) {
+      element.style.translate = `${(-position.x * distance).toFixed(2)}px ${(-position.y * distance).toFixed(2)}px`;
+    }
+    if (Math.abs(target.x - position.x) > 0.001 || Math.abs(target.y - position.y) > 0.001) {
+      scheduleParallax();
+    }
+  }
+
+  function scheduleParallax() {
+    if (!parallaxFrame) parallaxFrame = requestAnimationFrame(drawParallax);
+  }
+
+  function resetParallax() {
+    target.x = target.y = 0;
+    scheduleParallax();
+  }
+
+  function stopParallax() {
+    cancelAnimationFrame(parallaxFrame);
+    parallaxFrame = 0;
+    target.x = target.y = position.x = position.y = 0;
+    for (const { element } of layers) element.style.translate = '';
+  }
+
+  window.addEventListener('pointermove', event => {
+    if (event.pointerType !== 'mouse' || motion.matches || !finePointer.matches) return;
+    target.x = event.clientX / window.innerWidth * 2 - 1;
+    target.y = event.clientY / window.innerHeight * 2 - 1;
+    scheduleParallax();
+  }, { passive: true });
+  document.documentElement.addEventListener('mouseleave', resetParallax);
+  window.addEventListener('blur', resetParallax);
+  motion.addEventListener('change', stopParallax);
+  finePointer.addEventListener('change', stopParallax);
 })();
