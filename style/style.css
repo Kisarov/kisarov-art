@@ -370,7 +370,7 @@ h1, h2, h3, h4, h5, h6, [role="heading"] {
 .site-nav .nav-logo {
   display: inline-flex;
   align-items: center;
-  gap: 8px;
+  gap: 12px;
   font-size: 15px;
   line-height: 1.2;
   white-space: nowrap;
@@ -444,6 +444,12 @@ h1, h2, h3, h4, h5, h6, [role="heading"] {
     left: 16px;
     right: 16px;
     gap: 8px;
+  }
+}
+
+@media (max-width: 360px) {
+  .site-nav .theme-btn {
+    padding-inline: 11px;
   }
 }
 
@@ -558,11 +564,11 @@ h1, h2, h3, h4, h5, h6, [role="heading"] {
   color: var(--color-text);
 }
 
-.hero__name[data-intro-reveal="waiting"] {
+:is(.hero__name, .card__title)[data-intro-reveal="waiting"] {
   opacity: 0;
 }
 
-.hero__name[data-intro-reveal="playing"] .weight-hover-word {
+:is(.hero__name, .card__title)[data-intro-reveal="playing"] .weight-hover-word {
   clip-path: inset(-0.15em -0.15em 0);
 }
 
