@@ -96,6 +96,7 @@
     if (loader && !started) await new Promise(resolve => setTimeout(resolve, 400));
     if (started) return;
     started = true;
+    document.querySelector('.site-nav')?.classList.add('site-nav--entering');
     if (loader) {
       loader.querySelector('path').addEventListener('animationend', () => loader.remove(), { once: true });
       loader.classList.add('page-loader--revealing');
