@@ -12,11 +12,11 @@
 
   const visibility = hero.style.visibility;
   const entrance = [];
-  const letters = [...heading.querySelectorAll('.weight-hover-letter')].filter(letter => letter.textContent.trim());
-  let headingAnimations = [];
+  const headings = [heading, ...document.querySelectorAll('.card .card__title')]
+    .filter(element => element.querySelector('.weight-hover-letter'));
+  const headingAnimations = new Map();
   let heroVisible = false;
   let headingVisible = false;
-  let headingRevealed = false;
   let started = false;
   let observer;
 
@@ -33,15 +33,22 @@
     }));
   }
 
-  function clearHeading() {
-    for (const animation of headingAnimations) animation.cancel();
-    headingAnimations = [];
-    delete heading.dataset.introReveal;
+  function clearHeading(element) {
+    for (const animation of headingAnimations.get(element) || []) animation.cancel();
+    headingAnimations.delete(element);
+    delete element.dataset.introReveal;
   }
 
-  function revealHeading() {
-    headingRevealed = true;
-    heading.dataset.introReveal = 'playing';
+  function resetHeading(element) {
+    if (element.dataset.introReveal === 'waiting') return;
+    clearHeading(element);
+    element.dataset.introReveal = 'waiting';
+  }
+
+  function revealHeading(element) {
+    if (element.dataset.introReveal !== 'waiting') return;
+    element.dataset.introReveal = 'playing';
+    const letters = [...element.querySelectorAll('.weight-hover-letter')].filter(letter => letter.textContent.trim());
     const animations = letters.map((letter, index) => letter.animate([
       { transform: 'translate3d(0, 1em, 0) rotate(10deg)' },
       { transform: 'translate3d(0, 0em, 0) rotate(0deg)' }
@@ -51,24 +58,21 @@
       easing: 'cubic-bezier(0.35, 0, 0, 1)',
       fill: 'backwards'
     }));
-    headingAnimations = animations;
+    headingAnimations.set(element, animations);
     Promise.allSettled(animations.map(animation => animation.finished)).then(() => {
-      if (headingAnimations === animations) clearHeading();
+      if (headingAnimations.get(element) === animations) clearHeading(element);
     });
   }
 
-  function updateHeading(entries) {
-    for (const entry of entries) {
-      if (entry.target === hero) heroVisible = entry.isIntersecting;
-      else headingVisible = entry.isIntersecting;
+  function updateHeadings(entries) {
+    for (const { target, isIntersecting } of entries) {
+      if (target === hero) heroVisible = isIntersecting;
+      else if (target === heading) headingVisible = isIntersecting;
+      else if (isIntersecting) revealHeading(target);
+      else resetHeading(target);
     }
-    if (!heroVisible) {
-      clearHeading();
-      headingRevealed = false;
-      heading.dataset.introReveal = 'waiting';
-    } else if (headingVisible && !headingRevealed) {
-      revealHeading();
-    }
+    if (!heroVisible && headings.includes(heading)) resetHeading(heading);
+    else if (headingVisible) revealHeading(heading);
   }
 
   function finishEntrance() {
@@ -82,7 +86,7 @@
     started = true;
     loader?.remove();
     observer?.disconnect();
-    clearHeading();
+    for (const element of headings) clearHeading(element);
     finishEntrance();
     motion.removeEventListener('change', stop);
   }
@@ -101,11 +105,13 @@
       loader.querySelector('path').addEventListener('animationend', () => loader.remove(), { once: true });
       loader.classList.add('page-loader--revealing');
     }
-    if (letters.length && 'IntersectionObserver' in window) {
-      heading.dataset.introReveal = 'waiting';
-      observer = new IntersectionObserver(updateHeading);
-      observer.observe(hero);
-      observer.observe(heading);
+    if (headings.length && 'IntersectionObserver' in window) {
+      observer = new IntersectionObserver(updateHeadings);
+      if (headings.includes(heading)) observer.observe(hero);
+      for (const element of headings) {
+        resetHeading(element);
+        observer.observe(element);
+      }
     }
     reveal(hero.querySelector('.hero__bio'), 0);
     reveal(hero.querySelector('.hero__skills'), 120);
