@@ -22,6 +22,13 @@
   --color-button-outline: #0003;
   --color-button-outline-hover: #000;
 
+  /* Плавающая навигация */
+  --color-nav-bg: #f0ede5;
+  --color-nav-text: #0c0c0b;
+  --color-nav-muted: #5b5a57;
+  --color-nav-border: rgba(12, 12, 11, 0.1);
+  --color-nav-shadow: rgba(0, 0, 0, 0.1);
+
   /* Подсветка и бейджи */
   --color-case-glow: #6366f1;
   --color-case-glow-authors: #20acbb;
@@ -331,6 +338,112 @@ h1, h2, h3, h4, h5, h6, [role="heading"] {
 
 
 /* index */
+.site-nav {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 200;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 22px 44px;
+  transition:
+    padding 0.45s cubic-bezier(0.4, 0, 0.2, 1),
+    top 0.45s cubic-bezier(0.4, 0, 0.2, 1),
+    left 0.45s cubic-bezier(0.4, 0, 0.2, 1),
+    right 0.45s cubic-bezier(0.4, 0, 0.2, 1),
+    border-radius 0.45s cubic-bezier(0.4, 0, 0.2, 1),
+    background 0.4s ease,
+    backdrop-filter 0.4s ease,
+    box-shadow 0.4s ease;
+}
+
+.site-nav.scrolled {
+  top: 16px;
+  left: 22%;
+  right: 22%;
+  gap: 48px;
+  padding: 14px 36px;
+  border-radius: 100px;
+  background: color-mix(in srgb, var(--color-nav-bg) 85%, transparent);
+  -webkit-backdrop-filter: blur(20px);
+  backdrop-filter: blur(20px);
+  box-shadow: 0 4px 24px var(--color-nav-shadow);
+}
+
+.site-nav .nav-logo img {
+  filter: brightness(0);
+}
+
+.site-nav .nav-right {
+  display: flex;
+  align-items: center;
+}
+
+.site-nav .theme-btn {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  padding: 7px 15px;
+  border: 1px solid var(--color-nav-border);
+  border-radius: 100px;
+  background: none;
+  color: var(--color-nav-muted);
+  font-family: inherit;
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  transition: background 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+}
+
+.site-nav .theme-btn:hover {
+  background: var(--color-nav-text);
+  color: var(--color-nav-bg);
+  border-color: var(--color-nav-text);
+}
+
+.site-nav .t-icon {
+  font-size: 13px;
+}
+
+.site-nav--entering :is(.nav-logo, .nav-right) {
+  animation: site-nav-fade-in 0.7s cubic-bezier(0.333333, 1, 0.666667, 1) backwards;
+}
+
+.site-nav--entering .nav-right {
+  animation-delay: 0.12s;
+}
+
+@keyframes site-nav-fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@media (max-width: 900px) {
+  .site-nav {
+    padding: 18px 24px;
+  }
+
+  .site-nav.scrolled {
+    top: 12px;
+    left: 16px;
+    right: 16px;
+    padding: 12px 20px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .site-nav,
+  .site-nav .theme-btn {
+    transition: none;
+  }
+
+  .site-nav--entering :is(.nav-logo, .nav-right) {
+    animation: none;
+  }
+}
+
 .page-loader {
   position: fixed;
   inset: 0;
@@ -602,7 +715,7 @@ h1, h2, h3, h4, h5, h6, [role="heading"] {
 @media (width < 768px) {
   .hero {
     grid-template-columns: minmax(0, 1fr);
-    padding-top: clamp(28px, 8vw, 48px);
+    padding-top: calc(64px + clamp(28px, 8vw, 48px));
   }
 
   .hero__cube {
