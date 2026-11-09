@@ -9,13 +9,15 @@
     window.addEventListener('pageshow', updateNav);
   }
 
-  for (const button of document.querySelectorAll('.button')) {
-    const text = button.textContent.trim();
+  for (const button of document.querySelectorAll('.button, .site-nav .theme-btn')) {
+    const icon = button.querySelector('.t-icon');
+    const text = (icon?.nextElementSibling || button).textContent.trim();
     if (!text) continue;
 
     const label = document.createElement('span');
     label.className = 'button__label';
     label.setAttribute('aria-hidden', 'true');
+    if (icon) label.append(icon);
     let index = 0;
 
     for (const part of text.split(/(\s+)/u)) {
