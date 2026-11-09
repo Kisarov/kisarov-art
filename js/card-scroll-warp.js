@@ -238,7 +238,7 @@ float linearStep(float edge0,float edge1,float x){return clamp((x-edge0)/(edge1-
       else previousTime = 0;
       return;
     }
-    const scale = Math.min(window.devicePixelRatio || 1, 2);
+    const scale = Math.min(window.devicePixelRatio || 1, 1.5);
     if (canvas.width !== Math.round(width * scale) || canvas.height !== Math.round(height * scale)) {
       canvas.width = Math.round(width * scale);
       canvas.height = Math.round(height * scale);
@@ -252,7 +252,8 @@ float linearStep(float edge0,float edge1,float x){return clamp((x-edge0)/(edge1-
       gl.uniformMatrix4fv(uniforms.projectionMatrix, false,
         new Float32Array([2 / width, 0, 0, 0, 0, 2 / height, 0, 0, 0, 0, -1, 0, -1, 1, 0, 1]));
     }
-    gl.uniform1f(uniforms.u_rippleStrength, Math.min(.15, scroll.strength * .5));
+    const ripple = Math.min(.15, scroll.strength * .5);
+    gl.uniform1f(uniforms.u_rippleStrength, ripple);
     gl.uniform2f(uniforms.u_blueNoiseCoordOffset, Math.random(), Math.random());
     let animating = hoverAnimating || scroll.wheel || scroll.drag || scroll.velocity !== 0 || scroll.strength > .00001;
     for (const cover of covers) {
@@ -296,7 +297,8 @@ float linearStep(float edge0,float edge1,float x){return clamp((x-edge0)/(edge1-
       gl.uniform2f(uniforms.u_domXY, rect.left, rect.top + scroll.native - scroll.pixel);
       gl.uniform2f(uniforms.u_domWH, Math.ceil(rect.width), Math.ceil(rect.height));
       gl.uniform2f(uniforms.u_domPivot, Math.ceil(rect.width) * .5, Math.ceil(rect.height) * .5);
-      gl.uniform4f(uniforms.u_domPadding, cover.index % 2 ? 0 : 1000, cover.index % 2 ? 1000 : 0, 0, 0);
+      const padding = Math.ceil(rect.width * ripple * .5) + 2;
+      gl.uniform4f(uniforms.u_domPadding, cover.index % 2 ? 0 : padding, cover.index % 2 ? padding : 0, 0, 0);
       gl.uniform2f(uniforms.u_textureSize, cover.image.naturalWidth, cover.image.naturalHeight);
       gl.uniform1f(uniforms.u_globalRadius, cover.radius);
       gl.uniform1f(uniforms.u_showRatio, expoOut(cover.showTime / 1.5));
