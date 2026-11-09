@@ -325,6 +325,10 @@ h1, h2, h3, h4, h5, h6, [role="heading"] {
 
 
 /* index */
+.page:has(.hero) {
+  overflow-x: clip;
+}
+
 .hero {
   display: grid;
   grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr);
@@ -332,7 +336,6 @@ h1, h2, h3, h4, h5, h6, [role="heading"] {
   text-align: left;
   gap: clamp(24px, 4vw, 72px);
   padding: 150px 0 200px 0;
-  overflow-x: clip;
 }
 
 .hero__content {
@@ -518,7 +521,6 @@ h1, h2, h3, h4, h5, h6, [role="heading"] {
   .hero {
     grid-template-columns: minmax(0, 1fr);
     padding-top: clamp(28px, 8vw, 48px);
-    overflow: visible;
   }
 
   .hero__cube {
