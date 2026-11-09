@@ -3,6 +3,7 @@
 
   const motion = matchMedia('(prefers-reduced-motion: reduce)');
   const letterTiming = { duration: 500, easing: 'cubic-bezier(0.333333, 1, 0.666667, 1)' };
+  const enterOffset = 200;
   const leave = [
     { transform: 'translateY(0)', opacity: 1 },
     { transform: 'translateY(-10px)', opacity: 0 }
@@ -59,8 +60,8 @@
       animations = letters.flatMap((letter, index) => {
         const delay = rollDelay + (index % letterCount) * 20;
         return [
-          letter.animate(leave, { ...letterTiming, delay }),
-          letter.animate(enter, { ...letterTiming, delay: delay + 200 })
+          letter.animate(leave, { ...letterTiming, delay, endDelay: enterOffset - letterTiming.duration }),
+          letter.animate(enter, { ...letterTiming, duration: 250, delay: delay + enterOffset })
         ];
       });
     }
