@@ -1,6 +1,7 @@
 :root {
   /* Фоны и границы */
   --color-page-bg: #fff;
+  --color-page-loader: #07246b;
   --color-case-header-bg: #f5f5f5;
   --color-border: #e6e6e6;
   --color-divider: #dadada;
@@ -325,6 +326,57 @@ h1, h2, h3, h4, h5, h6, [role="heading"] {
 
 
 /* index */
+.page-loader {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  overflow: hidden;
+  pointer-events: none;
+  color: var(--color-page-loader);
+  background: currentColor;
+  animation: page-loader-fallback 3s steps(1, end) forwards;
+}
+
+.page-loader--revealing {
+  background: transparent;
+}
+
+.page-loader__spiral {
+  position: absolute;
+  inset: -15% auto auto -15%;
+  width: 130%;
+  height: 130%;
+}
+
+.page-loader__spiral path {
+  stroke-width: 30%;
+  stroke-dasharray: 1 1;
+  stroke-dashoffset: 0;
+}
+
+.page-loader--revealing .page-loader__spiral path {
+  animation: page-loader-unwind 1250ms
+    linear(0, 0.03125 12.5%, 0.125 25%, 0.28125 37.5%, 0.5 50%, 0.71875 62.5%, 0.875 75%, 0.96875 87.5%, 1)
+    forwards;
+}
+
+@keyframes page-loader-unwind {
+  to {
+    stroke-width: 5%;
+    stroke-dashoffset: -1;
+  }
+}
+
+@keyframes page-loader-fallback {
+  to { visibility: hidden; }
+}
+
+@media (prefers-reduced-motion: reduce), (scripting: none) {
+  .page-loader {
+    display: none;
+  }
+}
+
 .page:has(.hero) {
   overflow-x: clip;
 }
