@@ -12,10 +12,12 @@
 
   const visibility = hero.style.visibility;
   const entrance = [];
+  const titleVariants = [...heading.querySelectorAll('.hero__title-variant')];
   const headings = [heading, ...document.querySelectorAll('.card .card__title')]
     .filter(element => element.querySelector('.weight-hover-letter'));
   const headingAnimations = new Map();
-  let heroVisible = false;
+  let titleIndex = 0;
+  let titleTimer;
   let headingVisible = false;
   let started = false;
   let observer;
@@ -39,39 +41,66 @@
     delete element.dataset.introReveal;
   }
 
+  function showTitle(index) {
+    if (index === titleIndex) return;
+    titleVariants[titleIndex].removeAttribute('data-current');
+    titleIndex = index;
+    titleVariants[index].setAttribute('data-current', '');
+    heading.setAttribute('aria-label', titleVariants[index].textContent.trim());
+  }
+
   function resetHeading(element) {
     if (element.dataset.introReveal === 'waiting') return;
+    if (element === heading) {
+      clearTimeout(titleTimer);
+      showTitle(0);
+    }
     clearHeading(element);
     element.dataset.introReveal = 'waiting';
   }
 
-  function revealHeading(element) {
-    if (element.dataset.introReveal !== 'waiting') return;
+  function revealHeading(element, leaving = false) {
+    if (!leaving && element.dataset.introReveal !== 'waiting') return;
     element.dataset.introReveal = 'playing';
-    const letters = [...element.querySelectorAll('.weight-hover-letter')].filter(letter => letter.textContent.trim());
-    const animations = letters.map((letter, index) => letter.animate([
-      { transform: 'translate3d(0, 1em, 0) rotate(10deg)' },
-      { transform: 'translate3d(0, 0em, 0) rotate(0deg)' }
-    ], {
-      duration: 1000 / 1.5,
-      delay: index * 1000 / 30,
-      easing: 'cubic-bezier(0.35, 0, 0, 1)',
-      fill: 'backwards'
+    const variant = element === heading ? titleVariants[titleIndex] || element : element;
+    const letters = [...variant.querySelectorAll('.weight-hover-letter')].filter(letter => letter.textContent.trim());
+    const rest = { transform: 'translate3d(0, 0em, 0) rotate(0deg)' };
+    const keyframes = leaving
+      ? [rest, { transform: 'translate3d(0, -1.2em, 0) rotate(-10deg)' }]
+      : [{ transform: 'translate3d(0, 1em, 0) rotate(10deg)' }, rest];
+    const animations = letters.map((letter, index) => letter.animate(keyframes, {
+      duration: leaving ? 380 : 1000 / 1.5,
+      delay: leaving ? index * 12 : index * 1000 / 30,
+      easing: leaving ? 'cubic-bezier(0.4, 0, 1, 1)' : 'cubic-bezier(0.35, 0, 0, 1)',
+      fill: leaving ? 'forwards' : 'backwards'
     }));
     headingAnimations.set(element, animations);
     Promise.allSettled(animations.map(animation => animation.finished)).then(() => {
-      if (headingAnimations.get(element) === animations) clearHeading(element);
+      if (headingAnimations.get(element) !== animations) return;
+      clearHeading(element);
+      if (element !== heading || titleVariants.length < 2) return;
+      if (leaving) {
+        showTitle((titleIndex + 1) % titleVariants.length);
+        heading.dataset.introReveal = 'waiting';
+        revealHeading(heading);
+      } else {
+        titleTimer = setTimeout(() => {
+          if (headingVisible && !document.hidden) revealHeading(heading, true);
+        }, 3500);
+      }
     });
   }
 
   function updateHeadings(entries) {
     for (const { target, isIntersecting } of entries) {
-      if (target === hero) heroVisible = isIntersecting;
-      else if (target === heading) headingVisible = isIntersecting;
-      else if (isIntersecting) revealHeading(target);
+      if (target === heading) headingVisible = isIntersecting;
+      if (isIntersecting && (target !== heading || !document.hidden)) revealHeading(target);
       else resetHeading(target);
     }
-    if (!heroVisible && headings.includes(heading)) resetHeading(heading);
+  }
+
+  function updateTitleVisibility() {
+    if (document.hidden) resetHeading(heading);
     else if (headingVisible) revealHeading(heading);
   }
 
@@ -86,9 +115,12 @@
     started = true;
     loader?.remove();
     observer?.disconnect();
+    clearTimeout(titleTimer);
+    showTitle(0);
     for (const element of headings) clearHeading(element);
     finishEntrance();
     motion.removeEventListener('change', stop);
+    document.removeEventListener('visibilitychange', updateTitleVisibility);
   }
 
   hero.style.visibility = 'hidden';
@@ -107,7 +139,7 @@
     }
     if (headings.length && 'IntersectionObserver' in window) {
       observer = new IntersectionObserver(updateHeadings);
-      if (headings.includes(heading)) observer.observe(hero);
+      if (headings.includes(heading)) document.addEventListener('visibilitychange', updateTitleVisibility);
       for (const element of headings) {
         resetHeading(element);
         observer.observe(element);
