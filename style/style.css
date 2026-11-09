@@ -516,6 +516,7 @@ h1, h2, h3, h4, h5, h6, [role="heading"] {
 }
 
 .page:has(.hero) {
+  position: relative;
   overflow-x: clip;
 }
 
@@ -623,15 +624,18 @@ h1, h2, h3, h4, h5, h6, [role="heading"] {
 }
 
 .scroll-hint {
+  position: absolute;
+  top: 110px;
+  right: 44px;
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: 10px;
-  margin-top: 24px;
   font-size: 9px;
   letter-spacing: 0.18em;
   text-transform: uppercase;
   color: var(--color-text-secondary);
+  pointer-events: none;
 }
 
 .scroll-hint span {
@@ -659,6 +663,19 @@ h1, h2, h3, h4, h5, h6, [role="heading"] {
 @keyframes scroll-hint-line {
   from { transform: translateY(-100%); }
   to { transform: translateY(100%); }
+}
+
+@media (max-width: 900px) {
+  .hero {
+    position: relative;
+  }
+
+  .scroll-hint {
+    top: auto;
+    right: 0;
+    bottom: 56px;
+    margin-right: calc(44px - var(--page-gutter));
+  }
 }
 
 .button,
@@ -1063,6 +1080,12 @@ h1, h2, h3, h4, h5, h6, [role="heading"] {
     padding-bottom: 56px;
   }
 
+  .scroll-hint {
+    position: static;
+    grid-column: 1 / -1;
+    justify-self: end;
+  }
+
   .hero__name {
     font-size: 48px;
   }
@@ -1135,11 +1158,6 @@ h1, h2, h3, h4, h5, h6, [role="heading"] {
     gap: 28px;
   }
 
-  .hero {
-    gap: 16px;
-    padding-bottom: 48px;
-  }
-  
   .card__title {
     font-size: 28px;
   }
