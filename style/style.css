@@ -1,7 +1,7 @@
 :root {
   /* Фоны и границы */
   --color-page-bg: #fff;
-  --color-page-loader: #07246b;
+  --color-page-loader: #121212;
   --color-case-header-bg: #f5f5f5;
   --color-border: #e6e6e6;
   --color-divider: #dadada;
@@ -67,8 +67,12 @@ img {
   max-width: 100%;
 }
 
-body {
+body,
+.hero__person {
   font-family: 'Montserrat', Arial, Helvetica, sans-serif;
+}
+
+body {
   background: var(--color-page-bg);
   color: var(--color-text);
   -webkit-font-smoothing: antialiased;
@@ -435,12 +439,27 @@ h1, h2, h3, h4, h5, h6, [role="heading"] {
   clip-path: inset(-0.15em -0.15em 0);
 }
 
+.hero__title-product {
+  display: inline-block;
+}
+
+.hero__person,
 .hero__bio,
 .hero__skills {
   font-size: 15px;
   font-weight: 400;
   line-height: 1.6;
   color: var(--color-text);
+}
+
+.hero__person {
+  position: absolute;
+  inset-inline-start: calc(var(--hero-product-width, 0px) + 8px);
+  inset-block-start: calc(var(--hero-product-height, 0px) * 0.18);
+  transform: translateY(-100%);
+  line-height: 1.2;
+  text-align: left;
+  white-space: nowrap;
 }
 
 .hero__bio {
@@ -577,6 +596,17 @@ h1, h2, h3, h4, h5, h6, [role="heading"] {
 
   .hero__cube {
     display: none;
+  }
+
+  .hero__person {
+    inset-block-start: calc(var(--hero-product-height, 0px) * 0.06);
+  }
+}
+
+@media (max-width: 360px) {
+  .hero__person {
+    inset-inline-start: auto;
+    inset-inline-end: calc(100% - var(--hero-product-width, 100%));
   }
 }
 
