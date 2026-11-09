@@ -19,13 +19,12 @@
   --color-button-primary-bg-hover: var(--color-page-bg);
   --color-button-primary-text-hover: var(--color-text);
   --color-button-back-bg-hover: #303030;
-  --color-button-outline: #0003;
+  --color-button-outline: #0000001a;
   --color-button-outline-hover: #000;
 
   /* Плавающая навигация */
   --color-nav-bg: #f4f4f4;
   --color-nav-muted: #5b5a57;
-  --color-nav-border: rgba(12, 12, 11, 0.1);
 
   /* Подсветка и бейджи */
   --color-case-glow: #6366f1;
@@ -388,7 +387,6 @@ h1, h2, h3, h4, h5, h6, [role="heading"] {
   border: 0;
   border-radius: 100px;
   color: var(--color-nav-muted);
-  box-shadow: inset 0 0 0 1px var(--color-nav-border);
   font-family: inherit;
   font-size: 11px;
   letter-spacing: 0.08em;
@@ -697,11 +695,11 @@ h1, h2, h3, h4, h5, h6, [role="heading"] {
 .site-nav .theme-btn {
   --button-fill-color: var(--color-button-outline-hover);
   --button-ink-color: var(--color-button-text);
+  box-shadow: inset 0 0 0 1px var(--color-button-outline);
 }
 
 .button.secondary {
   color: var(--color-text);
-  box-shadow: inset 0 0 0 1px var(--color-button-outline);
 }
 
 :is(.button.secondary, .site-nav .theme-btn):is(:hover, :focus-visible) {
