@@ -30,7 +30,7 @@
   /* Линия при прокрутке и частицы куба */
   --color-scroll-line-start: #2a38ee;
   --color-scroll-line-end: #5a90ff;
-  --color-cube-particles: #c4c4c4;
+  --color-cube-particles: #a1a1a1;
 }
 
 *,
@@ -325,10 +325,6 @@ h1, h2, h3, h4, h5, h6, [role="heading"] {
 
 
 /* index */
-.page:has(.hero) {
-  overflow-x: clip;
-}
-
 .hero {
   display: grid;
   grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr);
@@ -336,6 +332,7 @@ h1, h2, h3, h4, h5, h6, [role="heading"] {
   text-align: left;
   gap: clamp(24px, 4vw, 72px);
   padding: 150px 0 200px 0;
+  overflow-x: clip;
 }
 
 .hero__content {
@@ -408,7 +405,7 @@ h1, h2, h3, h4, h5, h6, [role="heading"] {
 
 .button {
   --button-fill-duration: 240ms;
-  --button-roll-delay-ms: 100;
+  --button-roll-delay: 100ms;
   --button-fill-ease: cubic-bezier(0.22, 0.61, 0.36, 0.7);
   position: relative;
   overflow: hidden;
@@ -471,8 +468,19 @@ h1, h2, h3, h4, h5, h6, [role="heading"] {
   vertical-align: top;
 }
 
+.button__char-mask {
+  overflow: hidden;
+}
+
 .button__char {
   display: block;
+  text-shadow: 0 1lh currentColor;
+  transition: transform 420ms cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+.button:is(:hover, :focus-visible) .button__char {
+  transform: translateY(-100%);
+  transition-delay: calc(var(--button-roll-delay) + min(var(--button-char-index) * 20ms, 200ms));
 }
 
 .button.secondary {
@@ -488,8 +496,13 @@ h1, h2, h3, h4, h5, h6, [role="heading"] {
 
 @media (prefers-reduced-motion: reduce) {
   .button,
-  .button__ink {
+  .button__ink,
+  .button__char {
     transition: none;
+  }
+
+  .button:is(:hover, :focus-visible) .button__char {
+    transform: none;
   }
 }
 
@@ -505,6 +518,7 @@ h1, h2, h3, h4, h5, h6, [role="heading"] {
   .hero {
     grid-template-columns: minmax(0, 1fr);
     padding-top: clamp(28px, 8vw, 48px);
+    overflow: visible;
   }
 
   .hero__cube {
