@@ -23,8 +23,7 @@
   --color-button-outline-hover: #000;
 
   /* Плавающая навигация */
-  --color-nav-bg: #ffffff;
-  --color-nav-logo-bg: #000;
+  --color-nav-bg: #f4f4f4;
   --color-nav-text: #0c0c0b;
   --color-nav-muted: #5b5a57;
   --color-nav-border: rgba(12, 12, 11, 0.1);
@@ -358,8 +357,7 @@ h1, h2, h3, h4, h5, h6, [role="heading"] {
     left 0.45s cubic-bezier(0.4, 0, 0.2, 1),
     right 0.45s cubic-bezier(0.4, 0, 0.2, 1),
     border-radius 0.45s cubic-bezier(0.4, 0, 0.2, 1),
-    background 0.4s ease,
-    backdrop-filter 0.4s ease;
+    background 0.4s ease;
 }
 
 .site-nav.scrolled {
@@ -369,18 +367,11 @@ h1, h2, h3, h4, h5, h6, [role="heading"] {
   gap: 48px;
   padding: 14px 36px;
   border-radius: 100px;
-  background: color-mix(in srgb, var(--color-nav-bg) 85%, transparent);
-  -webkit-backdrop-filter: blur(20px);
-  backdrop-filter: blur(20px);
+  background: var(--color-nav-bg);
 }
 
-.site-nav .nav-logo {
-  display: grid;
-  place-items: center;
-  width: 30px;
-  height: 30px;
-  border-radius: 4px;
-  background: var(--color-nav-logo-bg);
+.site-nav .nav-logo img {
+  filter: brightness(0);
 }
 
 .site-nav .nav-right {
@@ -406,7 +397,7 @@ h1, h2, h3, h4, h5, h6, [role="heading"] {
 
 .site-nav .theme-btn:hover {
   background: var(--color-nav-text);
-  color: var(--color-nav-bg);
+  color: var(--color-page-bg);
   border-color: var(--color-nav-text);
 }
 
