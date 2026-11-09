@@ -3,8 +3,12 @@
 
   const hero = document.querySelector('.hero');
   const heading = hero?.querySelector('.hero__name');
+  const loader = document.querySelector('.page-loader');
   const motion = matchMedia('(prefers-reduced-motion: reduce)');
-  if (!heading || !hero.animate || motion.matches || new URLSearchParams(location.search).has('static')) return;
+  if (!heading || !hero.animate || motion.matches || new URLSearchParams(location.search).has('static')) {
+    loader?.remove();
+    return;
+  }
 
   const visibility = hero.style.visibility;
   const entrance = [];
@@ -76,6 +80,7 @@
 
   function stop() {
     started = true;
+    loader?.remove();
     observer?.disconnect();
     clearHeading();
     finishEntrance();
@@ -86,10 +91,15 @@
   motion.addEventListener('change', stop);
   let fontTimeout;
   const fontLimit = new Promise(resolve => { fontTimeout = setTimeout(resolve, 500); });
-  Promise.race([document.fonts.ready, fontLimit]).then(() => {
+  Promise.race([document.fonts.ready, fontLimit]).then(async () => {
     clearTimeout(fontTimeout);
+    if (loader && !started) await new Promise(resolve => setTimeout(resolve, 400));
     if (started) return;
     started = true;
+    if (loader) {
+      loader.querySelector('path').addEventListener('animationend', () => loader.remove(), { once: true });
+      loader.classList.add('page-loader--revealing');
+    }
     if (letters.length && 'IntersectionObserver' in window) {
       heading.dataset.introReveal = 'waiting';
       observer = new IntersectionObserver(updateHeading);
