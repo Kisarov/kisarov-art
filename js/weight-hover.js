@@ -15,21 +15,26 @@
     previousTime = time;
     let moving = false;
 
-    for (const heading of headings) {
-      const bounds = heading.element.getBoundingClientRect();
-      const visible = bounds.bottom >= 0 && bounds.top <= innerHeight;
+    const bounds = headings.map(heading => heading.element.getBoundingClientRect());
+    for (const [index, heading] of headings.entries()) {
+      const rect = bounds[index];
+      const visible = rect.bottom >= 0 && rect.top <= innerHeight;
       for (const letter of heading.letters) {
         const influence = visible && !motion.matches
           ? Math.max(0, 1 - Math.hypot(
-              pointer.x - bounds.left - letter.x,
-              pointer.y - bounds.top - letter.y
+              pointer.x - rect.left - letter.x,
+              pointer.y - rect.top - letter.y
             ) / heading.radius)
           : 0;
         const target = heading.rest + (heading.near - heading.rest) * influence * influence * (3 - 2 * influence);
+        if (letter.weight === target) continue;
+        const previousWeight = letter.weight.toFixed(1);
         letter.weight += (target - letter.weight) * speed;
         if (Math.abs(target - letter.weight) < 0.5) letter.weight = target;
         else moving = true;
-        letter.span.style.fontVariationSettings = `"wght" ${letter.weight.toFixed(1)}`;
+        if (letter.weight.toFixed(1) !== previousWeight) {
+          letter.span.style.fontVariationSettings = `"wght" ${letter.weight.toFixed(1)}`;
+        }
       }
     }
     frame = moving ? requestAnimationFrame(animate) : 0;
