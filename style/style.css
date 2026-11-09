@@ -36,6 +36,7 @@
   /* Линия при прокрутке и частицы куба */
   --color-scroll-line-start: #2a38ee;
   --color-scroll-line-end: #5a90ff;
+  --color-scroll-hint: #1858c7;
   --color-cube-particles: #a1a1a1;
 
   --page-max-width: 1920px;
@@ -619,6 +620,45 @@ h1, h2, h3, h4, h5, h6, [role="heading"] {
   display: flex;
   flex-wrap: wrap;
   gap: 12px;
+}
+
+.scroll-hint {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  margin-top: 24px;
+  font-size: 9px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--color-text-secondary);
+}
+
+.scroll-hint span {
+  writing-mode: vertical-lr;
+}
+
+.scroll-hint .sh-line {
+  position: relative;
+  width: 1px;
+  height: 64px;
+  overflow: hidden;
+  background-color: var(--color-border);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .scroll-hint .sh-line::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-color: var(--color-scroll-hint);
+    animation: scroll-hint-line 2.4s ease infinite;
+  }
+}
+
+@keyframes scroll-hint-line {
+  from { transform: translateY(-100%); }
+  to { transform: translateY(100%); }
 }
 
 .button,
