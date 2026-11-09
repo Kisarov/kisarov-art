@@ -39,7 +39,19 @@
   }
 
   const heroContent = document.querySelector('.hero__content');
-  if (!heroContent || new URLSearchParams(location.search).has('static')) return;
+  if (!heroContent) return;
+
+  const product = heroContent.querySelector('.hero__title-product');
+  if (product) {
+    const alignPerson = () => {
+      heroContent.style.setProperty('--hero-product-width', `${product.offsetWidth}px`);
+      heroContent.style.setProperty('--hero-product-height', `${product.offsetHeight}px`);
+    };
+    alignPerson();
+    if ('ResizeObserver' in window) new ResizeObserver(alignPerson).observe(product);
+  }
+
+  if (new URLSearchParams(location.search).has('static')) return;
 
   const motion = matchMedia('(prefers-reduced-motion: reduce)');
   const finePointer = matchMedia('(pointer: fine)');
