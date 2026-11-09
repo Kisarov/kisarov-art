@@ -66,8 +66,8 @@
     const letters = [...variant.querySelectorAll('.weight-hover-letter')].filter(letter => letter.textContent.trim());
     const rest = { transform: 'translate3d(0, 0em, 0) rotate(0deg)' };
     const keyframes = leaving
-      ? [rest, { transform: 'translate3d(0, -1.2em, 0) rotate(-10deg)' }]
-      : [{ transform: 'translate3d(0, 1em, 0) rotate(10deg)' }, rest];
+      ? [rest, { transform: 'translate3d(0, -1.4em, 0) rotate(-10deg)' }]
+      : [{ transform: 'translate3d(0, 1.4em, 0) rotate(10deg)' }, rest];
     const animations = letters.map((letter, index) => letter.animate(keyframes, {
       duration: leaving ? 380 : 1000 / 1.5,
       delay: leaving ? index * 12 : index * 1000 / 30,
