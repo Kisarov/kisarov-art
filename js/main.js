@@ -1,6 +1,20 @@
 (() => {
   'use strict';
 
+  const motion = matchMedia('(prefers-reduced-motion: reduce)');
+  const nav = document.querySelector('.site-nav');
+  if (nav) {
+    const updateNav = () => nav.classList.toggle('scrolled', window.scrollY > 60);
+    updateNav();
+    window.addEventListener('scroll', updateNav, { passive: true });
+    window.addEventListener('pageshow', updateNav);
+    nav.querySelector('.nav-logo')?.addEventListener('click', event => {
+      if (event.defaultPrevented || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+      event.preventDefault();
+      window.scrollTo({ top: 0, behavior: motion.matches ? 'instant' : 'smooth' });
+    });
+  }
+
   for (const button of document.querySelectorAll('.button')) {
     const text = button.textContent.trim();
     if (!text) continue;
@@ -53,7 +67,6 @@
 
   if (new URLSearchParams(location.search).has('static')) return;
 
-  const motion = matchMedia('(prefers-reduced-motion: reduce)');
   const finePointer = matchMedia('(pointer: fine)');
   const layers = [...heroContent.querySelectorAll('[data-depth]')].map(element => ({
     element,
