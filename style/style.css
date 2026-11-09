@@ -528,6 +528,7 @@ h1, h2, h3, h4, h5, h6, [role="heading"] {
 }
 
 .hero__content {
+  container-type: inline-size;
   position: relative;
   z-index: 1;
   display: flex;
@@ -556,12 +557,27 @@ h1, h2, h3, h4, h5, h6, [role="heading"] {
 }
 
 .hero__name {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  width: 100%;
   margin-bottom: 20px;
   font-size: 100px;
   font-weight: 600;
   line-height: 1.04;
   text-wrap: balance;
   color: var(--color-text);
+}
+
+.hero__title-variant {
+  grid-area: 1 / 1;
+}
+
+.hero__title-variant:not([data-current]) {
+  visibility: hidden;
+}
+
+.hero__title-long-word {
+  font-size: min(1em, 14cqw);
 }
 
 :is(.hero__name, .card__title)[data-intro-reveal="waiting"] {
