@@ -22,11 +22,12 @@
   --color-button-outline: #0003;
   --color-button-outline-hover: #000;
 
-  /* Подсветка и бейджи кейсов */
+  /* Подсветка и бейджи */
   --color-case-glow: #6366f1;
   --color-case-glow-authors: #20acbb;
   --color-badge-bg: #f8ede2;
   --color-badge-text: #d86111;
+  --color-skill-badge-bg: #f4f4f4;
 
   /* Линия при прокрутке и частицы куба */
   --color-scroll-line-start: #2a38ee;
@@ -468,7 +469,17 @@ h1, h2, h3, h4, h5, h6, [role="heading"] {
 }
 
 .hero__skills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
   margin-bottom: 32px;
+  list-style: none;
+}
+
+.hero__badge {
+  padding: 4px 10px;
+  border-radius: 8px;
+  background-color: var(--color-skill-badge-bg);
 }
 
 .hero__links {
