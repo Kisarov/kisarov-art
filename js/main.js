@@ -83,9 +83,11 @@
     element,
     distance: 18 * Number(element.dataset.depth)
   }));
+  if (!layers.length) return;
   const target = { x: 0, y: 0 };
   const position = { x: 0, y: 0 };
   let parallaxFrame = 0;
+  let heroVisible = false;
 
   function drawParallax() {
     parallaxFrame = 0;
@@ -100,6 +102,7 @@
   }
 
   function scheduleParallax() {
+    if (!heroVisible || document.hidden || motion.matches || !finePointer.matches) return;
     if (!parallaxFrame) parallaxFrame = requestAnimationFrame(drawParallax);
   }
 
@@ -116,7 +119,7 @@
   }
 
   window.addEventListener('pointermove', event => {
-    if (event.pointerType !== 'mouse' || motion.matches || !finePointer.matches) return;
+    if (event.pointerType !== 'mouse' || !heroVisible || document.hidden || motion.matches || !finePointer.matches) return;
     target.x = event.clientX / window.innerWidth * 2 - 1;
     target.y = event.clientY / window.innerHeight * 2 - 1;
     scheduleParallax();
@@ -125,4 +128,11 @@
   window.addEventListener('blur', resetParallax);
   motion.addEventListener('change', stopParallax);
   finePointer.addEventListener('change', stopParallax);
+  document.addEventListener('visibilitychange', () => {
+    if (document.hidden) stopParallax();
+  });
+  new IntersectionObserver(([entry]) => {
+    heroVisible = entry.isIntersecting;
+    if (!heroVisible) stopParallax();
+  }).observe(heroContent.closest('.hero') || heroContent);
 })();
