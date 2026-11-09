@@ -225,6 +225,19 @@ float linearStep(float edge0,float edge1,float x){return clamp((x-edge0)/(edge1-
     updateScroll(dt, time / 1000);
     const width = document.documentElement.clientWidth;
     const height = window.innerHeight;
+    for (const cover of covers) {
+      cover.range = cover.card.getBoundingClientRect();
+      cover.rect = cover.box.getBoundingClientRect();
+      if (cover.range.top >= height || cover.range.bottom <= 0) cover.showTime = 0;
+      else cover.showTime += dt;
+    }
+    if (!covers.some(({ rect }) => rect.top < height && rect.bottom > 0 && rect.width && rect.height)) {
+      canvas.hidden = true;
+      cardHover?.reset();
+      if (scroll.wheel || scroll.drag || scroll.velocity !== 0 || scroll.strength > .00001) schedule();
+      else previousTime = 0;
+      return;
+    }
     const scale = Math.min(window.devicePixelRatio || 1, 2);
     if (canvas.width !== Math.round(width * scale) || canvas.height !== Math.round(height * scale)) {
       canvas.width = Math.round(width * scale);
@@ -243,8 +256,6 @@ float linearStep(float edge0,float edge1,float x){return clamp((x-edge0)/(edge1-
     gl.uniform2f(uniforms.u_blueNoiseCoordOffset, Math.random(), Math.random());
     let animating = hoverAnimating || scroll.wheel || scroll.drag || scroll.velocity !== 0 || scroll.strength > .00001;
     for (const cover of covers) {
-      cover.range = cover.card.getBoundingClientRect();
-      cover.rect = cover.box.getBoundingClientRect();
       if (measureStyle) cover.radius = parseFloat(getComputedStyle(cover.box).borderTopLeftRadius) || 0;
       if (measureStyle || cover.imageScaling || cover.measureImageScale) {
         const transform = getComputedStyle(cover.image).transform;
@@ -256,11 +267,9 @@ float linearStep(float edge0,float edge1,float x){return clamp((x-edge0)/(edge1-
     for (const cover of covers) {
       const { range, rect } = cover;
       if (range.top >= height || range.bottom <= 0) {
-        cover.showTime = 0;
         cover.box.style.opacity = cover.opacity;
         continue;
       }
-      cover.showTime += dt;
       if (rect.top >= height || rect.bottom <= 0 || !rect.width || !rect.height ||
           !cover.image.complete || !cover.image.naturalWidth || cover.failed) {
         cover.box.style.opacity = cover.opacity;
