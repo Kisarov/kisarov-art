@@ -631,6 +631,10 @@ h1, h2, h3, h4, h5, h6, [role="heading"] {
   gap: 12px;
 }
 
+.hero__links .button {
+  border-radius: 999px;
+}
+
 .scroll-hint {
   position: absolute;
   top: 110px;
@@ -819,6 +823,17 @@ h1, h2, h3, h4, h5, h6, [role="heading"] {
 
 .projects {
   display: grid;
+  gap: 32px;
+}
+
+.projects__title {
+  font-size: 60px;
+  font-weight: 600;
+  line-height: 1.04;
+}
+
+.projects__grid {
+  display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 100px 30px;
 }
@@ -1005,7 +1020,7 @@ h1, h2, h3, h4, h5, h6, [role="heading"] {
     font-size: 18px;
   }
   
-  .projects {
+  .projects__grid {
     gap: 72px 24px;
   }
   
@@ -1097,7 +1112,7 @@ h1, h2, h3, h4, h5, h6, [role="heading"] {
     font-size: 48px;
   }
   
-  .projects {
+  .projects__grid {
     grid-template-columns: 1fr;
     gap: 64px;
   }
@@ -1173,7 +1188,7 @@ h1, h2, h3, h4, h5, h6, [role="heading"] {
     font-size: 16px;
   }
   
-  .projects {
+  .projects__grid {
     gap: 48px;
   }
   
