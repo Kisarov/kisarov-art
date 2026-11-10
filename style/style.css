@@ -894,13 +894,18 @@ h1, h2, h3, h4, h5, h6, [role="heading"] {
   transform: translate(-50%, -50%) scale(1);
 }
 
+.project-cursor__arrow {
+  width: 32px;
+  height: 32px;
+}
+
 .project-cursor:not(.is-visible) .project-cursor__arrow {
   visibility: hidden;
 }
 
 @media (prefers-reduced-motion: no-preference) {
   .project-cursor.is-visible .project-cursor__arrow {
-    animation: project-cursor-arrow 0.6s linear infinite;
+    animation: project-cursor-arrow 0.4s linear infinite;
   }
 }
 
@@ -911,8 +916,8 @@ h1, h2, h3, h4, h5, h6, [role="heading"] {
 }
 
 @keyframes project-cursor-arrow {
-  from { transform: translateX(-88px); }
-  to { transform: translateX(88px); }
+  from { transform: translateX(-92px); }
+  to { transform: translateX(92px); }
 }
 
 .card:hover .card__title {
