@@ -880,9 +880,8 @@ h1, h2, h3, h4, h5, h6, [role="heading"] {
   aspect-ratio: 1;
   overflow: hidden;
   border-radius: 50%;
-  background-color: var(--color-page-bg);
-  color: var(--color-text);
-  mix-blend-mode: difference;
+  background-color: var(--color-card-link-hover);
+  color: var(--color-button-text);
   pointer-events: none;
   opacity: 0;
   transform: translate(-50%, -50%) scale(0.3);
