@@ -548,7 +548,7 @@ h1, h2, h3, h4, h5, h6, [role="heading"] {
 
 .hero__cube canvas {
   position: absolute;
-  top: 50%;
+  top: 45%;
   left: 50%;
   display: block;
   width: 150%;
@@ -590,6 +590,14 @@ h1, h2, h3, h4, h5, h6, [role="heading"] {
   clip-path: inset(-0.15em -0.15em -0.2em);
 }
 
+@supports (overflow: clip) and (overflow-clip-margin: 0.2em) {
+  .hero__name[data-intro-reveal="playing"] .weight-hover-word {
+    clip-path: none;
+    overflow: clip;
+    overflow-clip-margin: 0.2em;
+  }
+}
+
 .hero__bio,
 .hero__skills {
   font-size: 15px;
@@ -600,7 +608,7 @@ h1, h2, h3, h4, h5, h6, [role="heading"] {
 
 .hero__bio {
   max-width: 54ch;
-  margin-bottom: 12px;
+  margin-bottom: 16px;
 }
 
 .hero__skills {
