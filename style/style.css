@@ -100,6 +100,7 @@
 }
 
 html {
+  background-color: var(--color-page-bg);
   -webkit-text-size-adjust: 100%;
   text-size-adjust: 100%;
   cursor: url("../img/system/cursor.png") 1 1, auto;
@@ -398,9 +399,7 @@ h1, h2, h3, h4, h5, h6, [role="heading"] {
     top 0.45s cubic-bezier(0.4, 0, 0.2, 1),
     left 0.45s cubic-bezier(0.4, 0, 0.2, 1),
     right 0.45s cubic-bezier(0.4, 0, 0.2, 1),
-    border-radius 0.45s cubic-bezier(0.4, 0, 0.2, 1),
-    background 0.4s ease,
-    backdrop-filter 0.4s ease;
+    border-radius 0.45s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .site-nav.scrolled {
@@ -410,7 +409,20 @@ h1, h2, h3, h4, h5, h6, [role="heading"] {
   gap: 48px;
   padding: 14px 16px 16px 28px;
   border-radius: 100px;
-  background: color-mix(in srgb, var(--color-nav-bg) 70%, transparent);
+}
+
+.site-nav::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  border-radius: inherit;
+  pointer-events: none;
+  transition: background-color 0.4s ease;
+}
+
+.site-nav.scrolled::before {
+  background-color: color-mix(in srgb, var(--color-nav-bg) 70%, transparent);
   -webkit-backdrop-filter: blur(20px);
   backdrop-filter: blur(20px);
 }
@@ -506,7 +518,8 @@ h1, h2, h3, h4, h5, h6, [role="heading"] {
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .site-nav {
+  .site-nav,
+  .site-nav::before {
     transition: none;
   }
 
