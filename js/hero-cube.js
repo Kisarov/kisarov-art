@@ -16,7 +16,7 @@
   const normals = new Float32Array(geometry, 8 + positions.byteLength, positions.length);
   const vertices = new Float32Array(geometry, 8 + positions.byteLength + normals.byteLength, vertexCount * 3);
   const indices = new Uint16Array(geometry, 8 + positions.byteLength + normals.byteLength + vertices.byteLength);
-  const pointColor = readPaletteColor('--color-cube-particles');
+  let pointColor = readPaletteColor('--color-cube-particles');
   const staticPreview = new URLSearchParams(location.search).has('static');
   const AURA_COUNT = 220;
   const BEAT_GAP = 0.5;
@@ -353,6 +353,15 @@
         this.canvas = replacement;
         this.renderer = new CanvasRenderer(this.canvas);
       }
+      window.addEventListener('themechange', () => {
+        pointColor = readPaletteColor('--color-cube-particles');
+        const renderer = this.renderer;
+        if (renderer.gl) {
+          renderer.gl.useProgram(renderer.pointProgram);
+          renderer.gl.uniform4fv(renderer.uniform(renderer.pointProgram, 'pointColor'), pointColor.rgba);
+        }
+        if (this.width && this.height) this.draw(false);
+      });
       element.parentElement.addEventListener('pointermove', event => this.move(event), { passive: true });
       element.parentElement.addEventListener('pointerleave', () => this.release());
       element.parentElement.addEventListener('pointercancel', () => this.release());
