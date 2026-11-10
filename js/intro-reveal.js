@@ -68,12 +68,16 @@
     const keyframes = leaving
       ? [rest, { transform: 'translate3d(0, -1.4em, 0) rotate(-10deg)' }]
       : [{ transform: 'translate3d(0, 1.4em, 0) rotate(10deg)' }, rest];
+    const startTime = document.timeline?.currentTime;
     const animations = letters.map((letter, index) => letter.animate(keyframes, {
       duration: leaving ? 380 : 1000 / 1.5,
       delay: leaving ? index * 12 : index * 1000 / 30,
       easing: leaving ? 'cubic-bezier(0.4, 0, 1, 1)' : 'cubic-bezier(0.35, 0, 0, 1)',
-      fill: leaving ? 'forwards' : 'backwards'
+      fill: 'both'
     }));
+    if (startTime != null) {
+      for (const animation of animations) animation.startTime = startTime;
+    }
     headingAnimations.set(element, animations);
     Promise.allSettled(animations.map(animation => animation.finished)).then(() => {
       if (headingAnimations.get(element) !== animations) return;
