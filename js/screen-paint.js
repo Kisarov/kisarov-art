@@ -68,6 +68,10 @@ uniform sampler2D u_texture;uniform vec2 u_delta;varying vec2 v_uv;void main(){v
       document.body.style.isolation = 'isolate';
       document.body.append(this.canvas);
       window.addEventListener('pointermove', event => this.move(event), { passive: true });
+      window.addEventListener('themechange', () => {
+        this.background = readPaletteColor('--color-page-bg').rgba.slice(0, 3);
+        this.clear(true);
+      });
       window.addEventListener('resize', () => this.resize(), { passive: true });
       window.addEventListener('scroll', () => this.clear(), { passive: true });
       document.addEventListener('pointerleave', () => { this.pointer = null; });
