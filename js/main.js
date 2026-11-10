@@ -48,11 +48,82 @@
     button.replaceChildren(label, ink);
   }
 
-  const heroContent = document.querySelector('.hero__content');
-  if (!heroContent || new URLSearchParams(location.search).has('static')) return;
+  if (new URLSearchParams(location.search).has('static')) return;
 
   const motion = matchMedia('(prefers-reduced-motion: reduce)');
   const finePointer = matchMedia('(pointer: fine)');
+
+  function setupProjectCursor() {
+    const cursor = document.querySelector('.project-cursor');
+    if (!cursor) return;
+    let cover;
+    let frame = 0;
+    let startedAt = 0;
+    const position = { x: 0, y: 0 };
+    const from = { x: 0, y: 0 };
+    const target = { x: 0, y: 0 };
+
+    function place(x, y) {
+      position.x = x;
+      position.y = y;
+      cursor.style.translate = `${x}px ${y}px`;
+    }
+
+    function draw(time) {
+      const progress = Math.min(1, Math.max(0, (time - startedAt) / 320));
+      const ease = 1 - (1 - progress) ** 4;
+      place(from.x + (target.x - from.x) * ease, from.y + (target.y - from.y) * ease);
+      frame = progress < 1 ? requestAnimationFrame(draw) : 0;
+    }
+
+    function hide() {
+      cancelAnimationFrame(frame);
+      frame = 0;
+      cover?.classList.remove('has-project-cursor');
+      cover = null;
+      cursor.classList.remove('is-visible');
+    }
+
+    function move(event) {
+      if (event.pointerType !== 'mouse' || !finePointer.matches || document.hidden) return;
+      const { clientX: x, clientY: y } = event;
+      if (cover !== event.currentTarget) {
+        hide();
+        cover = event.currentTarget;
+        place(x, y);
+        cover.classList.add('has-project-cursor');
+        cursor.classList.add('is-visible');
+      }
+      if (motion.matches) {
+        place(x, y);
+        return;
+      }
+      if (target.x === x && target.y === y) return;
+      from.x = position.x;
+      from.y = position.y;
+      target.x = x;
+      target.y = y;
+      if (position.x === x && position.y === y && !frame) return;
+      startedAt = performance.now();
+      if (!frame) frame = requestAnimationFrame(draw);
+    }
+
+    for (const image of document.querySelectorAll('.projects .card__image')) {
+      image.addEventListener('pointerenter', move, { passive: true });
+      image.addEventListener('pointermove', move, { passive: true });
+      image.addEventListener('pointerleave', event => { if (cover === event.currentTarget) hide(); });
+      image.addEventListener('pointercancel', hide);
+    }
+    window.addEventListener('blur', hide);
+    document.addEventListener('visibilitychange', () => { if (document.hidden) hide(); });
+    finePointer.addEventListener('change', hide);
+    motion.addEventListener('change', hide);
+  }
+
+  setupProjectCursor();
+
+  const heroContent = document.querySelector('.hero__content');
+  if (!heroContent) return;
   const layers = [...heroContent.querySelectorAll('[data-depth]')].map(element => ({
     element,
     distance: 18 * Number(element.dataset.depth)
