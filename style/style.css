@@ -410,7 +410,7 @@ h1, h2, h3, h4, h5, h6, [role="heading"] {
   gap: 48px;
   padding: 14px 16px 16px 28px;
   border-radius: 100px;
-  background: color-mix(in srgb, var(--color-nav-bg) 85%, transparent);
+  background: color-mix(in srgb, var(--color-nav-bg) 70%, transparent);
   -webkit-backdrop-filter: blur(20px);
   backdrop-filter: blur(20px);
 }
