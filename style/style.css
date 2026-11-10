@@ -518,6 +518,7 @@ h1, h2, h3, h4, h5, h6, [role="heading"] {
 .page:has(.hero) {
   position: relative;
   overflow-x: clip;
+  padding-top: 0;
 }
 
 .hero {
@@ -526,7 +527,9 @@ h1, h2, h3, h4, h5, h6, [role="heading"] {
   align-items: center;
   text-align: left;
   gap: clamp(24px, 4vw, 72px);
-  padding: 150px 0 200px 0;
+  min-height: 100vh;
+  min-height: 100dvh;
+  padding: 150px 0 100px 0;
 }
 
 .hero__content {
@@ -812,7 +815,6 @@ h1, h2, h3, h4, h5, h6, [role="heading"] {
 @media (width < 768px) {
   .hero {
     grid-template-columns: minmax(0, 1fr);
-    padding-top: calc(64px + clamp(28px, 8vw, 48px));
   }
 
   .hero__cube {
@@ -952,10 +954,6 @@ h1, h2, h3, h4, h5, h6, [role="heading"] {
     padding: 48px 48px;
   }
 
-  .hero {
-    padding-bottom: 80px;
-  }
-  
   .card__title {
     font-size: 36px;
   }
@@ -1002,10 +1000,6 @@ h1, h2, h3, h4, h5, h6, [role="heading"] {
 
   .content {
     max-width: 800px;
-  }
-
-  .hero {
-    padding-bottom: 64px;
   }
 
   .hero__name {
@@ -1099,7 +1093,6 @@ h1, h2, h3, h4, h5, h6, [role="heading"] {
 
   .hero {
     gap: 16px;
-    padding-bottom: 56px;
   }
 
   .scroll-hint {
