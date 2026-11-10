@@ -1,4 +1,5 @@
 :root {
+  color-scheme: light;
   /* Фоны и границы */
   --color-page-bg: #fff;
   --color-page-loader: #121212;
@@ -39,9 +40,55 @@
   --color-scroll-hint: #1858c7;
   --color-cube-particles: #a1a1a1;
 
+  /* Белый слой нужен для инверсии изображения под курсором в обеих темах. */
+  --color-project-cursor-bg: #fff;
+  --color-project-cursor-icon: #000;
+
   --page-max-width: 1920px;
   --page-gutter: 100px;
   --page-inline-edge: max(var(--page-gutter), calc((100% - var(--page-max-width)) / 2 + var(--page-gutter)));
+}
+
+:root[data-theme="dark"] {
+  color-scheme: dark;
+
+  /* Фоны и границы */
+  --color-page-bg: #121212;
+  --color-page-loader: #080808;
+  --color-case-header-bg: #1c1c1c;
+  --color-border: #333;
+  --color-divider: #3d3d3d;
+
+  /* Текст и ссылки */
+  --color-text: #f4f4f4;
+  --color-text-secondary: #b5b5b5;
+  --color-caption: #a1a1a1;
+  --color-text-positive: #50d49c;
+  --color-card-link-hover: #79a6ff;
+
+  /* Кнопки */
+  --color-button-bg: #f4f4f4;
+  --color-button-text: #121212;
+  --color-button-back-bg-hover: #d8d8d8;
+  --color-button-outline: #ffffff26;
+  --color-button-outline-hover: #f4f4f4;
+
+  /* Плавающая навигация */
+  --color-nav-bg: #242424;
+  --color-nav-muted: #b5b5b5;
+
+  /* Подсветка и бейджи */
+  --color-case-glow: #8183ff;
+  --color-case-glow-authors: #39c5d2;
+  --color-badge-bg: #35251a;
+  --color-badge-text: #ffa866;
+  --color-skill-badge-bg: #242424;
+
+  /* Линии и частицы куба */
+  --color-scroll-line-start: #7b83ff;
+  --color-scroll-line-end: #8db2ff;
+  --color-scroll-hint: #79a6ff;
+  --color-cube-particles: #8e8e8e;
 }
 
 *,
@@ -380,6 +427,10 @@ h1, h2, h3, h4, h5, h6, [role="heading"] {
 .site-nav .nav-logo img {
   flex: none;
   filter: brightness(0);
+}
+
+:root[data-theme="dark"] .site-nav .nav-logo img {
+  filter: none;
 }
 
 .site-nav .nav-right {
@@ -880,8 +931,8 @@ h1, h2, h3, h4, h5, h6, [role="heading"] {
   aspect-ratio: 1;
   overflow: hidden;
   border-radius: 50%;
-  background-color: var(--color-page-bg);
-  color: var(--color-text);
+  background-color: var(--color-project-cursor-bg);
+  color: var(--color-project-cursor-icon);
   mix-blend-mode: difference;
   pointer-events: none;
   opacity: 0;
