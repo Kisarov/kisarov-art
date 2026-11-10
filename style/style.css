@@ -865,6 +865,56 @@ h1, h2, h3, h4, h5, h6, [role="heading"] {
   transform-origin: center;
 }
 
+.card__image.has-project-cursor {
+  cursor: none;
+}
+
+.project-cursor {
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 150;
+  display: grid;
+  place-items: center;
+  width: 150px;
+  aspect-ratio: 1;
+  overflow: hidden;
+  border-radius: 50%;
+  background-color: var(--color-page-bg);
+  color: var(--color-text);
+  mix-blend-mode: difference;
+  pointer-events: none;
+  opacity: 0;
+  transform: translate(-50%, -50%) scale(0.3);
+  transition: opacity 0.2s ease, transform 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.project-cursor.is-visible {
+  opacity: 1;
+  transform: translate(-50%, -50%) scale(1);
+}
+
+.project-cursor:not(.is-visible) .project-cursor__arrow {
+  visibility: hidden;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .project-cursor.is-visible .project-cursor__arrow {
+    animation: project-cursor-arrow 0.2s linear infinite;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .project-cursor {
+    transition: none;
+  }
+}
+
+@keyframes project-cursor-arrow {
+  from { transform: translateX(-88px); }
+  to { transform: translateX(88px); }
+}
+
 .card:hover .card__title {
   color: var(--color-card-link-hover);
 }
