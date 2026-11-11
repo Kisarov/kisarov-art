@@ -606,6 +606,10 @@ h1, h2, h3, h4, h5, h6, [role="heading"] {
   align-items: flex-start;
 }
 
+.hero__content > [data-reveal-delay] {
+  width: 100%;
+}
+
 .hero__cube {
   position: relative;
   align-self: stretch;
@@ -650,6 +654,7 @@ h1, h2, h3, h4, h5, h6, [role="heading"] {
   font-size: min(1em, 14cqw);
 }
 
+[data-reveal-delay] > [data-intro-reveal="waiting"],
 :is(.hero__name, .card__title)[data-intro-reveal="waiting"] {
   opacity: 0;
 }
