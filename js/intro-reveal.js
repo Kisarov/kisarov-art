@@ -11,33 +11,40 @@
   }
 
   const visibility = hero.style.visibility;
-  const entrance = [];
+  const links = hero.querySelector('.hero__links');
+  const contentGroups = document.querySelectorAll('[data-reveal-delay]');
   const titleVariants = [...heading.querySelectorAll('.hero__title-variant')];
   const headings = [heading, ...document.querySelectorAll('.card .card__title')]
     .filter(element => element.querySelector('.weight-hover-letter'));
-  const headingAnimations = new Map();
+  const animationsByElement = new Map();
   let titleIndex = 0;
   let titleTimer;
   let headingVisible = false;
   let started = false;
   let observer;
 
-  function reveal(element, delay) {
-    if (!element) return;
-    entrance.push(element.animate([
+  function revealContent(group) {
+    const element = group.firstElementChild;
+    if (element.dataset.introReveal !== 'waiting') return;
+    const animation = element.animate([
       { opacity: 0, transform: 'translateY(1rem)' },
       { opacity: 1, transform: 'translateY(0)' }
     ], {
       duration: 1200,
-      delay,
+      delay: Number(group.dataset.revealDelay),
       easing: 'cubic-bezier(0.77, 0, 0.175, 1)',
       fill: 'backwards'
-    }));
+    });
+    element.dataset.introReveal = 'playing';
+    animationsByElement.set(element, [animation]);
+    animation.onfinish = () => {
+      if (animationsByElement.get(element)?.[0] === animation) clearReveal(element);
+    };
   }
 
-  function clearHeading(element) {
-    for (const animation of headingAnimations.get(element) || []) animation.cancel();
-    headingAnimations.delete(element);
+  function clearReveal(element) {
+    for (const animation of animationsByElement.get(element) || []) animation.cancel();
+    animationsByElement.delete(element);
     delete element.dataset.introReveal;
   }
 
@@ -49,13 +56,13 @@
     heading.setAttribute('aria-label', titleVariants[index].textContent.trim());
   }
 
-  function resetHeading(element) {
+  function resetReveal(element) {
     if (element.dataset.introReveal === 'waiting') return;
     if (element === heading) {
       clearTimeout(titleTimer);
       showTitle(0);
     }
-    clearHeading(element);
+    clearReveal(element);
     element.dataset.introReveal = 'waiting';
   }
 
@@ -78,10 +85,10 @@
     if (startTime != null) {
       for (const animation of animations) animation.startTime = startTime;
     }
-    headingAnimations.set(element, animations);
+    animationsByElement.set(element, animations);
     Promise.allSettled(animations.map(animation => animation.finished)).then(() => {
-      if (headingAnimations.get(element) !== animations) return;
-      clearHeading(element);
+      if (animationsByElement.get(element) !== animations) return;
+      clearReveal(element);
       if (element !== heading || titleVariants.length < 2) return;
       if (leaving) {
         showTitle((titleIndex + 1) % titleVariants.length);
@@ -95,24 +102,26 @@
     });
   }
 
-  function updateHeadings(entries) {
+  function updateReveals(entries) {
     for (const { target, isIntersecting } of entries) {
-      if (target === heading) headingVisible = isIntersecting;
-      if (isIntersecting && (target !== heading || !document.hidden)) revealHeading(target);
-      else resetHeading(target);
+      if (target.hasAttribute('data-reveal-delay')) {
+        if (isIntersecting) revealContent(target);
+        else resetReveal(target.firstElementChild);
+      } else {
+        if (target === heading) headingVisible = isIntersecting;
+        if (isIntersecting && (target !== heading || !document.hidden)) revealHeading(target);
+        else resetReveal(target);
+      }
     }
   }
 
   function updateTitleVisibility() {
-    if (document.hidden) resetHeading(heading);
+    if (document.hidden) resetReveal(heading);
     else if (headingVisible) revealHeading(heading);
   }
 
-  function finishEntrance() {
-    hero.style.visibility = visibility;
-    for (const animation of entrance) animation.cancel();
-    entrance.length = 0;
-    hero.removeEventListener('focusin', finishEntrance);
+  function showFocusedLinks() {
+    clearReveal(links);
   }
 
   function stop() {
@@ -121,8 +130,10 @@
     observer?.disconnect();
     clearTimeout(titleTimer);
     showTitle(0);
-    for (const element of headings) clearHeading(element);
-    finishEntrance();
+    for (const element of headings) clearReveal(element);
+    for (const group of contentGroups) clearReveal(group.firstElementChild);
+    hero.style.visibility = visibility;
+    links?.removeEventListener('focusin', showFocusedLinks);
     motion.removeEventListener('change', stop);
     document.removeEventListener('visibilitychange', updateTitleVisibility);
   }
@@ -141,19 +152,20 @@
       loader.querySelector('path').addEventListener('animationend', () => loader.remove(), { once: true });
       loader.classList.add('page-loader--revealing');
     }
-    if (headings.length && 'IntersectionObserver' in window) {
-      observer = new IntersectionObserver(updateHeadings);
+    if ('IntersectionObserver' in window) {
+      observer = new IntersectionObserver(updateReveals);
       if (headings.includes(heading)) document.addEventListener('visibilitychange', updateTitleVisibility);
       for (const element of headings) {
-        resetHeading(element);
+        resetReveal(element);
         observer.observe(element);
       }
     }
-    reveal(hero.querySelector('.hero__bio'), 0);
-    reveal(hero.querySelector('.hero__skills'), 120);
-    reveal(hero.querySelector('.hero__links'), 360);
+    for (const group of contentGroups) {
+      resetReveal(group.firstElementChild);
+      if (observer) observer.observe(group);
+      else revealContent(group);
+    }
     hero.style.visibility = visibility;
-    hero.addEventListener('focusin', finishEntrance, { once: true });
-    Promise.allSettled(entrance.map(animation => animation.finished)).then(finishEntrance);
+    links?.addEventListener('focusin', showFocusedLinks);
   }).catch(stop);
 })();
