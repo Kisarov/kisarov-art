@@ -5,11 +5,18 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Новый раздел Авторов — Илья Кисаров</title>
   <link rel="icon" href="../img/favicon.ico" type="image/x-icon">
-  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <script src="../js/main.js"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&amp;family=Unbounded:wght@200..900&amp;display=swap" rel="stylesheet" media="print" onload="this.media='all'" onerror="this.dataset.fontError=''" data-page-fonts="700 1em Unbounded,400 1em Montserrat,600 1em Montserrat">
+  <noscript><link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&amp;family=Unbounded:wght@200..900&amp;display=swap" rel="stylesheet"></noscript>
+  <script src="../js/page-loader.js"></script>
+  <script src="../js/main.js" defer></script>
   <link rel="stylesheet" href="../style/style.css">
 </head>
 <body>
+  <div class="page-loader">
+    <span class="page-loader__progress" role="progressbar" aria-label="Загрузка сайта" aria-valuenow="0">0%</span>
+  </div>
   <div class="page">
     <div class="container">
       <div class="header">
