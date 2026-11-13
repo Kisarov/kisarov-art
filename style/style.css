@@ -529,18 +529,45 @@ h1, h2, h3, h4, h5, h6, [role="heading"] {
 }
 
 .page-loader {
+  display: none;
   position: fixed;
   inset: 0;
   z-index: 1000;
+  place-items: center;
   overflow: hidden;
-  pointer-events: none;
   color: var(--color-page-loader);
   background: currentColor;
-  animation: page-loader-fallback 3s steps(1, end) forwards;
+}
+
+:root[data-page-loading] {
+  overflow: hidden;
+}
+
+:root[data-page-loading] .page-loader,
+.page-loader--revealing {
+  display: grid;
+}
+
+:root[data-page-loading] .page-loader ~ :is(.site-nav, .page, .back-button) {
+  visibility: hidden;
+}
+
+.page-loader__progress {
+  position: relative;
+  color: #fff;
+  font-size: 24px;
+  font-weight: 600;
+  line-height: 1.2;
+  font-variant-numeric: tabular-nums;
 }
 
 .page-loader--revealing {
   background: transparent;
+  pointer-events: none;
+}
+
+.page-loader--revealing .page-loader__progress {
+  display: none;
 }
 
 .page-loader__spiral {
@@ -557,9 +584,8 @@ h1, h2, h3, h4, h5, h6, [role="heading"] {
 }
 
 .page-loader--revealing .page-loader__spiral path {
-  animation: page-loader-unwind 1250ms
-    linear(0, 0.03125 12.5%, 0.125 25%, 0.28125 37.5%, 0.5 50%, 0.71875 62.5%, 0.875 75%, 0.96875 87.5%, 1)
-    forwards;
+  animation: page-loader-unwind 1250ms ease-in forwards;
+  animation-timing-function: linear(0, 0.03125 12.5%, 0.125 25%, 0.28125 37.5%, 0.5 50%, 0.71875 62.5%, 0.875 75%, 0.96875 87.5%, 1);
 }
 
 @keyframes page-loader-unwind {
@@ -569,13 +595,9 @@ h1, h2, h3, h4, h5, h6, [role="heading"] {
   }
 }
 
-@keyframes page-loader-fallback {
-  to { visibility: hidden; }
-}
-
-@media (prefers-reduced-motion: reduce), (scripting: none) {
-  .page-loader {
-    display: none;
+@media (prefers-reduced-motion: reduce) {
+  .page-loader--revealing .page-loader__spiral path {
+    animation: none;
   }
 }
 
