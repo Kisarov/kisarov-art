@@ -3,12 +3,8 @@
 
   const hero = document.querySelector('.hero');
   const heading = hero?.querySelector('.hero__name');
-  const loader = document.querySelector('.page-loader');
   const motion = matchMedia('(prefers-reduced-motion: reduce)');
-  if (!heading || !hero.animate || motion.matches || new URLSearchParams(location.search).has('static')) {
-    loader?.remove();
-    return;
-  }
+  if (!heading || !hero.animate || motion.matches || new URLSearchParams(location.search).has('static')) return;
 
   const visibility = hero.style.visibility;
   const links = hero.querySelector('.hero__links');
@@ -126,7 +122,6 @@
 
   function stop() {
     started = true;
-    loader?.remove();
     observer?.disconnect();
     clearTimeout(titleTimer);
     showTitle(0);
@@ -140,18 +135,16 @@
 
   hero.style.visibility = 'hidden';
   motion.addEventListener('change', stop);
+  const pageReady = 'pageLoading' in document.documentElement.dataset
+    ? new Promise(resolve => document.addEventListener('page-loader:complete', resolve, { once: true }))
+    : Promise.resolve();
   let fontTimeout;
   const fontLimit = new Promise(resolve => { fontTimeout = setTimeout(resolve, 500); });
-  Promise.race([document.fonts.ready, fontLimit]).then(async () => {
-    clearTimeout(fontTimeout);
-    if (loader && !started) await new Promise(resolve => setTimeout(resolve, 400));
+  const fontsReady = Promise.race([document.fonts.ready, fontLimit]).finally(() => clearTimeout(fontTimeout));
+  Promise.all([pageReady, fontsReady]).then(() => {
     if (started) return;
     started = true;
     document.querySelector('.site-nav')?.classList.add('site-nav--entering');
-    if (loader) {
-      loader.querySelector('path').addEventListener('animationend', () => loader.remove(), { once: true });
-      loader.classList.add('page-loader--revealing');
-    }
     if ('IntersectionObserver' in window) {
       observer = new IntersectionObserver(updateReveals);
       if (headings.includes(heading)) document.addEventListener('visibilitychange', updateTitleVisibility);
