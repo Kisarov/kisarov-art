@@ -4,7 +4,7 @@
   const element = document.querySelector('.hero__cube');
   if (!element) return;
   const geometryUrl = new URL('../img/system/hero-cube.buf', document.currentScript.src);
-  const narrowScreen = matchMedia('(width < 768px)');
+  const narrowScreen = matchMedia('(max-width: 768px)');
   if (narrowScreen.matches) {
     await new Promise(resolve => narrowScreen.addEventListener('change', resolve, { once: true }));
   }
