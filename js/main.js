@@ -2,10 +2,12 @@
   'use strict';
 
   const root = document.documentElement;
-  try {
-    root.dataset.theme = localStorage.getItem('portfolio-theme') === 'dark' ? 'dark' : 'light';
-  } catch {
-    root.dataset.theme = 'light';
+  if (!root.dataset.theme) {
+    try {
+      root.dataset.theme = localStorage.getItem('portfolio-theme') === 'dark' ? 'dark' : 'light';
+    } catch {
+      root.dataset.theme = 'light';
+    }
   }
 
   function initialize() {
