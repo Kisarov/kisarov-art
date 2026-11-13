@@ -21,7 +21,18 @@
 
   root.dataset.pageLoading = '';
   const scriptSelector = 'script[src][defer]';
-  let completed = 0;
+  const fontStylesheets = [...document.querySelectorAll('link[data-page-fonts]')];
+  const geometryPath = document.currentScript.dataset.heroGeometry;
+  const loadGeometry = geometryPath && !matchMedia('(width < 768px)').matches;
+  const otherTasks = Number(fontStylesheets.length > 0) + Number(Boolean(loadGeometry));
+  let scriptsDone = 0;
+  let otherDone = 0;
+  let shown = 0;
+  let target = 0;
+  let startValue = 0;
+  let startTime = 0;
+  let frame = 0;
+  let progress;
 
   function finish(loader) {
     try { sessionStorage.setItem(visitKey, '1'); } catch {}
@@ -39,36 +50,98 @@
     document.dispatchEvent(new Event('page-loader:complete'));
   }
 
-  function complete() {
-    document.removeEventListener('load', updateProgress, true);
-    document.removeEventListener('error', updateProgress, true);
-    document.removeEventListener('DOMContentLoaded', complete);
-
-    const progress = document.querySelector('.page-loader__progress');
-    showProgress(progress, 100);
-    setTimeout(() => finish(progress?.parentElement), 150);
-  }
-
-  function showProgress(progress, percent) {
-    if (!progress) return;
-    progress.textContent = `${percent}%`;
-    progress.setAttribute('aria-valuenow', percent);
-  }
-
-  function updateProgress(event) {
-    if (!event.target.matches?.(scriptSelector)) return;
-
-    const total = document.querySelectorAll(scriptSelector).length;
-    completed += 1;
-    if (completed === total) {
-      complete();
-      return;
+  function animate(time) {
+    frame = 0;
+    const elapsed = Math.min(1, Math.max(0, (time - startTime) / 350));
+    shown = startValue + (target - startValue) * (1 - (1 - elapsed) ** 3);
+    const percent = elapsed === 1 ? target : Math.min(99, Math.floor(shown));
+    if (progress && progress.getAttribute('aria-valuenow') !== String(percent)) {
+      progress.textContent = `${percent}%`;
+      progress.setAttribute('aria-valuenow', percent);
     }
-
-    showProgress(document.querySelector('.page-loader__progress'), Math.floor(completed / total * 100));
+    if (elapsed < 1) {
+      frame = requestAnimationFrame(animate);
+    } else if (target === 100) {
+      setTimeout(() => finish(progress?.parentElement), 150);
+    }
   }
 
-  document.addEventListener('load', updateProgress, true);
-  document.addEventListener('error', updateProgress, true);
-  document.addEventListener('DOMContentLoaded', complete, { once: true });
+  function updateProgress() {
+    progress ??= document.querySelector('.page-loader__progress');
+    if (!progress && document.readyState === 'loading') return;
+
+    const total = document.querySelectorAll(scriptSelector).length + otherTasks;
+    const next = total ? Math.floor((scriptsDone + otherDone) / total * 100) : 100;
+    if (next <= target) return;
+    target = next;
+    startValue = shown;
+    startTime = performance.now();
+    if (!frame) frame = requestAnimationFrame(animate);
+  }
+
+  function onScriptComplete(event) {
+    if (!event.target.matches?.(scriptSelector)) return;
+    scriptsDone += 1;
+    updateProgress();
+  }
+
+  function onScriptsReady() {
+    document.removeEventListener('load', onScriptComplete, true);
+    document.removeEventListener('error', onScriptComplete, true);
+    scriptsDone = document.querySelectorAll(scriptSelector).length;
+    updateProgress();
+  }
+
+  function track(promise) {
+    promise.then(() => {
+      otherDone += 1;
+      updateProgress();
+    });
+  }
+
+  async function loadFonts() {
+    let timeout;
+    const limit = new Promise(resolve => { timeout = setTimeout(resolve, 500); });
+    const pending = new Set(fontStylesheets);
+    const ready = Promise.allSettled(fontStylesheets.map(async link => {
+      if (link.media !== 'all') {
+        const event = await new Promise(resolve => {
+          link.addEventListener('load', resolve, { once: true });
+          link.addEventListener('error', resolve, { once: true });
+        });
+        if (event.type === 'error') return;
+      }
+      const fonts = await Promise.all(link.dataset.pageFonts.split(',').map(font =>
+        document.fonts.load(font, link.dataset.fontSample || 'Aa Яя')
+      ));
+      if (fonts.every(faces => faces.length)) pending.delete(link);
+    }));
+    await Promise.race([ready, limit]);
+    clearTimeout(timeout);
+    // Keep the first screen stable if the web font arrives after the deadline.
+    for (const link of pending) {
+      root.setAttribute(`data-${link.dataset.fontGroup || 'text'}-font-fallback`, '');
+    }
+  }
+
+  if (fontStylesheets.length) track(loadFonts());
+  if (loadGeometry) {
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 5000);
+    window.portfolioHeroGeometry = fetch(new URL(geometryPath, document.baseURI), { signal: controller.signal })
+      .then(response => {
+        if (!response.ok) throw new Error(`Hero cube geometry: HTTP ${response.status}`);
+        return response.arrayBuffer();
+      })
+      .catch(error => {
+        console.warn('Hero cube:', error);
+        return null;
+      })
+      .finally(() => clearTimeout(timeout));
+    track(window.portfolioHeroGeometry);
+  }
+
+  document.addEventListener('load', onScriptComplete, true);
+  document.addEventListener('error', onScriptComplete, true);
+  document.addEventListener('DOMContentLoaded', onScriptsReady, { once: true });
 })();
