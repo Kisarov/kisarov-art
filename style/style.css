@@ -778,10 +778,11 @@ h1, h2, h3, h4, h5, h6, [role="heading"] {
 }
 
 .button {
+  --button-height: 48px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  height: 48px;
+  height: var(--button-height);
   padding: 0 24px;
   border: 0;
   border-radius: 12px;
@@ -834,8 +835,8 @@ h1, h2, h3, h4, h5, h6, [role="heading"] {
 }
 
 .button:is(.primary, .secondary) .button__char-mask {
-  margin-block: -0.2em;
-  line-height: 1.8;
+  margin-block: calc((1.4em - var(--button-height)) / 2);
+  line-height: var(--button-height);
 }
 
 .button__char {
