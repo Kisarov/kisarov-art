@@ -555,10 +555,19 @@ h1, h2, h3, h4, h5, h6, [role="heading"] {
 .page-loader__progress {
   position: relative;
   color: #fff;
+  font-family: system-ui, sans-serif;
   font-size: 24px;
   font-weight: 600;
   line-height: 1.2;
   font-variant-numeric: tabular-nums;
+}
+
+:root[data-heading-font-fallback] :is(.hero__name, .header__title) {
+  font-family: sans-serif;
+}
+
+:root[data-text-font-fallback] :is(.site-nav, .hero__content, .header, .back-button) {
+  font-family: Arial, Helvetica, sans-serif;
 }
 
 .page-loader--revealing {
