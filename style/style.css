@@ -999,7 +999,7 @@ h1, h2, h3, h4, h5, h6, [role="heading"] {
 .card__content {
   display: flex;
   flex-direction: column;
-  gap: 20px;
+  gap: 12px;
 }
 
 .card__content .caption {
@@ -1139,10 +1139,6 @@ h1, h2, h3, h4, h5, h6, [role="heading"] {
   
   .card__image {
     border-radius: 24px;
-  }
-
-  .card__content {
-    gap: 16px;
   }
 
   .card__content .caption {
@@ -1302,10 +1298,6 @@ h1, h2, h3, h4, h5, h6, [role="heading"] {
     border-radius: 16px;
   }
   
-  .card__content {
-    gap: 12px;
-  }
-
   .card__content .caption {
     font-size: 14px;
   }
