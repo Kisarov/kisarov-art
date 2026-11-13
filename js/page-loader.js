@@ -23,7 +23,7 @@
   const scriptSelector = 'script[src][defer]';
   const fontStylesheet = document.querySelector('link[data-page-fonts]');
   const geometryPath = document.currentScript.dataset.heroGeometry;
-  const loadGeometry = geometryPath && !matchMedia('(width < 768px)').matches;
+  const loadGeometry = geometryPath && !matchMedia('(max-width: 768px)').matches;
   const otherTasks = Number(Boolean(fontStylesheet)) + Number(Boolean(loadGeometry));
   let scriptsDone = 0;
   let otherDone = 0;
