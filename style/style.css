@@ -487,37 +487,6 @@ h1, h2, h3, h4, h5, h6, [role="heading"] {
   to { opacity: 1; }
 }
 
-@media (max-width: 1024px) {
-  .site-nav.scrolled {
-    left: 20%;
-    right: 20%;
-  }
-}
-
-@media (max-width: 900px) {
-  .site-nav {
-    padding-block: 18px;
-  }
-
-  .site-nav.scrolled {
-    top: 12px;
-  }
-}
-
-@media (max-width: 768px) {
-  .site-nav.scrolled {
-    left: 16px;
-    right: 16px;
-    gap: 8px;
-  }
-}
-
-@media (max-width: 360px) {
-  .site-nav .theme-btn {
-    padding-inline: 11px;
-  }
-}
-
 @media (prefers-reduced-motion: reduce) {
   .site-nav,
   .site-nav::before {
@@ -872,25 +841,6 @@ h1, h2, h3, h4, h5, h6, [role="heading"] {
   }
 }
 
-@media (max-width: 809.98px) {
-  .hero__links {
-    flex-direction: column;
-    width: 100%;
-    max-width: 300px;
-  }
-}
-
-@media (width < 768px) {
-  .hero {
-    grid-template-columns: minmax(0, 1fr);
-  }
-
-  .hero__cube {
-    display: none;
-  }
-
-}
-
 .projects {
   display: grid;
   gap: 32px;
@@ -1080,6 +1030,18 @@ h1, h2, h3, h4, h5, h6, [role="heading"] {
     max-width: 720px;
     padding: 48px 48px;
   }
+
+  .projects {
+    gap: 28px;
+  }
+
+  .projects__title {
+    font-size: 52px;
+  }
+
+  .card {
+    gap: 24px;
+  }
 }
 
 @media (width < 1200px) {
@@ -1091,6 +1053,11 @@ h1, h2, h3, h4, h5, h6, [role="heading"] {
 @media (max-width: 1024px) {
   :root {
     --page-gutter: 32px;
+  }
+
+  .site-nav.scrolled {
+    inset-inline: 20%;
+    gap: 8px;
   }
 
   .page {
@@ -1117,24 +1084,30 @@ h1, h2, h3, h4, h5, h6, [role="heading"] {
 
   .header__image-right {
     right: -60px;
-    width: 52%;
-    height: auto;
   }
 
   .content {
     max-width: 800px;
   }
 
+  .section__title {
+    font-size: 36px;
+  }
+
   .hero__name {
     font-size: 64px;
+  }
+
+  .projects {
+    gap: 24px;
+  }
+
+  .projects__title {
+    font-size: 44px;
   }
   
   .projects__grid {
     gap: 72px 24px;
-  }
-  
-  .card {
-    gap: 24px;
   }
   
   .card__image {
@@ -1151,6 +1124,26 @@ h1, h2, h3, h4, h5, h6, [role="heading"] {
 
   .card__description {
     font-size: 17px;
+  }
+}
+
+@media (max-width: 900px) {
+  .site-nav {
+    padding-block: 18px;
+  }
+
+  .site-nav.scrolled {
+    top: 12px;
+  }
+
+  .hero__links {
+    flex-direction: column;
+    width: 100%;
+    max-width: 300px;
+  }
+
+  .card {
+    gap: 20px;
   }
 }
 
@@ -1187,7 +1180,6 @@ h1, h2, h3, h4, h5, h6, [role="heading"] {
     position: relative;
     right: -24px;
     width: 100%;
-    height: auto;
   }
 
   .header__image-right img {
@@ -1215,20 +1207,29 @@ h1, h2, h3, h4, h5, h6, [role="heading"] {
   }
 
   .hero {
+    grid-template-columns: minmax(0, 1fr);
     gap: 16px;
+  }
+
+  .hero__cube {
+    display: none;
   }
 
   .hero__name {
     font-size: 48px;
   }
+
+  .projects {
+    gap: 20px;
+  }
+
+  .projects__title {
+    font-size: 38px;
+  }
   
   .projects__grid {
     grid-template-columns: 1fr;
     gap: 64px;
-  }
-  
-  .card {
-    gap: 24px;
   }
   
   .card__image {
@@ -1241,6 +1242,10 @@ h1, h2, h3, h4, h5, h6, [role="heading"] {
 }
 
 @media (max-width: 480px) {
+  .site-nav.scrolled {
+    inset-inline: 16px;
+  }
+
   .page {
     padding-block-start: 16px;
   }
@@ -1286,12 +1291,24 @@ h1, h2, h3, h4, h5, h6, [role="heading"] {
     gap: 28px;
   }
 
+  .hero__links {
+    max-width: none;
+  }
+
+  .projects {
+    gap: 16px;
+  }
+
+  .projects__title {
+    font-size: 32px;
+  }
+
   .projects__grid {
     gap: 48px;
   }
   
   .card {
-    gap: 20px;
+    gap: 16px;
   }
   
   .card__image {
@@ -1308,5 +1325,11 @@ h1, h2, h3, h4, h5, h6, [role="heading"] {
 
   .card__description {
     font-size: 16px;
+  }
+}
+
+@media (max-width: 360px) {
+  .site-nav .theme-btn {
+    padding-inline: 11px;
   }
 }
