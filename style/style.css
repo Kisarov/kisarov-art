@@ -55,6 +55,7 @@
   /* Фоны и границы */
   --color-page-bg: #121212;
   --color-page-loader: #080808;
+  --color-page-loader-spiral: #242424;
   --color-case-header-bg: #1c1c1c;
   --color-border: #333;
   --color-divider: #3d3d3d;
@@ -579,6 +580,7 @@ h1, h2, h3, h4, h5, h6, [role="heading"] {
 }
 
 .page-loader__spiral path {
+  stroke: var(--color-page-loader-spiral, currentColor);
   stroke-width: 30%;
   stroke-dasharray: 1 1;
   stroke-dashoffset: 0;
