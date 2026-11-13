@@ -833,6 +833,11 @@ h1, h2, h3, h4, h5, h6, [role="heading"] {
   overflow: hidden;
 }
 
+.button:is(.primary, .secondary) .button__char-mask {
+  margin-block: -0.2em;
+  line-height: 1.8;
+}
+
 .button__char {
   display: block;
   text-shadow: 0 1lh currentColor;
