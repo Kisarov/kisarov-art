@@ -21,10 +21,10 @@
 
   root.dataset.pageLoading = '';
   const scriptSelector = 'script[src][defer]';
-  const fontStylesheets = [...document.querySelectorAll('link[data-page-fonts]')];
+  const fontStylesheet = document.querySelector('link[data-page-fonts]');
   const geometryPath = document.currentScript.dataset.heroGeometry;
   const loadGeometry = geometryPath && !matchMedia('(width < 768px)').matches;
-  const otherTasks = Number(fontStylesheets.length > 0) + Number(Boolean(loadGeometry));
+  const otherTasks = Number(Boolean(fontStylesheet)) + Number(Boolean(loadGeometry));
   let scriptsDone = 0;
   let otherDone = 0;
   let shown = 0;
@@ -100,31 +100,20 @@
   }
 
   async function loadFonts() {
-    let timeout;
-    const limit = new Promise(resolve => { timeout = setTimeout(resolve, 500); });
-    const pending = new Set(fontStylesheets);
-    const ready = Promise.allSettled(fontStylesheets.map(async link => {
-      if (link.media !== 'all') {
-        const event = await new Promise(resolve => {
-          link.addEventListener('load', resolve, { once: true });
-          link.addEventListener('error', resolve, { once: true });
-        });
-        if (event.type === 'error') return;
-      }
-      const fonts = await Promise.all(link.dataset.pageFonts.split(',').map(font =>
-        document.fonts.load(font, link.dataset.fontSample || 'Aa Яя')
-      ));
-      if (fonts.every(faces => faces.length)) pending.delete(link);
-    }));
-    await Promise.race([ready, limit]);
-    clearTimeout(timeout);
-    // Keep the first screen stable if the web font arrives after the deadline.
-    for (const link of pending) {
-      root.setAttribute(`data-${link.dataset.fontGroup || 'text'}-font-fallback`, '');
+    if (fontStylesheet.media !== 'all' && !fontStylesheet.hasAttribute('data-font-error')) {
+      await new Promise(resolve => {
+        fontStylesheet.addEventListener('load', resolve, { once: true });
+        fontStylesheet.addEventListener('error', resolve, { once: true });
+      });
     }
+    if (!fontStylesheet.sheet) return;
+
+    await Promise.allSettled(fontStylesheet.dataset.pageFonts.split(',').map(font =>
+      document.fonts.load(font, 'Aa Яя')
+    ));
   }
 
-  if (fontStylesheets.length) track(loadFonts());
+  if (fontStylesheet) track(loadFonts());
   if (loadGeometry) {
     const controller = new AbortController();
     const timeout = setTimeout(() => controller.abort(), 5000);
