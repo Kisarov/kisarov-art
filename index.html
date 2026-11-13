@@ -4,12 +4,13 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Илья Кисаров — Product Designer</title>
+  <script src="js/page-loader.js"></script>
   <link rel="icon" href="../kisarov-art/img/favicon.ico" type="image/x-icon">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Google+Sans:ital,opsz,wght@0,17..18,400..700;1,17..18,400..700&amp;family=Unbounded:wght@200..900&amp;display=swap" rel="stylesheet">
   <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <script src="js/main.js"></script>
+  <script src="js/main.js" defer></script>
   <link rel="stylesheet" href="../kisarov-art/style/style.css">
   <script src="js/palette.js" defer></script>
   <script src="js/weight-hover.js" defer></script>
@@ -20,10 +21,11 @@
   <script src="js/card-scroll-warp.js" defer></script>
 </head>
 <body>
-  <div class="page-loader" aria-hidden="true">
-    <svg class="page-loader__spiral" viewBox="0 0 1000 1000" fill="none" preserveAspectRatio="none">
+  <div class="page-loader">
+    <svg class="page-loader__spiral" viewBox="0 0 1000 1000" fill="none" preserveAspectRatio="none" aria-hidden="true">
       <path d="M43 259C296 11.5688 994 -3 922.994 498.259C851.988 999.517 281.229 1004.28 123 767C-35.2287 529.721 179 259 472 259C765 259 792 498.259 659 654C526 809.741 319 755 285 669.001C251 583.001 299 452 496 452C693 452 876.073 639.171 935 937.001" pathLength="1" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"/>
     </svg>
+    <span class="page-loader__progress" role="progressbar" aria-label="Загрузка сайта" aria-valuenow="0">0%</span>
   </div>
   <nav id="nav" class="site-nav" aria-label="Навигация">
     <span class="nav-logo">
