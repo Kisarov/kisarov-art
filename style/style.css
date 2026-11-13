@@ -1039,6 +1039,10 @@ h1, h2, h3, h4, h5, h6, [role="heading"] {
     font-size: 52px;
   }
 
+  .projects__grid {
+    row-gap: 80px;
+  }
+
   .card {
     gap: 24px;
   }
@@ -1047,6 +1051,10 @@ h1, h2, h3, h4, h5, h6, [role="heading"] {
 @media (width < 1200px) {
   .hero__name {
     font-size: 80px;
+  }
+
+  .projects__grid {
+    row-gap: 60px;
   }
 }
 
@@ -1103,7 +1111,7 @@ h1, h2, h3, h4, h5, h6, [role="heading"] {
   }
   
   .projects__grid {
-    gap: 72px 24px;
+    row-gap: 52px;
   }
   
   .card__image {
@@ -1327,5 +1335,9 @@ h1, h2, h3, h4, h5, h6, [role="heading"] {
 @media (max-width: 360px) {
   .site-nav .theme-btn {
     padding-inline: 11px;
+  }
+
+  .projects__grid {
+    gap: 44px;
   }
 }
