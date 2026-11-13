@@ -135,13 +135,15 @@
 
   hero.style.visibility = 'hidden';
   motion.addEventListener('change', stop);
-  const pageReady = 'pageLoading' in document.documentElement.dataset
-    ? new Promise(resolve => document.addEventListener('page-loader:complete', resolve, { once: true }))
-    : Promise.resolve();
-  let fontTimeout;
-  const fontLimit = new Promise(resolve => { fontTimeout = setTimeout(resolve, 500); });
-  const fontsReady = Promise.race([document.fonts.ready, fontLimit]).finally(() => clearTimeout(fontTimeout));
-  Promise.all([pageReady, fontsReady]).then(() => {
+  let pageReady;
+  if ('pageLoading' in document.documentElement.dataset) {
+    pageReady = new Promise(resolve => document.addEventListener('page-loader:complete', resolve, { once: true }));
+  } else {
+    let fontTimeout;
+    const fontLimit = new Promise(resolve => { fontTimeout = setTimeout(resolve, 500); });
+    pageReady = Promise.race([document.fonts.ready, fontLimit]).finally(() => clearTimeout(fontTimeout));
+  }
+  pageReady.then(() => {
     if (started) return;
     started = true;
     document.querySelector('.site-nav')?.classList.add('site-nav--entering');
