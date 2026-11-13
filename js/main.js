@@ -94,30 +94,30 @@
     function setupProjectCursor() {
       const cursor = document.querySelector('.project-cursor');
       if (!cursor) return;
-      let cover;
+      let activeCard;
 
       function hide() {
-        cover?.classList.remove('has-project-cursor');
-        cover = null;
+        activeCard?.classList.remove('has-project-cursor');
+        activeCard = null;
         cursor.classList.remove('is-visible');
       }
 
       function move(event) {
         if (event.pointerType !== 'mouse' || !finePointer.matches || document.hidden) return;
         cursor.style.translate = `${event.clientX}px ${event.clientY}px`;
-        if (cover !== event.currentTarget) {
+        if (activeCard !== event.currentTarget) {
           hide();
-          cover = event.currentTarget;
-          cover.classList.add('has-project-cursor');
+          activeCard = event.currentTarget;
+          activeCard.classList.add('has-project-cursor');
           cursor.classList.add('is-visible');
         }
       }
 
-      for (const image of document.querySelectorAll('.projects .card__image')) {
-        image.addEventListener('pointerenter', move, { passive: true });
-        image.addEventListener('pointermove', move, { passive: true });
-        image.addEventListener('pointerleave', event => { if (cover === event.currentTarget) hide(); });
-        image.addEventListener('pointercancel', hide);
+      for (const card of document.querySelectorAll('.projects .card')) {
+        card.addEventListener('pointerenter', move, { passive: true });
+        card.addEventListener('pointermove', move, { passive: true });
+        card.addEventListener('pointerleave', event => { if (activeCard === event.currentTarget) hide(); });
+        card.addEventListener('pointercancel', hide);
       }
       window.addEventListener('blur', hide);
       document.addEventListener('visibilitychange', () => { if (document.hidden) hide(); });
