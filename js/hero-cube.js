@@ -8,9 +8,15 @@
   if (narrowScreen.matches) {
     await new Promise(resolve => narrowScreen.addEventListener('change', resolve, { once: true }));
   }
-  const response = await fetch(geometryUrl);
-  if (!response.ok) throw new Error(`Hero cube geometry: HTTP ${response.status}`);
-  const geometry = await response.arrayBuffer();
+  let geometry;
+  if (window.portfolioHeroGeometry) {
+    geometry = await window.portfolioHeroGeometry;
+    if (!geometry) return;
+  } else {
+    const response = await fetch(geometryUrl);
+    if (!response.ok) throw new Error(`Hero cube geometry: HTTP ${response.status}`);
+    geometry = await response.arrayBuffer();
+  }
   const [COUNT, vertexCount] = new Uint32Array(geometry, 0, 2);
   const positions = new Float32Array(geometry, 8, COUNT * 3);
   const normals = new Float32Array(geometry, 8 + positions.byteLength, positions.length);
@@ -388,6 +394,9 @@
         this.sync();
       });
       this.intersectionObserver.observe(element);
+      if ('pageLoading' in document.documentElement.dataset) {
+        document.addEventListener('page-loader:complete', () => this.sync(), { once: true });
+      }
       window.addEventListener('pagehide', event => {
         if (event.persisted) return;
         clearTimeout(this.mouse.timeout);
@@ -589,7 +598,8 @@
     }
 
     sync() {
-      if (narrowScreen.matches || staticPreview || this.motion.matches || document.hidden || !this.visible) {
+      if ('pageLoading' in document.documentElement.dataset ||
+          narrowScreen.matches || staticPreview || this.motion.matches || document.hidden || !this.visible) {
         this.stop();
       } else if (!this.frame) {
         this.previousTime = 0;
