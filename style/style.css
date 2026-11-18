@@ -638,6 +638,11 @@ h1, h2, h3, h4, h5, h6, [role="heading"] {
 
 .hero__title-variant {
   grid-area: 1 / 1;
+  font-size: min(1em, 17.5cqw);
+}
+
+.hero__title-suffix {
+  grid-area: 2 / 1;
 }
 
 .hero__title-variant:not([data-current]) {
@@ -653,12 +658,14 @@ h1, h2, h3, h4, h5, h6, [role="heading"] {
   opacity: 0;
 }
 
-:is(.hero__name, .card__title)[data-intro-reveal="playing"] .weight-hover-word {
+:is(.hero__name, .card__title)[data-intro-reveal="playing"] .weight-hover-word,
+.hero__name[data-intro-reveal="rotating"] .hero__title-variant .weight-hover-word {
   clip-path: inset(-0.15em -0.15em -0.2em);
 }
 
 @supports (overflow: clip) and (overflow-clip-margin: 0.2em) {
-  .hero__name[data-intro-reveal="playing"] .weight-hover-word {
+  .hero__name[data-intro-reveal="playing"] .weight-hover-word,
+  .hero__name[data-intro-reveal="rotating"] .hero__title-variant .weight-hover-word {
     clip-path: none;
     overflow: clip;
     overflow-clip-margin: 0.2em;
