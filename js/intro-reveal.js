@@ -10,6 +10,7 @@
   const links = hero.querySelector('.hero__links');
   const contentGroups = document.querySelectorAll('[data-reveal-delay]');
   const titleVariants = [...heading.querySelectorAll('.hero__title-variant')];
+  const titleSuffix = heading.querySelector('.hero__title-suffix');
   const headings = [heading, ...document.querySelectorAll('.card .card__title')]
     .filter(element => element.querySelector('.weight-hover-letter'));
   const animationsByElement = new Map();
@@ -49,7 +50,8 @@
     titleVariants[titleIndex].removeAttribute('data-current');
     titleIndex = index;
     titleVariants[index].setAttribute('data-current', '');
-    heading.setAttribute('aria-label', titleVariants[index].textContent.trim());
+    const suffix = titleSuffix ? ` ${titleSuffix.textContent.trim()}` : '';
+    heading.setAttribute('aria-label', `${titleVariants[index].textContent.trim()}${suffix}`);
   }
 
   function resetReveal(element) {
@@ -62,11 +64,14 @@
     element.dataset.introReveal = 'waiting';
   }
 
-  function revealHeading(element, leaving = false) {
+  function revealHeading(element, phase = 'initial') {
+    const leaving = phase === 'leave';
     if (!leaving && element.dataset.introReveal !== 'waiting') return;
-    element.dataset.introReveal = 'playing';
-    const variant = element === heading ? titleVariants[titleIndex] || element : element;
-    const letters = [...variant.querySelectorAll('.weight-hover-letter')].filter(letter => letter.textContent.trim());
+    element.dataset.introReveal = phase === 'initial' ? 'playing' : 'rotating';
+    const parts = [element === heading ? titleVariants[titleIndex] || element : element];
+    if (element === heading && phase === 'initial' && titleSuffix) parts.push(titleSuffix);
+    const letters = parts.flatMap(part => [...part.querySelectorAll('.weight-hover-letter')])
+      .filter(letter => letter.textContent.trim());
     const rest = { transform: 'translate3d(0, 0em, 0) rotate(0deg)' };
     const keyframes = leaving
       ? [rest, { transform: 'translate3d(0, -1.4em, 0) rotate(-10deg)' }]
@@ -89,10 +94,10 @@
       if (leaving) {
         showTitle((titleIndex + 1) % titleVariants.length);
         heading.dataset.introReveal = 'waiting';
-        revealHeading(heading);
+        revealHeading(heading, 'enter');
       } else {
         titleTimer = setTimeout(() => {
-          if (headingVisible && !document.hidden) revealHeading(heading, true);
+          if (headingVisible && !document.hidden) revealHeading(heading, 'leave');
         }, 3500);
       }
     });
