@@ -127,7 +127,7 @@ img {
 }
 
 body {
-  font-family: 'Montserrat', Arial, Helvetica, sans-serif;
+  font-family: 'Onest', Arial, Helvetica, sans-serif;
   background: var(--color-page-bg);
   color: var(--color-text);
   -webkit-font-smoothing: antialiased;
@@ -473,7 +473,7 @@ h1, h2, h3, h4, h5, h6, [role="heading"] {
   line-height: inherit;
 }
 
-@container (width < 374px) {
+@container (width < 354px) {
   .site-nav .nav-contact {
     display: none;
   }
