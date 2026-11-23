@@ -18,14 +18,20 @@
     const bounds = headings.map(heading => heading.element.getBoundingClientRect());
     for (const [index, heading] of headings.entries()) {
       const rect = bounds[index];
-      const visible = rect.bottom >= 0 && rect.top <= innerHeight;
-      for (const letter of heading.letters) {
-        const influence = visible && !motion.matches
-          ? Math.max(0, 1 - Math.hypot(
-              pointer.x - rect.left - letter.x,
-              pointer.y - rect.top - letter.y
-            ) / heading.radius)
-          : 0;
+      const withinReach = !motion.matches && rect.bottom >= 0 && rect.top <= innerHeight
+        && pointer.x >= rect.left - heading.radius && pointer.x <= rect.right + heading.radius
+        && pointer.y >= rect.top - heading.radius && pointer.y <= rect.bottom + heading.radius;
+      const positions = withinReach && heading.fluid
+        ? heading.letters.map(({ span }) => span.getBoundingClientRect())
+        : null;
+      for (const [index, letter] of heading.letters.entries()) {
+        let influence = 0;
+        if (withinReach) {
+          const box = positions?.[index];
+          const x = box ? box.left + box.width / 2 : rect.left + letter.x;
+          const y = box ? box.top + box.height / 2 : rect.top + letter.y;
+          influence = Math.max(0, 1 - Math.hypot(pointer.x - x, pointer.y - y) / heading.radius);
+        }
         const target = heading.rest + (heading.near - heading.rest) * influence * influence * (3 - 2 * influence);
         if (letter.weight === target) continue;
         const previousWeight = letter.weight.toFixed(1);
@@ -47,6 +53,7 @@
 
   function measure() {
     for (const heading of headings) {
+      if (heading.fluid) continue;
       for (const letter of heading.letters) {
         letter.span.style.width = '';
         letter.span.style.fontVariationSettings = `"wght" ${heading.rest}`;
@@ -68,11 +75,15 @@
   function start() {
     if (new URLSearchParams(location.search).has('static')) return;
     document.querySelectorAll('h1, h2, h3, h4, h5, h6, [role="heading"], [data-weight-hover]').forEach(element => {
+      if (element.matches('.projects__title')) return;
+      // Буквы карточек используются анимацией появления.
+      const hover = !element.matches('.card__title');
       if (!element.hasAttribute('aria-label')) {
         element.setAttribute('aria-label', element.textContent.trim().replace(/\s+/g, ' '));
       }
       const heading = {
         element,
+        fluid: element.matches('.hero__name'),
         rest: Number(element.dataset.weightRest || getComputedStyle(element).fontWeight) || 600,
         near: Number(element.dataset.weightNear ?? 200),
         radius: Math.max(1, Number(element.dataset.radius) || 350),
@@ -97,15 +108,17 @@
             const span = document.createElement('span');
             span.className = 'weight-hover-letter';
             span.textContent = character;
-            span.style.fontVariationSettings = `"wght" ${heading.rest}`;
+            if (hover) {
+              span.style.fontVariationSettings = `"wght" ${heading.rest}`;
+              heading.letters.push({ span, weight: heading.rest, x: 0, y: 0 });
+            }
             word.append(span);
-            heading.letters.push({ span, weight: heading.rest, x: 0, y: 0 });
           }
           fragment.append(word);
         }
         node.replaceWith(fragment);
       }
-      headings.push(heading);
+      if (hover) headings.push(heading);
     });
     measure();
     document.fonts.ready.then(measure);
