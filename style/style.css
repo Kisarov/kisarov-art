@@ -164,9 +164,10 @@ h1, h2, h3, h4, h5, h6, [role="heading"] {
 }
 
 .container {
+  --section-gap: 60px;
   display: flex;
   flex-direction: column;
-  gap: 60px;
+  gap: var(--section-gap);
 }
 
 .header {
@@ -597,7 +598,17 @@ h1, h2, h3, h4, h5, h6, [role="heading"] {
 .page:has(.hero) {
   position: relative;
   overflow-x: clip;
+  max-width: none;
   padding-top: 0;
+  padding-inline: 0;
+}
+
+.page:has(.hero) > .container {
+  gap: 0;
+}
+
+.page:has(.hero) > .container > :is(.hero, .projects) {
+  margin-inline: var(--page-inline-edge);
 }
 
 .hero {
@@ -788,6 +799,11 @@ h1, h2, h3, h4, h5, h6, [role="heading"] {
   text-decoration: none;
 }
 
+.button.primary,
+.button.secondary {
+  font-weight: 400;
+}
+
 .button.primary {
   --button-fill-color: var(--color-button-primary-bg-hover);
   --button-ink-color: var(--color-button-primary-text-hover);
@@ -866,6 +882,83 @@ h1, h2, h3, h4, h5, h6, [role="heading"] {
 
   .button:is(:hover, :focus-visible) .button__char {
     transform: none;
+  }
+}
+
+.marquee-wrap {
+  overflow: hidden;
+  margin-bottom: var(--section-gap);
+  padding-block: 14px;
+  border-block: 1px solid var(--color-border);
+  color: var(--color-text-secondary);
+  font-family: 'Onest', Arial, Helvetica, sans-serif;
+  font-size: 0.875rem;
+  font-weight: 600;
+  line-height: 1.4;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.marquee-track {
+  display: flex;
+  width: max-content;
+  animation: marquee-scroll 28s linear infinite;
+}
+
+.marquee-group {
+  display: flex;
+  flex: none;
+  justify-content: space-between;
+  min-width: 100vw;
+  list-style: none;
+}
+
+.marquee-group li {
+  display: flex;
+  align-items: center;
+  gap: 56px;
+  padding-inline: 28px;
+  white-space: nowrap;
+}
+
+.marquee-group li::after {
+  content: '✦' / '';
+  font-size: 7px;
+}
+
+@keyframes marquee-scroll {
+  to { transform: translateX(-50%); }
+}
+
+@media (hover: hover) {
+  .marquee-wrap:hover .marquee-track {
+    animation-play-state: paused;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .marquee-track {
+    width: auto;
+    animation: none;
+  }
+
+  .marquee-group {
+    flex: 1;
+    flex-wrap: wrap;
+    justify-content: flex-start;
+    gap: 8px 16px;
+    min-width: 0;
+    padding-inline: var(--page-inline-edge);
+  }
+
+  .marquee-group[aria-hidden="true"] {
+    display: none;
+  }
+
+  .marquee-group li {
+    gap: 16px;
+    padding-inline: 0;
+    white-space: normal;
   }
 }
 
@@ -1196,7 +1289,7 @@ h1, h2, h3, h4, h5, h6, [role="heading"] {
   }
 
   .container {
-    gap: 48px;
+    --section-gap: 48px;
   }
 
   .header {
