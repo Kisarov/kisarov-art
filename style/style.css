@@ -414,7 +414,7 @@ h1, h2, h3, h4, h5, h6, [role="heading"] {
   top: 16px;
   inset-inline: clamp(16px, calc((100% - 488px) / 2), var(--nav-scrolled-inset));
   gap: 48px;
-  padding: 14px 16px 16px 28px;
+  padding: 16px 16px 16px 24px;
   border-radius: 100px;
 }
 
@@ -1388,7 +1388,6 @@ h1, h2, h3, h4, h5, h6, [role="heading"] {
 @media (max-width: 480px) {
   .site-nav.scrolled {
     inset-inline: 16px;
-    padding-inline: 8px;
   }
 
   .site-nav .nav-contact {
