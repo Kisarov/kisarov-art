@@ -950,12 +950,8 @@ h1, h2, h3, h4, h5, h6, [role="heading"] {
     top: 0;
     left: 50%;
     transform: translateX(-50%);
-    color: #121212;
+    color: var(--color-text);
     pointer-events: none;
-  }
-
-  :root[data-theme="dark"] .marquee__letter[data-scramble]::after {
-    background-color: var(--color-text-secondary);
   }
 }
 
