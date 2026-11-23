@@ -854,9 +854,16 @@ h1, h2, h3, h4, h5, h6, [role="heading"] {
 }
 
 .projects__title {
+  scroll-margin-top: 88px;
   font-size: 60px;
   font-weight: 600;
   line-height: 1.04;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  :root:has(.projects__title:target) {
+    scroll-behavior: smooth;
+  }
 }
 
 .projects__grid {
