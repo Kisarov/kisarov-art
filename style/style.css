@@ -927,6 +927,38 @@ h1, h2, h3, h4, h5, h6, [role="heading"] {
   font-size: 7px;
 }
 
+.marquee__accessible-label {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+}
+
+.marquee__letter {
+  position: relative;
+}
+
+@media (hover: hover) and (pointer: fine) and (prefers-reduced-motion: no-preference) {
+  .marquee__letter[data-scramble] {
+    color: transparent;
+  }
+
+  .marquee__letter[data-scramble]::after {
+    content: attr(data-scramble) / '';
+    position: absolute;
+    top: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    color: #121212;
+    pointer-events: none;
+  }
+
+  :root[data-theme="dark"] .marquee__letter[data-scramble]::after {
+    background-color: var(--color-text-secondary);
+  }
+}
+
 @keyframes marquee-scroll {
   to { transform: translateX(-50%); }
 }
