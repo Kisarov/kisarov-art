@@ -48,11 +48,14 @@
         label.append(word);
       }
 
-      const ink = document.createElement('span');
-      ink.className = 'button__ink';
-      ink.append(label.cloneNode(true));
       if (!button.hasAttribute('aria-label')) button.setAttribute('aria-label', text);
-      button.replaceChildren(label, ink);
+      button.replaceChildren(label);
+      if (button.matches('.primary, .secondary')) {
+        const ink = document.createElement('span');
+        ink.className = 'button__ink';
+        ink.append(label.cloneNode(true));
+        button.append(ink);
+      }
     }
 
     for (const button of document.querySelectorAll('.button')) {
