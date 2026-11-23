@@ -8,20 +8,20 @@
   --color-divider: #dadada;
 
   /* Текст и ссылки */
-  --color-text: #000;
+  --color-text: #121212;
   --color-text-secondary: #525252;
   --color-caption: #777;
   --color-text-positive: #0d8c5e;
   --color-card-link-hover: #1858c7;
 
   /* Кнопки */
-  --color-button-bg: #000;
+  --color-button-bg: #121212;
   --color-button-text: #fff;
   --color-button-primary-bg-hover: var(--color-page-bg);
   --color-button-primary-text-hover: var(--color-text);
   --color-button-back-bg-hover: #303030;
   --color-button-outline: #0000001a;
-  --color-button-outline-hover: #000;
+  --color-button-outline-hover: #121212;
 
   /* Плавающая навигация */
   --color-nav-bg: #f4f4f4;
@@ -42,7 +42,7 @@
 
   /* Белый слой нужен для инверсии изображения под курсором в обеих темах. */
   --color-project-cursor-bg: #fff;
-  --color-project-cursor-icon: #000;
+  --color-project-cursor-icon: #121212;
 
   --page-max-width: 1920px;
   --page-gutter: 100px;
@@ -90,6 +90,8 @@
   --color-scroll-line-end: #8db2ff;
   --color-scroll-hint: #79a6ff;
   --color-cube-particles: #707070;
+
+  --color-project-cursor-icon: #000;
 }
 
 *,
@@ -164,10 +166,9 @@ h1, h2, h3, h4, h5, h6, [role="heading"] {
 }
 
 .container {
-  --section-gap: 60px;
   display: flex;
   flex-direction: column;
-  gap: var(--section-gap);
+  gap: 60px;
 }
 
 .header {
@@ -449,7 +450,7 @@ h1, h2, h3, h4, h5, h6, [role="heading"] {
 
 .site-nav .nav-logo img {
   flex: none;
-  filter: brightness(0);
+  filter: brightness(0.07);
 }
 
 :root[data-theme="dark"] .site-nav .nav-logo img {
@@ -887,13 +888,13 @@ h1, h2, h3, h4, h5, h6, [role="heading"] {
 
 .marquee-wrap {
   overflow: hidden;
-  margin-bottom: var(--section-gap);
+  margin-block: 80px;
   padding-block: 14px;
   border-block: 1px solid var(--color-border);
   color: var(--color-text-secondary);
   font-family: 'Onest', Arial, Helvetica, sans-serif;
-  font-size: 0.875rem;
-  font-weight: 600;
+  font-size: 12px;
+  font-weight: 500;
   line-height: 1.4;
   letter-spacing: 0.12em;
   text-transform: uppercase;
@@ -1230,6 +1231,10 @@ h1, h2, h3, h4, h5, h6, [role="heading"] {
     font-size: 64px;
   }
 
+  .marquee-wrap {
+    margin-block: 64px;
+  }
+
   .projects {
     gap: 24px;
   }
@@ -1289,7 +1294,7 @@ h1, h2, h3, h4, h5, h6, [role="heading"] {
   }
 
   .container {
-    --section-gap: 48px;
+    gap: 48px;
   }
 
   .header {
@@ -1352,6 +1357,10 @@ h1, h2, h3, h4, h5, h6, [role="heading"] {
 
   .hero__name {
     font-size: 48px;
+  }
+
+  .marquee-wrap {
+    margin-block: 48px;
   }
 
   .projects {
@@ -1433,6 +1442,10 @@ h1, h2, h3, h4, h5, h6, [role="heading"] {
 
   .hero__links {
     max-width: none;
+  }
+
+  .marquee-wrap {
+    margin-block: 32px;
   }
 
   .projects {
