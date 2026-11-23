@@ -89,7 +89,7 @@
   --color-scroll-line-start: #7b83ff;
   --color-scroll-line-end: #8db2ff;
   --color-scroll-hint: #79a6ff;
-  --color-cube-particles: #808080;
+  --color-cube-particles: #707070;
 }
 
 *,
@@ -386,6 +386,7 @@ h1, h2, h3, h4, h5, h6, [role="heading"] {
 
 /* index */
 .site-nav {
+  container-type: inline-size;
   position: fixed;
   top: 0;
   left: 0;
@@ -394,6 +395,7 @@ h1, h2, h3, h4, h5, h6, [role="heading"] {
   display: flex;
   align-items: center;
   justify-content: space-between;
+  gap: 8px;
   padding: 22px var(--page-inline-edge);
   transition:
     padding 0.45s cubic-bezier(0.4, 0, 0.2, 1),
@@ -404,9 +406,9 @@ h1, h2, h3, h4, h5, h6, [role="heading"] {
 }
 
 .site-nav.scrolled {
+  --nav-scrolled-inset: 32%;
   top: 16px;
-  left: 32%;
-  right: 32%;
+  inset-inline: clamp(16px, calc((100% - 472px) / 2), var(--nav-scrolled-inset));
   gap: 48px;
   padding: 14px 16px 16px 28px;
   border-radius: 100px;
@@ -428,12 +430,17 @@ h1, h2, h3, h4, h5, h6, [role="heading"] {
   backdrop-filter: blur(20px);
 }
 
+.site-nav :is(.nav-logo, .nav-contact) {
+  color: var(--color-text);
+  font-size: 15px;
+  font-weight: 400;
+  line-height: 1.2;
+}
+
 .site-nav .nav-logo {
   display: inline-flex;
   align-items: center;
   gap: 12px;
-  font-size: 15px;
-  line-height: 1.2;
   white-space: nowrap;
 }
 
@@ -449,29 +456,40 @@ h1, h2, h3, h4, h5, h6, [role="heading"] {
 .site-nav .nav-right {
   display: flex;
   align-items: center;
+  gap: 8px;
+  min-width: 0;
+}
+
+.site-nav .nav-contact {
+  flex: none;
+  height: auto;
+  min-height: 34px;
+  padding: 2px 12px;
+  border-radius: 100px;
+  white-space: nowrap;
+}
+
+.site-nav .nav-contact .button__label {
+  line-height: inherit;
+}
+
+@container (width < 374px) {
+  .site-nav .nav-contact {
+    display: none;
+  }
 }
 
 .site-nav .theme-btn {
-  display: flex;
-  align-items: center;
-  padding: 8px 16px;
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 34px;
+  aspect-ratio: 1;
   border: 0;
   border-radius: 100px;
   color: var(--color-nav-muted);
-  font-family: inherit;
-  font-size: 11px;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-}
-
-.site-nav .theme-btn .button__label {
-  display: inline-flex;
-  align-items: center;
-  gap: 7px;
-}
-
-.site-nav .t-icon {
   font-size: 13px;
+  line-height: 1;
 }
 
 .site-nav--entering :is(.nav-logo, .nav-right) {
@@ -775,7 +793,7 @@ h1, h2, h3, h4, h5, h6, [role="heading"] {
   box-shadow: inset 0 0 0 1px var(--color-button-bg);
 }
 
-:is(.button, .site-nav .theme-btn):has(.button__label):is(:hover, :focus-visible) {
+.button:has(.button__label):is(:hover, :focus-visible) {
   background-size: 100% 100%;
 }
 
@@ -792,7 +810,7 @@ h1, h2, h3, h4, h5, h6, [role="heading"] {
   transition: clip-path var(--button-fill-duration) var(--button-fill-ease);
 }
 
-:is(.button, .site-nav .theme-btn):is(:hover, :focus-visible) .button__ink {
+.button:is(:hover, :focus-visible) .button__ink {
   clip-path: inset(0);
 }
 
@@ -815,7 +833,7 @@ h1, h2, h3, h4, h5, h6, [role="heading"] {
   transition: transform 420ms cubic-bezier(0.2, 0.8, 0.2, 1);
 }
 
-:is(.button, .site-nav .theme-btn):is(:hover, :focus-visible) .button__char {
+.button:is(:hover, :focus-visible) .button__char {
   transform: translateY(-100%);
   transition-delay: calc(var(--button-roll-delay) + min(var(--button-char-index) * 20ms, 200ms));
 }
@@ -843,7 +861,7 @@ h1, h2, h3, h4, h5, h6, [role="heading"] {
     transition: none;
   }
 
-  :is(.button, .site-nav .theme-btn):is(:hover, :focus-visible) .button__char {
+  .button:is(:hover, :focus-visible) .button__char {
     transform: none;
   }
 }
@@ -1078,7 +1096,7 @@ h1, h2, h3, h4, h5, h6, [role="heading"] {
   }
 
   .site-nav.scrolled {
-    inset-inline: 20%;
+    --nav-scrolled-inset: 20%;
     gap: 8px;
   }
 
@@ -1262,6 +1280,11 @@ h1, h2, h3, h4, h5, h6, [role="heading"] {
 @media (max-width: 480px) {
   .site-nav.scrolled {
     inset-inline: 16px;
+    padding-inline: 8px;
+  }
+
+  .site-nav .nav-contact {
+    padding-inline: 8px;
   }
 
   .page {
@@ -1347,10 +1370,6 @@ h1, h2, h3, h4, h5, h6, [role="heading"] {
 }
 
 @media (max-width: 360px) {
-  .site-nav .theme-btn {
-    padding-inline: 11px;
-  }
-
   .projects__grid {
     gap: 44px;
   }
