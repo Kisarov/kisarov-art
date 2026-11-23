@@ -793,7 +793,7 @@ h1, h2, h3, h4, h5, h6, [role="heading"] {
   box-shadow: inset 0 0 0 1px var(--color-button-bg);
 }
 
-.button:has(.button__label):is(:hover, :focus-visible) {
+:is(.button:has(.button__ink), .site-nav .theme-btn):is(:hover, :focus-visible) {
   background-size: 100% 100%;
 }
 
@@ -810,7 +810,7 @@ h1, h2, h3, h4, h5, h6, [role="heading"] {
   transition: clip-path var(--button-fill-duration) var(--button-fill-ease);
 }
 
-.button:is(:hover, :focus-visible) .button__ink {
+:is(.button, .site-nav .theme-btn):is(:hover, :focus-visible) .button__ink {
   clip-path: inset(0);
 }
 
