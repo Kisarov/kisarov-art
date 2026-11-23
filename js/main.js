@@ -10,6 +10,79 @@
     }
   }
 
+  function setupMarqueeHover() {
+    const items = document.querySelectorAll('.marquee-group li');
+    if (!items.length) return;
+
+    const canAnimate = matchMedia('(hover: hover) and (pointer: fine) and (prefers-reduced-motion: no-preference)');
+    const glyphs = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+
+    for (const item of items) {
+      const text = item.textContent.trim();
+      const label = document.createElement('span');
+      label.className = 'marquee__accessible-label';
+      label.textContent = text;
+
+      const visual = document.createElement('span');
+      visual.className = 'marquee__text';
+      visual.setAttribute('aria-hidden', 'true');
+
+      const letters = [];
+      for (const part of text.split(/(\s+)/u)) {
+        if (!part.trim()) {
+          visual.append(part);
+          continue;
+        }
+
+        const word = Array.from(part);
+        const offset = letters.length;
+        const step = word.length / (word.length * 2 - 1);
+        word.forEach((character, index) => {
+          const element = document.createElement('span');
+          element.className = 'marquee__letter';
+          element.textContent = character;
+          visual.append(element);
+          letters.push({
+            element,
+            start: offset + index * step,
+            end: offset + (word.length + index) * step
+          });
+        });
+      }
+      item.replaceChildren(label, visual);
+
+      let frame;
+      item.addEventListener('pointerenter', event => {
+        if (event.pointerType !== 'mouse' || !canAnimate.matches) return;
+        cancelAnimationFrame(frame);
+        const startedAt = performance.now();
+        let previousTick = -1;
+
+        function draw(now) {
+          const elapsed = now - startedAt;
+          const progress = canAnimate.matches ? Math.min(elapsed / 750, 1) : 1;
+          const position = (1 - (1 - progress) ** 3) * letters.length;
+          const tick = Math.floor(elapsed / 50);
+
+          for (const { element, start, end } of letters) {
+            if (progress < 1 && position > start && position < end) {
+              if (tick !== previousTick || !element.dataset.scramble) {
+                element.dataset.scramble = glyphs[Math.floor(Math.random() * glyphs.length)];
+              }
+            } else if (element.dataset.scramble) {
+              delete element.dataset.scramble;
+            }
+          }
+
+          previousTick = tick;
+          if (progress < 1) frame = requestAnimationFrame(draw);
+        }
+
+        frame = requestAnimationFrame(draw);
+      });
+    }
+  }
+
   function initialize() {
     const nav = document.querySelector('.site-nav');
     if (nav) {
@@ -61,6 +134,8 @@
     for (const button of document.querySelectorAll('.button')) {
       renderButton(button, button.textContent.trim());
     }
+
+    setupMarqueeHover();
 
     const themeButton = document.querySelector('.theme-btn');
     function updateTheme(theme) {
