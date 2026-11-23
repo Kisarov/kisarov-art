@@ -128,6 +128,8 @@ img {
 
 body {
   font-family: 'Onest', Arial, Helvetica, sans-serif;
+  font-size: calc(1rem + 2px);
+  letter-spacing: 0.2px;
   background: var(--color-page-bg);
   color: var(--color-text);
   -webkit-font-smoothing: antialiased;
@@ -136,6 +138,7 @@ body {
 /* Все заголовки, включая добавленные позже в HTML. */
 h1, h2, h3, h4, h5, h6, [role="heading"] {
   font-family: "Unbounded", sans-serif;
+  letter-spacing: normal;
   font-optical-sizing: auto;
   font-style: normal;
   overflow-wrap: anywhere;
@@ -237,10 +240,9 @@ h1, h2, h3, h4, h5, h6, [role="heading"] {
 .badge {
   padding: 4px 10px;
   border-radius: 6px;
-  font-size: 11px;
+  font-size: 13px;
   font-weight: 600;
   line-height: 1;
-  letter-spacing: 0.04em;
   text-transform: uppercase;
 }
 
@@ -263,7 +265,7 @@ h1, h2, h3, h4, h5, h6, [role="heading"] {
 
 .header__subtitle {
   color: var(--color-text-secondary);
-  font-size: 20px;
+  font-size: 22px;
   font-weight: 400;
   line-height: 1.4;
 }
@@ -296,13 +298,13 @@ h1, h2, h3, h4, h5, h6, [role="heading"] {
 }
 
 .header__author-name {
-  font-size: 14px;
+  font-size: 16px;
   font-weight: 600;
 }
 
 .header__author-role {
   color: var(--color-text-secondary);
-  font-size: 12px;
+  font-size: 14px;
 }
 
 .content {
@@ -326,12 +328,12 @@ h1, h2, h3, h4, h5, h6, [role="heading"] {
 }
 
 .section__text {
-  font-size: 20px;
+  font-size: 22px;
   line-height: 1.6;
 }
 
 .caption {
-  font-size: 18px;
+  font-size: 20px;
   line-height: 1.6;
   color: var(--color-caption);
 }
@@ -363,7 +365,7 @@ h1, h2, h3, h4, h5, h6, [role="heading"] {
 }
 
 .footer-text {
-  font-size: 40px;
+  font-size: 42px;
   font-weight: 600;
   line-height: 1.04;
   text-align: center;
@@ -371,7 +373,7 @@ h1, h2, h3, h4, h5, h6, [role="heading"] {
 
 .section__list {
   padding-left: 24px;
-  font-size: 20px;
+  font-size: 22px;
   line-height: 1.6;
 }
 
@@ -408,7 +410,7 @@ h1, h2, h3, h4, h5, h6, [role="heading"] {
 .site-nav.scrolled {
   --nav-scrolled-inset: 32%;
   top: 16px;
-  inset-inline: clamp(16px, calc((100% - 472px) / 2), var(--nav-scrolled-inset));
+  inset-inline: clamp(16px, calc((100% - 488px) / 2), var(--nav-scrolled-inset));
   gap: 48px;
   padding: 14px 16px 16px 28px;
   border-radius: 100px;
@@ -432,7 +434,7 @@ h1, h2, h3, h4, h5, h6, [role="heading"] {
 
 .site-nav :is(.nav-logo, .nav-contact) {
   color: var(--color-text);
-  font-size: 15px;
+  font-size: 17px;
   font-weight: 400;
   line-height: 1.2;
 }
@@ -473,7 +475,7 @@ h1, h2, h3, h4, h5, h6, [role="heading"] {
   line-height: inherit;
 }
 
-@container (width < 354px) {
+@container (width < 394px) {
   .site-nav .nav-contact {
     display: none;
   }
@@ -545,6 +547,7 @@ h1, h2, h3, h4, h5, h6, [role="heading"] {
   color: #fff;
   font-family: system-ui, sans-serif;
   font-size: 24px;
+  letter-spacing: normal;
   font-weight: 600;
   line-height: 1.2;
   font-variant-numeric: tabular-nums;
@@ -692,7 +695,7 @@ h1, h2, h3, h4, h5, h6, [role="heading"] {
 
 .hero__bio,
 .hero__skills {
-  font-size: 15px;
+  font-size: 17px;
   font-weight: 400;
   line-height: 1.6;
   color: var(--color-text);
@@ -780,7 +783,7 @@ h1, h2, h3, h4, h5, h6, [role="heading"] {
   border: 0;
   border-radius: 12px;
   font-family: inherit;
-  font-size: 15px;
+  font-size: 17px;
   font-weight: 500;
   text-decoration: none;
 }
@@ -985,7 +988,7 @@ h1, h2, h3, h4, h5, h6, [role="heading"] {
 }
 
 .card__content .caption {
-  font-size: 16px;
+  font-size: 18px;
 }
 
 .card__badges {
@@ -1003,7 +1006,7 @@ h1, h2, h3, h4, h5, h6, [role="heading"] {
 }
 
 .card__description {
-  font-size: 18px;
+  font-size: 20px;
   font-weight: 400;
   line-height: 1.6;
   color: var(--color-text);
@@ -1022,7 +1025,7 @@ h1, h2, h3, h4, h5, h6, [role="heading"] {
   border-radius: 999px;
   background: var(--color-button-bg);
   color: var(--color-button-text);
-  font-size: 16px;
+  font-size: 18px;
   font-weight: 600;
   line-height: 1;
   text-decoration: none;
@@ -1119,7 +1122,7 @@ h1, h2, h3, h4, h5, h6, [role="heading"] {
   }
 
   .header__subtitle {
-    font-size: 18px;
+    font-size: 20px;
   }
 
   .header__image-right {
@@ -1151,7 +1154,7 @@ h1, h2, h3, h4, h5, h6, [role="heading"] {
   }
 
   .card__content .caption {
-    font-size: 15px;
+    font-size: 17px;
   }
 
   .card__title {
@@ -1159,7 +1162,7 @@ h1, h2, h3, h4, h5, h6, [role="heading"] {
   }
 
   .card__description {
-    font-size: 17px;
+    font-size: 19px;
   }
 }
 
@@ -1228,18 +1231,21 @@ h1, h2, h3, h4, h5, h6, [role="heading"] {
     gap: 72px;
   }
 
-  .section__title,
-  .footer-text {
+  .section__title {
     font-size: 32px;
+  }
+
+  .footer-text {
+    font-size: 34px;
   }
 
   .section__text,
   .section__list {
-    font-size: 18px;
+    font-size: 20px;
   }
 
   .caption {
-    font-size: 16px;
+    font-size: 18px;
   }
 
   .hero {
@@ -1300,7 +1306,7 @@ h1, h2, h3, h4, h5, h6, [role="heading"] {
   }
 
   .header__subtitle {
-    font-size: 16px;
+    font-size: 18px;
   }
 
   .header__badges {
@@ -1316,12 +1322,12 @@ h1, h2, h3, h4, h5, h6, [role="heading"] {
   }
 
   .footer-text {
-    font-size: 20px;
+    font-size: 22px;
   }
 
   .section__text,
   .section__list {
-    font-size: 16px;
+    font-size: 18px;
   }
 
   .section__list {
@@ -1357,7 +1363,7 @@ h1, h2, h3, h4, h5, h6, [role="heading"] {
   }
   
   .card__content .caption {
-    font-size: 14px;
+    font-size: 16px;
   }
 
   .card__title {
@@ -1365,7 +1371,7 @@ h1, h2, h3, h4, h5, h6, [role="heading"] {
   }
 
   .card__description {
-    font-size: 16px;
+    font-size: 18px;
   }
 }
 
