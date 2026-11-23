@@ -135,12 +135,16 @@ float linearStep(float edge0,float edge1,float x){return clamp((x-edge0)/(edge1-
     measureStyle = true;
     canvas.hidden = true;
     cardHover?.reset();
+    resetScroll();
+    for (const cover of covers) cover.box.style.opacity = cover.opacity;
+  }
+
+  function resetScroll() {
     scroll.pixel = scroll.target = scroll.native = window.scrollY;
     scroll.strength = scroll.velocity = scroll.delta = 0;
     scroll.wheel = false;
     scroll.drag = null;
     scroll.history.length = 0;
-    for (const cover of covers) cover.box.style.opacity = cover.opacity;
   }
 
   function canRun() {
@@ -181,7 +185,7 @@ float linearStep(float edge0,float edge1,float x){return clamp((x-edge0)/(edge1-
 
   function updateScroll(dt, time) {
     const previous = scroll.pixel;
-    if (Math.abs(window.scrollY - scroll.native) > 1) {
+    if (window.scrollY !== scroll.native) {
       scroll.pixel = scroll.target = window.scrollY;
       scroll.wheel = false;
       scroll.velocity = 0;
@@ -330,6 +334,11 @@ float linearStep(float edge0,float edge1,float x){return clamp((x-edge0)/(edge1-
     }
     return true;
   }
+
+  document.querySelector('.hero__links a[href="#projects-title"]')?.addEventListener('click', event => {
+    if (event.defaultPrevented || event.ctrlKey || event.metaKey || event.shiftKey || event.altKey) return;
+    resetScroll();
+  });
 
   window.addEventListener('wheel', event => {
     if (!canHandle(event) || !event.cancelable || event.shiftKey || Math.abs(event.deltaX) > Math.abs(event.deltaY)) return;
