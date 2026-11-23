@@ -20,13 +20,11 @@
     }
 
     function renderButton(button, text) {
-      const icon = button.querySelector('.t-icon');
       if (!text) return;
 
       const label = document.createElement('span');
       label.className = 'button__label';
       label.setAttribute('aria-hidden', 'true');
-      if (icon) label.append(icon);
       let index = 0;
 
       for (const part of text.split(/(\s+)/u)) {
@@ -65,10 +63,7 @@
     function updateTheme(theme) {
       const changed = root.dataset.theme !== theme;
       root.dataset.theme = theme;
-      if (themeButton) {
-        themeButton.setAttribute('aria-label', theme === 'dark' ? 'Включить светлую тему' : 'Включить тёмную тему');
-        renderButton(themeButton, theme === 'dark' ? 'Light' : 'Dark');
-      }
+      themeButton?.setAttribute('aria-label', theme === 'dark' ? 'Включить светлую тему' : 'Включить тёмную тему');
       if (changed) window.dispatchEvent(new Event('themechange'));
     }
     updateTheme(root.dataset.theme);
