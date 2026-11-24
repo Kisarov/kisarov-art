@@ -1259,10 +1259,6 @@ h1, h2, h3, h4, h5, h6, [role="heading"] {
     font-size: 64px;
   }
 
-  .marquee-wrap {
-    margin-block: 64px;
-  }
-
   .projects {
     gap: 24px;
   }
@@ -1387,10 +1383,6 @@ h1, h2, h3, h4, h5, h6, [role="heading"] {
     font-size: 48px;
   }
 
-  .marquee-wrap {
-    margin-block: 48px;
-  }
-
   .projects {
     gap: 20px;
   }
@@ -1469,10 +1461,6 @@ h1, h2, h3, h4, h5, h6, [role="heading"] {
 
   .hero__links {
     max-width: none;
-  }
-
-  .marquee-wrap {
-    margin-block: 32px;
   }
 
   .projects {
