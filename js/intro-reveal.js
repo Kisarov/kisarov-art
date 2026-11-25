@@ -65,23 +65,28 @@
   }
 
   function revealHeading(element, phase = 'initial') {
+    const isHeroTitle = element === heading;
     const leaving = phase === 'leave';
     if (!leaving && element.dataset.introReveal !== 'waiting') return;
     element.dataset.introReveal = phase === 'initial' ? 'playing' : 'rotating';
-    const parts = [element === heading ? titleVariants[titleIndex] || element : element];
-    if (element === heading && phase === 'initial' && titleSuffix) parts.push(titleSuffix);
+    const parts = [isHeroTitle ? titleVariants[titleIndex] || element : element];
+    if (isHeroTitle && phase === 'initial' && titleSuffix) parts.push(titleSuffix);
     const letters = parts.flatMap(part => [...part.querySelectorAll('.weight-hover-letter')])
       .filter(letter => letter.textContent.trim());
-    const rest = { transform: 'translate3d(0, 0em, 0) rotate(0deg)' };
+    // Смещаем буквы hero через top, чтобы их отрисовка не зависела от отдельных 3D-слоёв внутри маски.
+    const frame = (offset, angle) => isHeroTitle
+      ? { top: `${offset}em`, transform: `rotate(${angle}deg)` }
+      : { transform: `translate3d(0, ${offset}em, 0) rotate(${angle}deg)` };
+    const rest = frame(0, 0);
     const keyframes = leaving
-      ? [rest, { transform: 'translate3d(0, -1.4em, 0) rotate(-10deg)' }]
-      : [{ transform: 'translate3d(0, 1.4em, 0) rotate(10deg)' }, rest];
+      ? [rest, frame(-1.4, -10)]
+      : [frame(1.4, 10), rest];
     const startTime = document.timeline?.currentTime;
     const animations = letters.map((letter, index) => letter.animate(keyframes, {
       duration: leaving ? 380 : 1000 / 1.5,
       delay: leaving ? index * 12 : index * 1000 / 30,
       easing: leaving ? 'cubic-bezier(0.4, 0, 1, 1)' : 'cubic-bezier(0.35, 0, 0, 1)',
-      fill: 'both'
+      fill: isHeroTitle && !leaving ? 'backwards' : 'both'
     }));
     if (startTime != null) {
       for (const animation of animations) animation.startTime = startTime;
@@ -90,7 +95,7 @@
     Promise.allSettled(animations.map(animation => animation.finished)).then(() => {
       if (animationsByElement.get(element) !== animations) return;
       clearReveal(element);
-      if (element !== heading || titleVariants.length < 2) return;
+      if (!isHeroTitle || titleVariants.length < 2) return;
       if (leaving) {
         showTitle((titleIndex + 1) % titleVariants.length);
         heading.dataset.introReveal = 'waiting';
