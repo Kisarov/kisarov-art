@@ -28,6 +28,7 @@
   const HOLD_TIME = 5;
   const SCATTER_TIME = 0.65;
   const ASSEMBLY_TIME = 1.8;
+  const EDGE_BAND = 0.16;
 
   let shapeRadius = 0;
   for (let i = 0; i < vertices.length; i += 3) {
@@ -41,35 +42,52 @@
     const directions = new Float32Array(points.length);
     const radius = Math.max(...triangles.flat().map(point => Math.hypot(...point)));
     const scale = shapeRadius / radius;
-    let area = 0;
+    const edges = new Map();
 
-    const surface = triangles.map(([a, b, c], index) => {
+    triangles.forEach(([a, b, c], index) => {
       const u = b.map((value, axis) => value - a[axis]);
       const v = c.map((value, axis) => value - a[axis]);
       const normal = [u[1] * v[2] - u[2] * v[1], u[2] * v[0] - u[0] * v[2], u[0] * v[1] - u[1] * v[0]];
       const size = Math.hypot(...normal);
       const winding = normal.reduce((dot, value, axis) => dot + value * a[axis], 0) < 0 ? -1 : 1;
+      const direction = normal.map(value => winding * value / size);
       const start = 3 * index;
       mesh.set([a, b, c].flat().map(value => value * scale), 3 * start);
       faces.set([start, start + (winding === 1 ? 1 : 2), start + (winding === 1 ? 2 : 1)], start);
-      area += size;
-      return { a, u, v, normal: normal.map(value => winding * value / size), end: area };
+
+      for (const [from, to, inside] of [[a, b, c], [b, c, a], [c, a, b]]) {
+        const key = [from.join(','), to.join(',')].sort().join('|');
+        if (!edges.has(key)) edges.set(key, []);
+        edges.get(key).push({ from, to, inside, direction });
+      }
     });
 
-    let faceIndex = 0;
-    for (let i = 0; i < COUNT; i++) {
-      // Распределяем точки по площади граней и оставляем одинаковое число частиц у всех фигур.
-      const location = (i + 0.5) * area / COUNT;
-      while (location > surface[faceIndex].end) faceIndex++;
-      const { a, u, v, normal } = surface[faceIndex];
-      let s = Math.random();
-      let t = Math.random();
-      if (s + t > 1) {
-        s = 1 - s;
-        t = 1 - t;
+    const bands = [];
+    let length = 0;
+    for (const sides of edges.values()) {
+      const first = sides[0];
+      // Стыки треугольников на одной плоскости не являются рёбрами фигуры.
+      if (sides.length > 1 && sides.every(side => side.direction.every((value, axis) =>
+        Math.abs(value - first.direction[axis]) < 1e-6))) continue;
+      const edgeLength = Math.hypot(...first.from.map((value, axis) => value - first.to[axis]));
+      for (const side of sides) {
+        length += edgeLength;
+        bands.push({ ...side, end: length });
       }
-      for (let axis = 0; axis < 3; axis++) points[i * 3 + axis] = (a[axis] + s * u[axis] + t * v[axis]) * scale;
-      directions.set(normal, 3 * i);
+    }
+
+    let bandIndex = 0;
+    for (let i = 0; i < COUNT; i++) {
+      const location = (i + 0.5) * length / COUNT;
+      while (location > bands[bandIndex].end) bandIndex++;
+      const { from, to, inside, direction } = bands[bandIndex];
+      const along = Math.random();
+      const inset = EDGE_BAND * Math.random() ** 2;
+      for (let axis = 0; axis < 3; axis++) {
+        const edge = from[axis] + (to[axis] - from[axis]) * along;
+        points[i * 3 + axis] = (edge + (inside[axis] - edge) * inset) * scale;
+      }
+      directions.set(direction, 3 * i);
     }
     return { positions: points, normals: directions, vertices: mesh, indices: faces };
   }
