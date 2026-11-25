@@ -695,10 +695,14 @@ h1, h2, h3, h4, h5, h6, [role="heading"] {
   opacity: 0;
 }
 
-.card__title[data-intro-reveal="playing"] .weight-hover-word,
-.hero__name[data-intro-reveal="playing"] :is(.hero__title-variant[data-current], .hero__title-suffix) .weight-hover-word,
-.hero__name[data-intro-reveal="rotating"] .hero__title-variant[data-current] .weight-hover-word {
+.card__title[data-intro-reveal="playing"] .weight-hover-word {
   clip-path: inset(-0.15em -0.15em -0.2em);
+}
+
+.hero__name[data-intro-reveal="playing"] :is(.hero__title-variant[data-current], .hero__title-suffix),
+.hero__name[data-intro-reveal="rotating"] .hero__title-variant[data-current] {
+  overflow: clip;
+  overflow-clip-margin: 0.2em;
 }
 
 .hero__bio,
