@@ -25,30 +25,100 @@
   let pointColor = readPaletteColor('--color-cube-particles');
   const staticPreview = new URLSearchParams(location.search).has('static');
   const AURA_COUNT = 220;
-  const BEAT_GAP = 0.5;
-  const BEAT_LENGTH = 0.56;
-  const BEAT_RISE = 0.09;
-  const BEAT_STAGGER = 0.18;
-  const FIRST_BEAT_DISTANCE = 0.375;
-  const SECOND_BEAT_DISTANCE = 0.25;
-  const PULSE_LENGTH = BEAT_GAP + BEAT_LENGTH + BEAT_STAGGER;
-  const pulseTraits = new Float32Array(COUNT * 2);
-  for (let i = 0; i < pulseTraits.length; i += 2) {
-    pulseTraits[i] = 0.35 + 0.9 * Math.random();
-    pulseTraits[i + 1] = BEAT_STAGGER * Math.random();
+  const HOLD_TIME = 5;
+  const SCATTER_TIME = 0.65;
+  const ASSEMBLY_TIME = 1.8;
+
+  let shapeRadius = 0;
+  for (let i = 0; i < vertices.length; i += 3) {
+    shapeRadius = Math.max(shapeRadius, Math.hypot(vertices[i], vertices[i + 1], vertices[i + 2]));
   }
 
-  function beat(age) {
-    if (age <= 0 || age >= BEAT_LENGTH) return 0;
-    const phase = age < BEAT_RISE ? age / BEAT_RISE : (BEAT_LENGTH - age) / (BEAT_LENGTH - BEAT_RISE);
-    return phase * phase * (3 - 2 * phase);
+  function createShape(triangles) {
+    const mesh = new Float32Array(triangles.length * 9);
+    const faces = new Uint16Array(triangles.length * 3);
+    const points = new Float32Array(COUNT * 3);
+    const directions = new Float32Array(points.length);
+    const radius = Math.max(...triangles.flat().map(point => Math.hypot(...point)));
+    const scale = shapeRadius / radius;
+    let area = 0;
+
+    const surface = triangles.map(([a, b, c], index) => {
+      const u = b.map((value, axis) => value - a[axis]);
+      const v = c.map((value, axis) => value - a[axis]);
+      const normal = [u[1] * v[2] - u[2] * v[1], u[2] * v[0] - u[0] * v[2], u[0] * v[1] - u[1] * v[0]];
+      const size = Math.hypot(...normal);
+      const winding = normal.reduce((dot, value, axis) => dot + value * a[axis], 0) < 0 ? -1 : 1;
+      const start = 3 * index;
+      mesh.set([a, b, c].flat().map(value => value * scale), 3 * start);
+      faces.set([start, start + (winding === 1 ? 1 : 2), start + (winding === 1 ? 2 : 1)], start);
+      area += size;
+      return { a, u, v, normal: normal.map(value => winding * value / size), end: area };
+    });
+
+    let faceIndex = 0;
+    for (let i = 0; i < COUNT; i++) {
+      // Распределяем точки по площади граней и оставляем одинаковое число частиц у всех фигур.
+      const location = (i + 0.5) * area / COUNT;
+      while (location > surface[faceIndex].end) faceIndex++;
+      const { a, u, v, normal } = surface[faceIndex];
+      let s = Math.random();
+      let t = Math.random();
+      if (s + t > 1) {
+        s = 1 - s;
+        t = 1 - t;
+      }
+      for (let axis = 0; axis < 3; axis++) points[i * 3 + axis] = (a[axis] + s * u[axis] + t * v[axis]) * scale;
+      directions.set(normal, 3 * i);
+    }
+    return { positions: points, normals: directions, vertices: mesh, indices: faces };
   }
 
-  function pointPulse(index, age, fade) {
-    if (!fade) return 0;
-    age -= pulseTraits[index + 1];
-    return (FIRST_BEAT_DISTANCE * beat(age) + SECOND_BEAT_DISTANCE * beat(age - BEAT_GAP)) * pulseTraits[index] * fade;
+  function crossTriangles() {
+    const cells = [[0, 0, 0], [1, 0, 0], [-1, 0, 0], [0, 1, 0], [0, -1, 0], [0, 0, 1], [0, 0, -1]];
+    const triangles = [];
+    for (const cell of cells) {
+      for (let axis = 0; axis < 3; axis++) {
+        for (const side of [-1, 1]) {
+          const neighbor = cell.slice();
+          neighbor[axis] += side;
+          if (cells.some(other => other.every((value, coordinate) => value === neighbor[coordinate]))) continue;
+          const [a, b, c, d] = [[-1, -1], [1, -1], [1, 1], [-1, 1]].map(([u, v]) => {
+            const point = cell.slice();
+            point[axis] += side * 0.5;
+            point[(axis + 1) % 3] += u * 0.5;
+            point[(axis + 2) % 3] += v * 0.5;
+            return point;
+          });
+          triangles.push([a, b, c], [a, c, d]);
+        }
+      }
+    }
+    return triangles;
   }
+
+  function icosahedronTriangles() {
+    const ratio = (1 + Math.sqrt(5)) / 2;
+    const corners = [];
+    for (const a of [-1, 1]) {
+      for (const b of [-ratio, ratio]) corners.push([0, a, b], [a, b, 0], [b, 0, a]);
+    }
+    const neighbors = (a, b) => Math.abs(a.reduce((sum, value, axis) => sum + (value - b[axis]) ** 2, 0) - 4) < 1e-6;
+    const triangles = [];
+    for (let a = 0; a < corners.length; a++) {
+      for (let b = a + 1; b < corners.length; b++) {
+        if (!neighbors(corners[a], corners[b])) continue;
+        for (let c = b + 1; c < corners.length; c++) {
+          if (neighbors(corners[a], corners[c]) && neighbors(corners[b], corners[c])) {
+            triangles.push([corners[a], corners[b], corners[c]]);
+          }
+        }
+      }
+    }
+    return triangles;
+  }
+
+  const shapes = [{ positions, normals, vertices, indices }, createShape(crossTriangles()), createShape(icosahedronTriangles())];
 
   class GLRenderer {
     constructor(canvas) {
@@ -67,18 +137,13 @@
         layout(location=0) in vec3 position;
         layout(location=1) in vec3 normal;
         layout(location=2) in vec2 offset;
-        layout(location=3) in vec2 pulseTraits;
         ${transform}
         uniform sampler2D surfaceDepth;
         uniform vec2 pixelScale;
         uniform float pointSize;
-        uniform vec2 pulse;
+        uniform float spread;
         uniform bool aura;
         out float visible;
-        float beat(float age) {
-          float phase = min(age / ${BEAT_RISE}, (${BEAT_LENGTH} - age) / (${BEAT_LENGTH} - ${BEAT_RISE}));
-          return smoothstep(0.0, 1.0, phase);
-        }
         void main() {
           if (aura) {
             gl_Position = vec4(position.xy * pixelScale + vec2(-1.0, 1.0), 0.0, 1.0);
@@ -88,13 +153,8 @@
           }
           vec4 rest = project(position);
           float depth = texture(surfaceDepth, rest.xy * 0.5 + 0.5).r;
-          visible = step(rest.z * 0.5 + 0.5, depth + 0.006);
-          float expansion = 0.0;
-          if (pulse.y > 0.0) {
-            float age = pulse.x - pulseTraits.y;
-            expansion = (${FIRST_BEAT_DISTANCE} * beat(age) + ${SECOND_BEAT_DISTANCE} * beat(age - ${BEAT_GAP})) * pulseTraits.x * pulse.y;
-          }
-          gl_Position = vec4(rest.xy * (1.0 + expansion) + offset * pixelScale, rest.zw);
+          visible = mix(step(rest.z * 0.5 + 0.5, depth + 0.006), 1.0, spread);
+          gl_Position = vec4(rest.xy + offset * pixelScale, rest.zw);
           float light = max(dot(rotation * normal, normalize(vec3(-0.45, 0.75, 0.6))), 0.0);
           gl_PointSize = pointSize * (1.3 + 1.3 * (1.0 - light));
         }`, `#version 300 es
@@ -103,24 +163,31 @@
         uniform vec4 pointColor;
         out vec4 color;
         void main() {
-          if (visible < 0.5) discard;
+          if (visible <= 0.0) discard;
           float radius = length(gl_PointCoord - 0.5);
           float alpha = 1.0 - smoothstep(0.5 - fwidth(radius), 0.5, radius);
           if (alpha <= 0.0) discard;
-          color = vec4(pointColor.rgb, pointColor.a * alpha);
+          color = vec4(pointColor.rgb, pointColor.a * alpha * visible);
         }`);
-      this.meshArray = gl.createVertexArray();
-      gl.bindVertexArray(this.meshArray);
-      this.attribute(0, vertices, 3);
-      const elementBuffer = gl.createBuffer();
-      gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, elementBuffer);
-      gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, indices, gl.STATIC_DRAW);
-      this.pointArray = gl.createVertexArray();
-      gl.bindVertexArray(this.pointArray);
-      this.attribute(0, positions, 3);
-      this.attribute(1, normals, 3);
-      this.offsetBuffer = this.attribute(2, new Float32Array(COUNT * 2), 2, gl.DYNAMIC_DRAW);
-      this.attribute(3, pulseTraits, 2);
+      this.offsetBuffer = gl.createBuffer();
+      gl.bindBuffer(gl.ARRAY_BUFFER, this.offsetBuffer);
+      gl.bufferData(gl.ARRAY_BUFFER, COUNT * 2 * Float32Array.BYTES_PER_ELEMENT, gl.DYNAMIC_DRAW);
+      this.shapeArrays = shapes.map(shape => {
+        const mesh = gl.createVertexArray();
+        gl.bindVertexArray(mesh);
+        this.attribute(0, shape.vertices, 3);
+        gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, gl.createBuffer());
+        gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, shape.indices, gl.STATIC_DRAW);
+
+        const points = gl.createVertexArray();
+        gl.bindVertexArray(points);
+        this.attribute(0, shape.positions, 3);
+        this.attribute(1, shape.normals, 3);
+        gl.bindBuffer(gl.ARRAY_BUFFER, this.offsetBuffer);
+        gl.enableVertexAttribArray(2);
+        gl.vertexAttribPointer(2, 2, gl.FLOAT, false, 0, 0);
+        return { mesh, points };
+      });
       this.auraData = new Float32Array(AURA_COUNT * 3);
       this.auraArray = gl.createVertexArray();
       gl.bindVertexArray(this.auraArray);
@@ -187,6 +254,7 @@
 
     draw(cube, modelChanged, offsetsChanged) {
       const gl = this.gl;
+      const arrays = this.shapeArrays[cube.shapeIndex];
       if (modelChanged) {
         gl.bindFramebuffer(gl.FRAMEBUFFER, this.framebuffer);
         gl.viewport(0, 0, this.depthWidth, this.depthHeight);
@@ -197,8 +265,8 @@
         gl.useProgram(this.meshProgram);
         gl.uniformMatrix3fv(this.uniform(this.meshProgram, 'rotation'), false, cube.matrix);
         gl.uniform2f(this.uniform(this.meshProgram, 'scale'), 2 * cube.scale / cube.width, 2 * cube.scale / cube.height);
-        gl.bindVertexArray(this.meshArray);
-        gl.drawElements(gl.TRIANGLES, indices.length, gl.UNSIGNED_SHORT, 0);
+        gl.bindVertexArray(arrays.mesh);
+        gl.drawElements(gl.TRIANGLES, cube.shape.indices.length, gl.UNSIGNED_SHORT, 0);
         gl.disable(gl.CULL_FACE);
         gl.bindFramebuffer(gl.FRAMEBUFFER, null);
       }
@@ -212,11 +280,11 @@
       gl.uniform2f(this.uniform(this.pointProgram, 'scale'), 2 * cube.scale / cube.width, 2 * cube.scale / cube.height);
       gl.uniform2f(this.uniform(this.pointProgram, 'pixelScale'), 2 / cube.width, -2 / cube.height);
       gl.uniform1f(this.uniform(this.pointProgram, 'pointSize'), cube.dpr);
-      gl.uniform2f(this.uniform(this.pointProgram, 'pulse'), cube.pulseFrame, cube.pulseFade);
+      gl.uniform1f(this.uniform(this.pointProgram, 'spread'), cube.spread);
       gl.activeTexture(gl.TEXTURE0);
       gl.bindTexture(gl.TEXTURE_2D, this.depthTexture);
       gl.uniform1i(this.uniform(this.pointProgram, 'surfaceDepth'), 0);
-      gl.bindVertexArray(this.pointArray);
+      gl.bindVertexArray(arrays.points);
       if (offsetsChanged) {
         gl.bindBuffer(gl.ARRAY_BUFFER, this.offsetBuffer);
         gl.bufferSubData(gl.ARRAY_BUFFER, 0, cube.offsets);
@@ -242,7 +310,7 @@
     constructor(canvas) {
       this.ctx = canvas.getContext('2d');
       if (!this.ctx) throw new Error('Canvas unavailable');
-      this.mesh = new Float32Array(vertices.length);
+      this.mesh = new Float32Array(Math.max(...shapes.map(shape => shape.vertices.length)));
     }
 
     resize(cube) {
@@ -278,6 +346,7 @@
 
     draw(cube, modelChanged) {
       const m = cube.matrix;
+      const { vertices, indices } = cube.shape;
       if (modelChanged) {
         this.depth.fill(-Infinity);
         for (let i = 0; i < vertices.length; i += 3) {
@@ -291,22 +360,29 @@
       if (cube.projectedDirty) cube.project();
       this.ctx.clearRect(0, 0, cube.width, cube.height);
       this.ctx.fillStyle = pointColor.css;
+      const hidden = cube.spread > 0 && cube.spread < 1 ? new Path2D() : null;
       this.ctx.beginPath();
       for (let i = 0; i < COUNT; i++) {
         const restX = cube.projected[i * 2];
         const restY = cube.projected[i * 2 + 1];
         const x = Math.floor(restX * this.depthScale);
         const y = Math.floor(restY * this.depthScale);
-        if (x < 0 || y < 0 || x >= this.depthWidth || y >= this.depthHeight) continue;
-        if (cube.depth[i] < this.depth[y * this.depthWidth + x] - 0.048) continue;
-        const pulse = pointPulse(i * 2, cube.pulseFrame, cube.pulseFade);
-        const px = restX + (restX - cube.width / 2) * pulse + cube.offsets[i * 2];
-        const py = restY + (restY - cube.height / 2) * pulse + cube.offsets[i * 2 + 1];
+        const visible = x >= 0 && y >= 0 && x < this.depthWidth && y < this.depthHeight &&
+          cube.depth[i] >= this.depth[y * this.depthWidth + x] - 0.048;
+        const path = visible || cube.spread === 1 ? this.ctx : hidden;
+        if (!path) continue;
+        const px = restX + cube.offsets[i * 2];
+        const py = restY + cube.offsets[i * 2 + 1];
         const radius = cube.radii[i];
-        this.ctx.moveTo(px + radius, py);
-        this.ctx.arc(px, py, radius, 0, Math.PI * 2);
+        path.moveTo(px + radius, py);
+        path.arc(px, py, radius, 0, Math.PI * 2);
       }
       this.ctx.fill();
+      if (hidden) {
+        this.ctx.globalAlpha = cube.spread;
+        this.ctx.fill(hidden);
+        this.ctx.globalAlpha = 1;
+      }
     }
   }
 
@@ -315,8 +391,15 @@
       this.element = element;
       this.canvas = element.querySelector('canvas');
       this.motion = matchMedia('(prefers-reduced-motion: reduce)');
+      this.shapeIndex = 0;
+      this.formation = 'holding';
+      this.formationTime = 0;
+      this.spread = 0;
       this.matrix = new Float32Array(9);
       this.offsets = new Float32Array(COUNT * 2);
+      this.scatterPoints = new Float32Array(this.offsets.length);
+      this.scatterStart = new Float32Array(this.offsets.length);
+      this.scatterDelays = Float32Array.from({ length: COUNT }, () => Math.random() * 0.22);
       this.velocity = new Float32Array(COUNT * 2);
       this.projected = new Float32Array(COUNT * 2);
       this.depth = new Float32Array(COUNT);
@@ -324,10 +407,7 @@
       this.ease = Float32Array.from({ length: COUNT }, () => 0.04 + 0.04 * Math.random());
       this.targetEase = Float32Array.from({ length: COUNT }, () => 0.2 + 0.2 * Math.random());
       this.friction = Float32Array.from({ length: COUNT }, () => 0.8 + 0.15 * Math.random());
-      this.mouse = { x: -1000, y: -1000, active: false, repelling: false, timeout: 0 };
-      this.pulseAge = null;
-      this.pulseFrame = 0;
-      this.pulseFade = 0;
+      this.mouse = { x: -1000, y: -1000, active: false, timeout: 0 };
       this.auraTime = 0;
       this.aura = Array.from({ length: AURA_COUNT }, () => ({
         phase: Math.random() * Math.PI * 2,
@@ -347,7 +427,6 @@
       this.accumulator = 0;
       this.visible = true;
       this.hasOffsets = false;
-      this.assembling = false;
       this.modelDirty = true;
       this.projectedDirty = true;
       this.tick = this.tick.bind(this);
@@ -375,13 +454,12 @@
       this.motion.addEventListener('change', () => {
         this.release();
         if (this.motion.matches) {
+          this.formation = 'holding';
+          this.formationTime = this.spread = 0;
           this.offsets.fill(0);
           this.velocity.fill(0);
           for (const point of this.aura) point.x = point.y = point.vx = point.vy = 0;
-          this.pulseAge = null;
-          this.pulseFade = 0;
           this.hasOffsets = false;
-          this.assembling = false;
           this.draw(true);
         }
         this.sync();
@@ -408,6 +486,10 @@
       this.resize();
     }
 
+    get shape() {
+      return shapes[this.shapeIndex];
+    }
+
     resize() {
       const rect = this.canvas.getBoundingClientRect();
       if (!rect.width || !rect.height) {
@@ -427,14 +509,9 @@
       this.modelDirty = this.projectedDirty = true;
       this.updateMatrix();
       if (!previousScale) {
-        this.assembling = !staticPreview && !this.motion.matches;
-        if (this.assembling) {
-          this.project();
-          for (let i = 0; i < COUNT; i++) {
-            this.offsets[i * 2] = Math.random() * this.width - this.projected[i * 2];
-            this.offsets[i * 2 + 1] = Math.random() * this.height - this.projected[i * 2 + 1];
-          }
-          this.hasOffsets = true;
+        if (!staticPreview && !this.motion.matches) {
+          this.formation = 'assembling';
+          this.prepareScatter();
         }
       } else {
         for (let i = 0; i < this.offsets.length; i++) {
@@ -448,6 +525,7 @@
           point.vy *= this.scale / previousScale;
         }
       }
+      if (this.formation !== 'holding') this.placeParticles();
       this.updateAura();
       this.draw(true);
       this.sync();
@@ -462,6 +540,7 @@
 
     project() {
       const m = this.matrix;
+      const { positions, normals } = this.shape;
       const lightLength = Math.hypot(-0.45, 0.75, 0.6);
       const lx = (m[0] * -0.45 + m[1] * 0.75 + m[2] * 0.6) / lightLength;
       const ly = (m[3] * -0.45 + m[4] * 0.75 + m[5] * 0.6) / lightLength;
@@ -494,7 +573,6 @@
       clearTimeout(this.mouse.timeout);
       this.mouse.timeout = 0;
       this.mouse.active = false;
-      this.mouse.repelling = false;
       this.sync();
     }
 
@@ -520,40 +598,35 @@
     }
 
     physics() {
-      if (this.mouse.active && this.projectedDirty) this.project();
       this.hasOffsets = false;
-      let repelling = false;
       const radius = Math.sqrt(3000 / this.dpr) * 3;
-      for (let i = 0; i < COUNT; i++) {
-        const index = i * 2;
-        if (this.mouse.active) {
-          const x = this.projected[index], y = this.projected[index + 1];
-          const pulse = pointPulse(index, this.pulseFrame, this.pulseFade);
-          const dx = this.mouse.x - x - (x - this.width / 2) * pulse - this.offsets[index];
-          const dy = this.mouse.y - y - (y - this.height / 2) * pulse - this.offsets[index + 1];
-          const squared = dx * dx + dy * dy;
-          if (squared > 0 && squared < radius * radius) {
-            repelling = true;
-            this.ease[i] = this.targetEase[i];
-            const length = Math.sqrt(squared);
-            const force = -(radius - length) / radius * 150 / this.dpr * (0.5 + Math.random());
-            this.velocity[index] += dx / length * force + (Math.random() - 0.5) / this.dpr;
-            this.velocity[index + 1] += dy / length * force + (Math.random() - 0.5) / this.dpr;
+      if (this.formation === 'holding') {
+        if (this.mouse.active && this.projectedDirty) this.project();
+        for (let i = 0; i < COUNT; i++) {
+          const index = i * 2;
+          if (this.mouse.active) {
+            const dx = this.mouse.x - this.projected[index] - this.offsets[index];
+            const dy = this.mouse.y - this.projected[index + 1] - this.offsets[index + 1];
+            const squared = dx * dx + dy * dy;
+            if (squared > 0 && squared < radius * radius) {
+              this.ease[i] = this.targetEase[i];
+              const length = Math.sqrt(squared);
+              const force = -(radius - length) / radius * 150 / this.dpr * (0.5 + Math.random());
+              this.velocity[index] += dx / length * force + (Math.random() - 0.5) / this.dpr;
+              this.velocity[index + 1] += dy / length * force + (Math.random() - 0.5) / this.dpr;
+            }
+          }
+          this.velocity[index] *= this.friction[i];
+          this.velocity[index + 1] *= this.friction[i];
+          this.offsets[index] += this.velocity[index] - this.offsets[index] * this.ease[i];
+          this.offsets[index + 1] += this.velocity[index + 1] - this.offsets[index + 1] * this.ease[i];
+          if (Math.abs(this.offsets[index]) + Math.abs(this.offsets[index + 1]) + Math.abs(this.velocity[index]) + Math.abs(this.velocity[index + 1]) > 0.03) {
+            this.hasOffsets = true;
+          } else {
+            this.offsets[index] = this.offsets[index + 1] = 0;
+            this.velocity[index] = this.velocity[index + 1] = 0;
           }
         }
-        this.velocity[index] *= this.friction[i];
-        this.velocity[index + 1] *= this.friction[i];
-        this.offsets[index] += this.velocity[index] - this.offsets[index] * this.ease[i];
-        this.offsets[index + 1] += this.velocity[index + 1] - this.offsets[index + 1] * this.ease[i];
-        if (Math.abs(this.offsets[index]) + Math.abs(this.offsets[index + 1]) + Math.abs(this.velocity[index]) + Math.abs(this.velocity[index + 1]) > 0.03) {
-          this.hasOffsets = true;
-        } else {
-          this.offsets[index] = this.offsets[index + 1] = 0;
-          this.velocity[index] = this.velocity[index + 1] = 0;
-        }
-      }
-      if (this.assembling && !this.hasOffsets) {
-        this.assembling = false;
       }
       for (const point of this.aura) {
         if (this.mouse.active) {
@@ -561,7 +634,6 @@
           const dy = this.mouse.y - point.baseY - point.y;
           const squared = dx * dx + dy * dy;
           if (squared > 0 && squared < radius * radius) {
-            repelling = true;
             const length = Math.sqrt(squared);
             const force = -(radius - length) / radius * 150 / this.dpr * (0.5 + Math.random());
             point.vx += dx / length * force + (Math.random() - 0.5) / this.dpr;
@@ -575,26 +647,52 @@
         if (Math.abs(point.x) + Math.abs(point.y) + Math.abs(point.vx) + Math.abs(point.vy) > 0.03) this.hasOffsets = true;
         else point.x = point.y = point.vx = point.vy = 0;
       }
-      return repelling;
     }
 
-    updatePulse(delta) {
-      if (this.mouse.repelling) {
-        this.pulseAge = null;
-      } else if (!this.assembling) {
-        if (this.pulseAge === null || this.pulseAge >= PULSE_LENGTH) {
-          this.pulseAge = -(2.5 + Math.random());
-        } else {
-          this.pulseAge += delta;
-        }
+    prepareScatter() {
+      for (let i = 0; i < this.offsets.length; i++) {
+        this.scatterStart[i] = this.offsets[i] / this.scale;
+        this.scatterPoints[i] = Math.random();
       }
-      if (this.pulseAge !== null && this.pulseAge >= 0) {
-        this.pulseFrame = this.pulseAge;
-        this.pulseFade = this.pulseAge < PULSE_LENGTH ? 1 : 0;
-      } else if (this.pulseFade > 0) {
-        this.pulseFade *= Math.exp(-18 * delta);
-        if (this.pulseFade < 0.001) this.pulseFade = 0;
+      this.velocity.fill(0);
+    }
+
+    placeParticles() {
+      if (this.projectedDirty) this.project();
+      const scattering = this.formation === 'scattering';
+      const progress = this.formationTime / (scattering ? SCATTER_TIME : ASSEMBLY_TIME);
+      this.spread = scattering ? progress ** 2 : (1 - progress) ** 3;
+      for (let i = 0; i < COUNT; i++) {
+        const index = i * 2;
+        const delay = this.scatterDelays[i];
+        const time = Math.max(0, (progress - delay) / (1 - delay));
+        const spread = scattering ? time ** 2 : (1 - time) ** 3;
+        const startWeight = scattering ? (1 - spread) * this.scale : 0;
+        this.offsets[index] = (this.scatterPoints[index] * this.width - this.projected[index]) * spread + this.scatterStart[index] * startWeight;
+        this.offsets[index + 1] = (this.scatterPoints[index + 1] * this.height - this.projected[index + 1]) * spread + this.scatterStart[index + 1] * startWeight;
       }
+    }
+
+    advanceFormation(delta) {
+      this.formationTime += delta;
+      if (this.formation === 'holding') {
+        if (this.formationTime < HOLD_TIME) return false;
+        this.formation = 'scattering';
+        this.formationTime = 0;
+        this.prepareScatter();
+      } else if (this.formation === 'scattering' && this.formationTime >= SCATTER_TIME) {
+        this.shapeIndex = (this.shapeIndex + 1) % shapes.length;
+        this.formation = 'assembling';
+        this.formationTime = 0;
+        this.modelDirty = this.projectedDirty = true;
+      } else if (this.formation === 'assembling' && this.formationTime >= ASSEMBLY_TIME) {
+        this.formation = 'holding';
+        this.formationTime = this.spread = 0;
+        this.offsets.fill(0);
+        return true;
+      }
+      this.placeParticles();
+      return true;
     }
 
     sync() {
@@ -624,18 +722,15 @@
       this.angleY = (this.angleY + delta * 0.13) % (Math.PI * 2);
       this.updateMatrix();
       this.updateAura();
-      let changed = false;
-      let repelling = false;
+      let changed = this.advanceFormation(delta);
       this.accumulator += Math.min(delta, 0.05);
       while (this.accumulator >= 1 / 60 - 1e-8) {
         if (this.mouse.active || this.hasOffsets) {
-          repelling = this.physics() || repelling;
+          this.physics();
           changed = true;
         }
         this.accumulator -= 1 / 60;
       }
-      if (changed) this.mouse.repelling = repelling;
-      this.updatePulse(delta);
       this.draw(changed);
       this.frame = requestAnimationFrame(this.tick);
     }
