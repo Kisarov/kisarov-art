@@ -830,6 +830,29 @@ h1, h2, h3, h4, h5, h6, [role="heading"] {
   clip-path: inset(0);
 }
 
+@supports (mask-position: 50% 50%) {
+  .button:is(.primary, .secondary):has(> .button__ink) {
+    background-image: none;
+  }
+
+  .button:is(.primary, .secondary) > .button__ink {
+    background-color: var(--button-fill-color);
+    border-radius: inherit;
+    box-shadow: inherit;
+    clip-path: none;
+    /* Закруглённый край входит снизу, вогнутый край уходит вверх. */
+    mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 400' preserveAspectRatio='none'%3E%3Cpath d='M0 150C0 122 22 100 50 100S100 122 100 150V300C100 272 78 250 50 250S0 272 0 300Z'/%3E%3C/svg%3E");
+    mask-position: 50% 0%;
+    mask-size: 100% 400%;
+    mask-repeat: no-repeat;
+    transition: none;
+  }
+
+  .button:is(.primary, .secondary):not([data-fill-motion]):is(:hover, :focus-visible) > .button__ink {
+    mask-position: 50% 50%;
+  }
+}
+
 .button__label {
   line-height: 1.4;
 }
