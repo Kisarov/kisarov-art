@@ -167,12 +167,15 @@
         ink.className = 'button__ink';
         ink.append(label.cloneNode(true));
         button.append(ink);
-        setupButtonFill(button, ink);
       }
     }
 
     for (const button of document.querySelectorAll('.button')) {
       renderButton(button, button.textContent.trim());
+    }
+
+    for (const ink of document.querySelectorAll(':is(.button, .site-nav .theme-btn) > .button__ink')) {
+      setupButtonFill(ink.parentElement, ink);
     }
 
     setupMarqueeHover();
