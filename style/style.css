@@ -686,23 +686,19 @@ h1, h2, h3, h4, h5, h6, [role="heading"] {
   font-size: min(1em, 14cqw);
 }
 
+.hero__name .weight-hover-letter {
+  position: relative;
+}
+
 [data-reveal-delay] > [data-intro-reveal="waiting"],
 :is(.hero__name, .card__title)[data-intro-reveal="waiting"] {
   opacity: 0;
 }
 
-:is(.hero__name, .card__title)[data-intro-reveal="playing"] .weight-hover-word,
-.hero__name[data-intro-reveal="rotating"] .hero__title-variant .weight-hover-word {
+.card__title[data-intro-reveal="playing"] .weight-hover-word,
+.hero__name[data-intro-reveal="playing"] :is(.hero__title-variant[data-current], .hero__title-suffix) .weight-hover-word,
+.hero__name[data-intro-reveal="rotating"] .hero__title-variant[data-current] .weight-hover-word {
   clip-path: inset(-0.15em -0.15em -0.2em);
-}
-
-@supports (overflow: clip) and (overflow-clip-margin: 0.2em) {
-  .hero__name[data-intro-reveal="playing"] .weight-hover-word,
-  .hero__name[data-intro-reveal="rotating"] .hero__title-variant .weight-hover-word {
-    clip-path: none;
-    overflow: clip;
-    overflow-clip-margin: 0.2em;
-  }
 }
 
 .hero__bio,
