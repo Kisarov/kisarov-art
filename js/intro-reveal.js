@@ -40,6 +40,7 @@
   }
 
   function clearReveal(element) {
+    if (element === heading) clearTimeout(titleTimer);
     for (const animation of animationsByElement.get(element) || []) animation.cancel();
     animationsByElement.delete(element);
     delete element.dataset.introReveal;
@@ -56,12 +57,16 @@
 
   function resetReveal(element) {
     if (element.dataset.introReveal === 'waiting') return;
-    if (element === heading) {
-      clearTimeout(titleTimer);
-      showTitle(0);
-    }
     clearReveal(element);
+    if (element === heading) showTitle(0);
     element.dataset.introReveal = 'waiting';
+  }
+
+  function scheduleTitle() {
+    if (titleVariants.length < 2 || !headingVisible || document.hidden) return;
+    titleTimer = setTimeout(() => {
+      if (headingVisible && !document.hidden) revealHeading(heading, 'leave');
+    }, 3500);
   }
 
   function revealHeading(element, phase = 'initial') {
@@ -73,7 +78,6 @@
     if (isHeroTitle && phase === 'initial' && titleSuffix) parts.push(titleSuffix);
     const letters = parts.flatMap(part => [...part.querySelectorAll('.weight-hover-letter')])
       .filter(letter => letter.textContent.trim());
-    // Смещаем буквы hero через top, чтобы их отрисовка не зависела от отдельных 3D-слоёв внутри маски.
     const frame = (offset, angle) => isHeroTitle
       ? { top: `${offset}em`, transform: `rotate(${angle}deg)` }
       : { transform: `translate3d(0, ${offset}em, 0) rotate(${angle}deg)` };
@@ -81,10 +85,12 @@
     const keyframes = leaving
       ? [rest, frame(-1.4, -10)]
       : [frame(1.4, 10), rest];
+    const duration = leaving ? 380 : 1000 / 1.5;
+    const stagger = leaving ? 12 : 1000 / 30;
     const startTime = document.timeline?.currentTime;
     const animations = letters.map((letter, index) => letter.animate(keyframes, {
-      duration: leaving ? 380 : 1000 / 1.5,
-      delay: leaving ? index * 12 : index * 1000 / 30,
+      duration,
+      delay: index * stagger,
       easing: leaving ? 'cubic-bezier(0.4, 0, 1, 1)' : 'cubic-bezier(0.35, 0, 0, 1)',
       fill: isHeroTitle && !leaving ? 'backwards' : 'both'
     }));
@@ -92,7 +98,7 @@
       for (const animation of animations) animation.startTime = startTime;
     }
     animationsByElement.set(element, animations);
-    Promise.allSettled(animations.map(animation => animation.finished)).then(() => {
+    const finish = () => {
       if (animationsByElement.get(element) !== animations) return;
       clearReveal(element);
       if (!isHeroTitle || titleVariants.length < 2) return;
@@ -101,11 +107,12 @@
         heading.dataset.introReveal = 'waiting';
         revealHeading(heading, 'enter');
       } else {
-        titleTimer = setTimeout(() => {
-          if (headingVisible && !document.hidden) revealHeading(heading, 'leave');
-        }, 3500);
+        scheduleTitle();
       }
-    });
+    };
+    // Снимаем обрезку, даже если браузер задержал завершение анимации отдельной буквы.
+    if (isHeroTitle) titleTimer = setTimeout(finish, duration + Math.max(0, letters.length - 1) * stagger + 100);
+    Promise.allSettled(animations.map(animation => animation.finished)).then(finish);
   }
 
   function updateReveals(entries) {
@@ -122,8 +129,17 @@
   }
 
   function updateTitleVisibility() {
-    if (document.hidden) resetReveal(heading);
-    else if (headingVisible) revealHeading(heading);
+    if (headingVisible) {
+      clearReveal(heading);
+      showTitle(0);
+      scheduleTitle();
+    } else {
+      resetReveal(heading);
+    }
+  }
+
+  function restoreTitle(event) {
+    if (event.persisted) updateTitleVisibility();
   }
 
   function showFocusedLinks() {
@@ -133,7 +149,6 @@
   function stop() {
     started = true;
     observer?.disconnect();
-    clearTimeout(titleTimer);
     showTitle(0);
     for (const element of headings) clearReveal(element);
     for (const group of contentGroups) clearReveal(group.firstElementChild);
@@ -141,6 +156,7 @@
     links?.removeEventListener('focusin', showFocusedLinks);
     motion.removeEventListener('change', stop);
     document.removeEventListener('visibilitychange', updateTitleVisibility);
+    window.removeEventListener('pageshow', restoreTitle);
   }
 
   hero.style.visibility = 'hidden';
@@ -159,7 +175,10 @@
     document.querySelector('.site-nav')?.classList.add('site-nav--entering');
     if ('IntersectionObserver' in window) {
       observer = new IntersectionObserver(updateReveals);
-      if (headings.includes(heading)) document.addEventListener('visibilitychange', updateTitleVisibility);
+      if (headings.includes(heading)) {
+        document.addEventListener('visibilitychange', updateTitleVisibility);
+        window.addEventListener('pageshow', restoreTitle);
+      }
       for (const element of headings) {
         resetReveal(element);
         observer.observe(element);
