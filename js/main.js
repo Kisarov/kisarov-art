@@ -83,6 +83,44 @@
     }
   }
 
+  function setupButtonFill(button, ink) {
+    if (!ink.animate || !CSS.supports('mask-position', '50% 50%')) return;
+
+    button.dataset.fillMotion = '';
+    const motion = matchMedia('(prefers-reduced-motion: reduce)');
+    let animation;
+    let active = false;
+
+    function updateFill() {
+      const hovered = button.matches(':hover, :focus-visible');
+      if (hovered === active) return;
+
+      const from = getComputedStyle(ink).maskPosition;
+      animation?.cancel();
+      active = hovered;
+      const next = ink.animate({ maskPosition: [from, active ? '50% 50%' : '50% 100%'] }, {
+        duration: motion.matches ? 0 : active ? 800 : 400,
+        easing: active ? 'cubic-bezier(0.16, 1, 0.3, 1)' : 'ease-out',
+        fill: 'forwards'
+      });
+      animation = next;
+
+      if (!active) {
+        next.onfinish = () => {
+          if (animation !== next) return;
+          next.cancel();
+          animation = undefined;
+        };
+      }
+    }
+
+    for (const event of ['pointerenter', 'pointerleave', 'focus', 'blur']) {
+      button.addEventListener(event, updateFill);
+    }
+    motion.addEventListener('change', () => { if (motion.matches) animation?.finish(); });
+    updateFill();
+  }
+
   function initialize() {
     const nav = document.querySelector('.site-nav');
     if (nav) {
@@ -129,6 +167,7 @@
         ink.className = 'button__ink';
         ink.append(label.cloneNode(true));
         button.append(ink);
+        setupButtonFill(button, ink);
       }
     }
 
