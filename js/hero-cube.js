@@ -1,855 +1,1549 @@
-(async () => {
-  'use strict';
+:root {
+  color-scheme: light;
+  /* Фоны и границы */
+  --color-page-bg: #fff;
+  --color-page-loader: #121212;
+  --color-case-header-bg: #f5f5f5;
+  --color-border: #e6e6e6;
+  --color-divider: #dadada;
 
-  const element = document.querySelector('.hero__cube');
-  if (!element) return;
-  const geometryUrl = new URL('../img/system/hero-cube.buf', document.currentScript.src);
-  const narrowScreen = matchMedia('(max-width: 768px)');
-  if (narrowScreen.matches) {
-    await new Promise(resolve => narrowScreen.addEventListener('change', resolve, { once: true }));
+  /* Текст и ссылки */
+  --color-text: #121212;
+  --color-text-secondary: #525252;
+  --color-caption: #777;
+  --color-text-positive: #0d8c5e;
+  --color-card-link-hover: #1858c7;
+
+  /* Кнопки */
+  --color-button-bg: #121212;
+  --color-button-text: #fff;
+  --color-button-primary-bg-hover: var(--color-page-bg);
+  --color-button-primary-text-hover: var(--color-text);
+  --color-button-back-bg-hover: #303030;
+  --color-button-outline: #0000001a;
+  --color-button-outline-hover: #121212;
+
+  /* Плавающая навигация */
+  --color-nav-bg: #f4f4f4;
+  --color-nav-muted: #5b5a57;
+
+  /* Подсветка и бейджи */
+  --color-case-glow: #6366f1;
+  --color-case-glow-authors: #20acbb;
+  --color-badge-bg: #f8ede2;
+  --color-badge-text: #d86111;
+  --color-skill-badge-bg: #f4f4f4;
+
+  /* Линия при прокрутке и частицы куба */
+  --color-scroll-line-start: #2a38ee;
+  --color-scroll-line-end: #5a90ff;
+  --color-scroll-hint: #1858c7;
+  --color-cube-particles: #a1a1a1;
+
+  /* Белый слой нужен для инверсии изображения под курсором в обеих темах. */
+  --color-project-cursor-bg: #fff;
+  --color-project-cursor-icon: #121212;
+
+  --page-max-width: 1920px;
+  --page-gutter: 100px;
+  --page-inline-edge: max(var(--page-gutter), calc((100% - var(--page-max-width)) / 2 + var(--page-gutter)));
+}
+
+:root[data-theme="dark"] {
+  color-scheme: dark;
+
+  /* Фоны и границы */
+  --color-page-bg: #121212;
+  --color-page-loader: #080808;
+  --color-page-loader-spiral: #242424;
+  --color-case-header-bg: #1c1c1c;
+  --color-border: #333;
+  --color-divider: #3d3d3d;
+
+  /* Текст и ссылки */
+  --color-text: #f4f4f4;
+  --color-text-secondary: #b5b5b5;
+  --color-caption: #a1a1a1;
+  --color-text-positive: #50d49c;
+  --color-card-link-hover: #79a6ff;
+
+  /* Кнопки */
+  --color-button-bg: #f4f4f4;
+  --color-button-text: #121212;
+  --color-button-back-bg-hover: #d8d8d8;
+  --color-button-outline: #ffffff26;
+  --color-button-outline-hover: #f4f4f4;
+
+  /* Плавающая навигация */
+  --color-nav-bg: #242424;
+  --color-nav-muted: #b5b5b5;
+
+  /* Подсветка и бейджи */
+  --color-case-glow: #8183ff;
+  --color-case-glow-authors: #39c5d2;
+  --color-badge-bg: #35251a;
+  --color-badge-text: #ffa866;
+  --color-skill-badge-bg: #242424;
+
+  /* Линии и частицы куба */
+  --color-scroll-line-start: #7b83ff;
+  --color-scroll-line-end: #8db2ff;
+  --color-scroll-hint: #79a6ff;
+  --color-cube-particles: #707070;
+
+  --color-project-cursor-icon: #000;
+}
+
+*,
+*::before,
+*::after {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html {
+  background-color: var(--color-page-bg);
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+  cursor: url("../img/system/cursor.png") 1 1, auto;
+  cursor: -webkit-image-set(url("../img/system/cursor.png") 1x, url("../img/system/cursor@2x.png") 2x) 1 1, auto;
+  cursor: image-set(url("../img/system/cursor.png") 1x, url("../img/system/cursor@2x.png") 2x) 1 1, auto;
+}
+
+a,
+button,
+summary,
+select,
+label:has(input[type="checkbox"]),
+[role="button"],
+input[type="submit"] {
+  cursor: url("../img/system/cursor-hand.png") 11 1, pointer;
+  cursor: -webkit-image-set(url("../img/system/cursor-hand.png") 1x, url("../img/system/cursor-hand@2x.png") 2x) 11 1, pointer;
+  cursor: image-set(url("../img/system/cursor-hand.png") 1x, url("../img/system/cursor-hand@2x.png") 2x) 11 1, pointer;
+}
+
+img {
+  display: block;
+  max-width: 100%;
+}
+
+body {
+  font-family: 'Onest', Arial, Helvetica, sans-serif;
+  font-size: calc(1rem + 2px);
+  letter-spacing: 0.2px;
+  background: var(--color-page-bg);
+  color: var(--color-text);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Все заголовки, включая добавленные позже в HTML. */
+h1, h2, h3, h4, h5, h6, [role="heading"] {
+  font-family: "Unbounded", sans-serif;
+  letter-spacing: normal;
+  font-optical-sizing: auto;
+  font-style: normal;
+  overflow-wrap: anywhere;
+}
+
+.weight-hover-word {
+  display: inline-block;
+  width: max-content;
+  max-width: 100%;
+  vertical-align: baseline;
+}
+
+.weight-hover-letter {
+  display: inline-block;
+  white-space: pre;
+  text-align: center;
+}
+
+.page {
+  max-width: var(--page-max-width);
+  margin: 0 auto;
+  padding: 100px var(--page-gutter) 300px;
+}
+
+.container {
+  display: flex;
+  flex-direction: column;
+  gap: 60px;
+}
+
+.header {
+  position: relative;
+  isolation: isolate;
+  display: flex;
+  align-items: center;
+  min-height: 539px;
+  background: var(--color-case-header-bg);
+  border: 1px solid var(--color-border);
+  border-radius: 32px;
+  overflow: hidden;
+
+  -webkit-transform: translateZ(0);
+  transform: translateZ(0);
+}
+
+.header__image-left {
+  position: absolute;
+  top: -357px;
+  right: -284px;
+  z-index: 0;
+  width: 924px;
+  height: 924px;
+  border-radius: 50%;
+  background: var(--color-case-glow);
+  opacity: 0.14;
+  -webkit-filter: blur(100px);
+  filter: blur(100px);
+  pointer-events: none;
+}
+
+.header__image-left--authors {
+  background: var(--color-case-glow-authors);
+}
+
+.header__image-right {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  width: 752px;
+  height: 539px;
+  z-index: 1;
+  overflow: hidden;
+}
+
+.header__image-right img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.header__content {
+  min-width: 0;
+  position: relative;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  gap: 40px;
+  max-width: 830px;
+  padding: 60px 60px;
+}
+
+.header__badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.badge {
+  padding: 4px 10px;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 1;
+  text-transform: uppercase;
+}
+
+.badge--coming-soon {
+  color: var(--color-badge-text);
+  background: var(--color-badge-bg);
+}
+
+.header__text {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.header__title {
+  font-size: 72px;
+  font-weight: 700;
+  line-height: 1.04;
+}
+
+.header__subtitle {
+  color: var(--color-text-secondary);
+  font-size: 22px;
+  font-weight: 400;
+  line-height: 1.4;
+}
+
+.header__author {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.header__avatar {
+  width: 52px;
+  height: 52px;
+  overflow: hidden;
+  flex-shrink: 0;
+  border-radius: 50%;
+}
+
+.header__avatar img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.header__author-info {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.header__author-name {
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.header__author-role {
+  color: var(--color-text-secondary);
+  font-size: 14px;
+}
+
+.content {
+  display: flex;
+  flex-direction: column;
+  gap: 100px;
+  max-width: 955px;
+  margin: 0 auto;
+}
+
+.section {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.section__title {
+  font-size: 40px;
+  font-weight: 600;
+  line-height: 1.04;
+}
+
+.section__text {
+  font-size: 22px;
+  line-height: 1.6;
+}
+
+.caption {
+  font-size: 20px;
+  line-height: 1.6;
+  color: var(--color-caption);
+}
+
+.text-medium {
+  font-weight: 600;
+}
+
+.text-green-medium {
+  font-weight: 600;
+  color: var(--color-text-positive);
+}
+
+.section-with-image {
+  display: flex;
+  flex-direction: column;
+  gap: 40px;
+}
+
+.separator {
+  width: 100%;
+  height: 1px;
+  margin: 12px 0;
+  background: var(--color-divider);
+}
+
+.conclusion-heading {
+  font-weight: 600;
+}
+
+.footer-text {
+  font-size: 42px;
+  font-weight: 600;
+  line-height: 1.04;
+  text-align: center;
+}
+
+.section__list {
+  padding-left: 24px;
+  font-size: 22px;
+  line-height: 1.6;
+}
+
+.section__list li + li {
+  margin-top: 20px;
+}
+
+.section__list ul {
+  margin-top: 20px;
+}
+
+
+/* index */
+.site-nav {
+  container-type: inline-size;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 200;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 22px var(--page-inline-edge);
+  transition:
+    padding 0.45s cubic-bezier(0.4, 0, 0.2, 1),
+    top 0.45s cubic-bezier(0.4, 0, 0.2, 1),
+    left 0.45s cubic-bezier(0.4, 0, 0.2, 1),
+    right 0.45s cubic-bezier(0.4, 0, 0.2, 1),
+    border-radius 0.45s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.site-nav.scrolled {
+  --nav-scrolled-inset: 32%;
+  top: 16px;
+  inset-inline: clamp(16px, calc((100% - 488px) / 2), var(--nav-scrolled-inset));
+  gap: 48px;
+  padding: 16px 16px 16px 24px;
+  border-radius: 100px;
+}
+
+.site-nav::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  border-radius: inherit;
+  pointer-events: none;
+  transition: background-color 0.4s ease;
+}
+
+.site-nav.scrolled::before {
+  background-color: color-mix(in srgb, var(--color-nav-bg) 70%, transparent);
+  -webkit-backdrop-filter: blur(20px);
+  backdrop-filter: blur(20px);
+}
+
+.site-nav :is(.nav-logo, .nav-contact) {
+  color: var(--color-text);
+  font-size: 17px;
+  font-weight: 400;
+  line-height: 1.2;
+}
+
+.site-nav .nav-logo {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  white-space: nowrap;
+}
+
+.site-nav .nav-logo img {
+  flex: none;
+  filter: brightness(0.07);
+}
+
+:root[data-theme="dark"] .site-nav .nav-logo img {
+  filter: none;
+}
+
+.site-nav .nav-right {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+}
+
+.site-nav .nav-contact {
+  flex: none;
+  height: auto;
+  min-height: 34px;
+  padding: 2px 12px;
+  border-radius: 100px;
+  white-space: nowrap;
+}
+
+.site-nav .nav-contact .button__label {
+  line-height: inherit;
+}
+
+@container (width < 394px) {
+  .site-nav .nav-contact {
+    display: none;
   }
-  let geometry;
-  if (window.portfolioHeroGeometry) {
-    geometry = await window.portfolioHeroGeometry;
-    if (!geometry) return;
-  } else {
-    const response = await fetch(geometryUrl);
-    if (!response.ok) throw new Error(`Hero cube geometry: HTTP ${response.status}`);
-    geometry = await response.arrayBuffer();
-  }
-  const [COUNT, vertexCount] = new Uint32Array(geometry, 0, 2);
-  const positions = new Float32Array(geometry, 8, COUNT * 3);
-  const normals = new Float32Array(geometry, 8 + positions.byteLength, positions.length);
-  const vertices = new Float32Array(geometry, 8 + positions.byteLength + normals.byteLength, vertexCount * 3);
-  const indices = new Uint16Array(geometry, 8 + positions.byteLength + normals.byteLength + vertices.byteLength);
-  let pointColor = readPaletteColor('--color-cube-particles');
-  const staticPreview = new URLSearchParams(location.search).has('static');
-  const AURA_COUNT = 220;
-  const HOLD_TIME = 5;
-  const SCATTER_SCALE = 1.5;
-  const SCATTER_TIME = 0.65;
-  const ASSEMBLY_TIME = 1.8;
-  const EDGE_BAND = 0.16;
+}
 
-  let shapeRadius = 0;
-  for (let i = 0; i < vertices.length; i += 3) {
-    shapeRadius = Math.max(shapeRadius, Math.hypot(vertices[i], vertices[i + 1], vertices[i + 2]));
-  }
+.site-nav .theme-btn {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 34px;
+  aspect-ratio: 1;
+  border: 0;
+  border-radius: 100px;
+  color: var(--color-nav-muted);
+  font-size: 13px;
+  line-height: 1;
+}
 
-  function createShape(triangles) {
-    const mesh = new Float32Array(triangles.length * 9);
-    const faces = new Uint16Array(triangles.length * 3);
-    const points = new Float32Array(COUNT * 3);
-    const directions = new Float32Array(points.length);
-    const radius = Math.max(...triangles.flat().map(point => Math.hypot(...point)));
-    const scale = 0.85 * shapeRadius / radius;
-    const edges = new Map();
+.site-nav--entering :is(.nav-logo, .nav-right) {
+  animation: site-nav-fade-in 0.7s cubic-bezier(0.333333, 1, 0.666667, 1) backwards;
+}
 
-    triangles.forEach(([a, b, c], index) => {
-      const u = b.map((value, axis) => value - a[axis]);
-      const v = c.map((value, axis) => value - a[axis]);
-      const normal = [u[1] * v[2] - u[2] * v[1], u[2] * v[0] - u[0] * v[2], u[0] * v[1] - u[1] * v[0]];
-      const size = Math.hypot(...normal);
-      const winding = normal.reduce((dot, value, axis) => dot + value * a[axis], 0) < 0 ? -1 : 1;
-      const direction = normal.map(value => winding * value / size);
-      const start = 3 * index;
-      mesh.set([a, b, c].flat().map(value => value * scale), 3 * start);
-      faces.set([start, start + (winding === 1 ? 1 : 2), start + (winding === 1 ? 2 : 1)], start);
+.site-nav--entering .nav-right {
+  animation-delay: 0.12s;
+}
 
-      for (const [from, to, inside] of [[a, b, c], [b, c, a], [c, a, b]]) {
-        const key = [from.join(','), to.join(',')].sort().join('|');
-        if (!edges.has(key)) edges.set(key, []);
-        edges.get(key).push({ from, to, inside, direction });
-      }
-    });
+@keyframes site-nav-fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
 
-    const bands = [];
-    let length = 0;
-    for (const sides of edges.values()) {
-      const first = sides[0];
-      // Стыки треугольников на одной плоскости не являются рёбрами фигуры.
-      if (sides.length > 1 && sides.every(side => side.direction.every((value, axis) =>
-        Math.abs(value - first.direction[axis]) < 1e-6))) continue;
-      const edgeLength = Math.hypot(...first.from.map((value, axis) => value - first.to[axis]));
-      for (const side of sides) {
-        length += edgeLength;
-        bands.push({ ...side, end: length });
-      }
-    }
-
-    let bandIndex = 0;
-    for (let i = 0; i < COUNT; i++) {
-      const location = (i + 0.5) * length / COUNT;
-      while (location > bands[bandIndex].end) bandIndex++;
-      const { from, to, inside, direction } = bands[bandIndex];
-      const along = Math.random();
-      const inset = EDGE_BAND * Math.random() ** 2;
-      for (let axis = 0; axis < 3; axis++) {
-        const edge = from[axis] + (to[axis] - from[axis]) * along;
-        points[i * 3 + axis] = (edge + (inside[axis] - edge) * inset) * scale;
-      }
-      directions.set(direction, 3 * i);
-    }
-    return { positions: points, normals: directions, vertices: mesh, indices: faces };
-  }
-
-  function crossTriangles() {
-    const cells = [[0, 0, 0], [1, 0, 0], [-1, 0, 0], [0, 1, 0], [0, -1, 0], [0, 0, 1], [0, 0, -1]];
-    const triangles = [];
-    for (const cell of cells) {
-      for (let axis = 0; axis < 3; axis++) {
-        for (const side of [-1, 1]) {
-          const neighbor = cell.slice();
-          neighbor[axis] += side;
-          if (cells.some(other => other.every((value, coordinate) => value === neighbor[coordinate]))) continue;
-          const [a, b, c, d] = [[-1, -1], [1, -1], [1, 1], [-1, 1]].map(([u, v]) => {
-            const point = cell.slice();
-            point[axis] += side * 0.5;
-            point[(axis + 1) % 3] += u * 0.5;
-            point[(axis + 2) % 3] += v * 0.5;
-            return point;
-          });
-          triangles.push([a, b, c], [a, c, d]);
-        }
-      }
-    }
-    return triangles;
-  }
-
-  function icosahedronTriangles() {
-    const ratio = (1 + Math.sqrt(5)) / 2;
-    const corners = [];
-    for (const a of [-1, 1]) {
-      for (const b of [-ratio, ratio]) corners.push([0, a, b], [a, b, 0], [b, 0, a]);
-    }
-    const neighbors = (a, b) => Math.abs(a.reduce((sum, value, axis) => sum + (value - b[axis]) ** 2, 0) - 4) < 1e-6;
-    const triangles = [];
-    for (let a = 0; a < corners.length; a++) {
-      for (let b = a + 1; b < corners.length; b++) {
-        if (!neighbors(corners[a], corners[b])) continue;
-        for (let c = b + 1; c < corners.length; c++) {
-          if (neighbors(corners[a], corners[c]) && neighbors(corners[b], corners[c])) {
-            triangles.push([corners[a], corners[b], corners[c]]);
-          }
-        }
-      }
-    }
-    return triangles;
-  }
-
-  const shapes = [{ positions, normals, vertices, indices }, createShape(crossTriangles()), createShape(icosahedronTriangles())];
-
-  // Local coordinates inside one of four overlapping clouds, plus a motion delay.
-  const scatterSamples = new Float32Array(COUNT * 3);
-  for (let i = 0; i < scatterSamples.length; i += 3) {
-    const angle = Math.random() * 2 * Math.PI;
-    const radius = Math.sqrt(1 - Math.cbrt(Math.random()));
-    scatterSamples[i] = Math.cos(angle) * radius;
-    scatterSamples[i + 1] = Math.sin(angle) * radius;
-    scatterSamples[i + 2] = Math.random() * 0.22;
-  }
-
-  class GLRenderer {
-    constructor(canvas) {
-      this.gl = canvas.getContext('webgl2', { alpha: true, antialias: false, depth: false });
-      if (!this.gl) throw new Error('WebGL unavailable');
-      const gl = this.gl;
-      const transform = `uniform mat3 rotation; uniform vec2 scale; vec4 project(vec3 value) {
-        vec3 p = rotation * value; return vec4(p.xy * scale, -p.z / 4.0, 1.0);
-      }`;
-      this.meshProgram = this.program(`#version 300 es
-        layout(location=0) in vec3 position; ${transform}
-        void main() { gl_Position = project(position); }`, `#version 300 es
-        precision highp float; void main() {}`);
-      this.pointProgram = this.program(`#version 300 es
-        precision highp float;
-        layout(location=0) in vec3 position;
-        layout(location=1) in vec3 normal;
-        layout(location=2) in vec2 offset;
-        layout(location=3) in vec3 scatterSample;
-        uniform vec4 cloud[4];
-        uniform float progress;
-        uniform int phase; // 0 = holding, 1 = scattering, 2 = assembling
-        ${transform}
-        uniform sampler2D surfaceDepth;
-        uniform vec2 pixelScale;
-        uniform float pointSize;
-        uniform float spread;
-        uniform bool aura;
-        out float visible;
-        void main() {
-          if (aura) {
-            gl_Position = vec4(position.xy * pixelScale + vec2(-1.0, 1.0), 0.0, 1.0);
-            gl_PointSize = position.z;
-            visible = 1.0;
-            return;
-          }
-          vec4 rest = project(position);
-          float depth = texture(surfaceDepth, rest.xy * 0.5 + 0.5).r;
-          visible = mix(step(rest.z * 0.5 + 0.5, depth + 0.006), 1.0, spread);
-          gl_Position = rest;
-          if (phase != 2) gl_Position.xy += offset * pixelScale;
-          if (phase != 0) {
-            vec4 lobe = cloud[gl_VertexID % 4];
-            mat2 axes = mat2(lobe.zw, vec2(-lobe.w, lobe.z) * 0.72);
-            vec2 target = (lobe.xy + axes * scatterSample.xy) * scale;
-            float t = clamp((progress - scatterSample.z) / (1.0 - scatterSample.z), 0.0, 1.0);
-            float back = 1.0 - t;
-            float amount = phase == 1 ? t * t : back * back * back;
-            gl_Position.xy = mix(gl_Position.xy, target, amount);
-          }
-          float light = max(dot(rotation * normal, normalize(vec3(-0.45, 0.75, 0.6))), 0.0);
-          gl_PointSize = pointSize * (1.3 + 1.3 * (1.0 - light));
-        }`, `#version 300 es
-        precision highp float;
-        in float visible;
-        uniform vec4 pointColor;
-        out vec4 color;
-        void main() {
-          if (visible <= 0.0) discard;
-          float radius = length(gl_PointCoord - 0.5);
-          float alpha = 1.0 - smoothstep(0.5 - fwidth(radius), 0.5, radius);
-          if (alpha <= 0.0) discard;
-          color = vec4(pointColor.rgb, pointColor.a * alpha * visible);
-        }`);
-      this.offsetBuffer = gl.createBuffer();
-      gl.bindBuffer(gl.ARRAY_BUFFER, this.offsetBuffer);
-      gl.bufferData(gl.ARRAY_BUFFER, COUNT * 2 * Float32Array.BYTES_PER_ELEMENT, gl.DYNAMIC_DRAW);
-      const scatterBuffer = gl.createBuffer();
-      gl.bindBuffer(gl.ARRAY_BUFFER, scatterBuffer);
-      gl.bufferData(gl.ARRAY_BUFFER, scatterSamples, gl.STATIC_DRAW);
-      this.shapeArrays = shapes.map(shape => {
-        const mesh = gl.createVertexArray();
-        gl.bindVertexArray(mesh);
-        this.attribute(0, shape.vertices, 3);
-        gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, gl.createBuffer());
-        gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, shape.indices, gl.STATIC_DRAW);
-
-        const points = gl.createVertexArray();
-        gl.bindVertexArray(points);
-        this.attribute(0, shape.positions, 3);
-        this.attribute(1, shape.normals, 3);
-        gl.bindBuffer(gl.ARRAY_BUFFER, this.offsetBuffer);
-        gl.enableVertexAttribArray(2);
-        gl.vertexAttribPointer(2, 2, gl.FLOAT, false, 0, 0);
-        gl.bindBuffer(gl.ARRAY_BUFFER, scatterBuffer);
-        gl.enableVertexAttribArray(3);
-        gl.vertexAttribPointer(3, 3, gl.FLOAT, false, 0, 0);
-        return { mesh, points };
-      });
-      this.auraData = new Float32Array(AURA_COUNT * 3);
-      this.auraArray = gl.createVertexArray();
-      gl.bindVertexArray(this.auraArray);
-      this.auraBuffer = this.attribute(0, this.auraData, 3, gl.DYNAMIC_DRAW);
-      this.depthTexture = gl.createTexture();
-      gl.bindTexture(gl.TEXTURE_2D, this.depthTexture);
-      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
-      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
-      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
-      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
-      this.framebuffer = gl.createFramebuffer();
-      this.uniforms = new Map();
-      gl.useProgram(this.pointProgram);
-      gl.uniform4fv(this.uniform(this.pointProgram, 'pointColor'), pointColor.rgba);
-    }
-
-    setCloud(cloud) {
-      this.gl.useProgram(this.pointProgram);
-      this.gl.uniform4fv(this.uniform(this.pointProgram, 'cloud[0]'), cloud);
-    }
-
-    program(vertexSource, fragmentSource) {
-      const gl = this.gl;
-      const program = gl.createProgram();
-      for (const [type, source] of [[gl.VERTEX_SHADER, vertexSource], [gl.FRAGMENT_SHADER, fragmentSource]]) {
-        const shader = gl.createShader(type);
-        gl.shaderSource(shader, source);
-        gl.compileShader(shader);
-        if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) throw new Error(gl.getShaderInfoLog(shader));
-        gl.attachShader(program, shader);
-        gl.deleteShader(shader);
-      }
-      gl.linkProgram(program);
-      if (!gl.getProgramParameter(program, gl.LINK_STATUS)) throw new Error(gl.getProgramInfoLog(program));
-      return program;
-    }
-
-    attribute(location, values, size, usage = this.gl.STATIC_DRAW) {
-      const gl = this.gl;
-      const buffer = gl.createBuffer();
-      gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
-      gl.bufferData(gl.ARRAY_BUFFER, values, usage);
-      gl.enableVertexAttribArray(location);
-      gl.vertexAttribPointer(location, size, gl.FLOAT, false, 0, 0);
-      return buffer;
-    }
-
-    uniform(program, name) {
-      if (!this.uniforms.has(program)) this.uniforms.set(program, new Map());
-      const values = this.uniforms.get(program);
-      if (!values.has(name)) values.set(name, this.gl.getUniformLocation(program, name));
-      return values.get(name);
-    }
-
-    resize(cube) {
-      const gl = this.gl;
-      gl.bindTexture(gl.TEXTURE_2D, this.depthTexture);
-      const ratio = Math.min(1, 640 / Math.max(cube.canvas.width, cube.canvas.height));
-      this.depthWidth = Math.max(1, Math.round(cube.canvas.width * ratio));
-      this.depthHeight = Math.max(1, Math.round(cube.canvas.height * ratio));
-      gl.texImage2D(gl.TEXTURE_2D, 0, gl.DEPTH_COMPONENT24, this.depthWidth, this.depthHeight, 0, gl.DEPTH_COMPONENT, gl.UNSIGNED_INT, null);
-      gl.bindFramebuffer(gl.FRAMEBUFFER, this.framebuffer);
-      gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.DEPTH_ATTACHMENT, gl.TEXTURE_2D, this.depthTexture, 0);
-      gl.drawBuffers([gl.NONE]);
-      gl.readBuffer(gl.NONE);
-      if (gl.checkFramebufferStatus(gl.FRAMEBUFFER) !== gl.FRAMEBUFFER_COMPLETE) throw new Error('Depth framebuffer unavailable');
-      gl.bindFramebuffer(gl.FRAMEBUFFER, null);
-    }
-
-    draw(cube, modelChanged, offsetsChanged) {
-      const gl = this.gl;
-      const arrays = this.shapeArrays[cube.shapeIndex];
-      if (modelChanged) {
-        gl.bindFramebuffer(gl.FRAMEBUFFER, this.framebuffer);
-        gl.viewport(0, 0, this.depthWidth, this.depthHeight);
-        gl.enable(gl.CULL_FACE);
-        gl.enable(gl.DEPTH_TEST);
-        gl.depthMask(true);
-        gl.clear(gl.DEPTH_BUFFER_BIT);
-        gl.useProgram(this.meshProgram);
-        gl.uniformMatrix3fv(this.uniform(this.meshProgram, 'rotation'), false, cube.matrix);
-        gl.uniform2f(this.uniform(this.meshProgram, 'scale'), 2 * cube.scale / cube.width, 2 * cube.scale / cube.height);
-        gl.bindVertexArray(arrays.mesh);
-        gl.drawElements(gl.TRIANGLES, cube.shape.indices.length, gl.UNSIGNED_SHORT, 0);
-        gl.disable(gl.CULL_FACE);
-        gl.bindFramebuffer(gl.FRAMEBUFFER, null);
-      }
-      gl.viewport(0, 0, cube.canvas.width, cube.canvas.height);
-      gl.disable(gl.DEPTH_TEST);
-      gl.clearColor(0, 0, 0, 0);
-      gl.clear(gl.COLOR_BUFFER_BIT);
-      gl.useProgram(this.pointProgram);
-      gl.uniform1i(this.uniform(this.pointProgram, 'aura'), 0);
-      gl.uniformMatrix3fv(this.uniform(this.pointProgram, 'rotation'), false, cube.matrix);
-      gl.uniform2f(this.uniform(this.pointProgram, 'scale'), 2 * cube.scale / cube.width, 2 * cube.scale / cube.height);
-      gl.uniform2f(this.uniform(this.pointProgram, 'pixelScale'), 2 / cube.width, -2 / cube.height);
-      gl.uniform1f(this.uniform(this.pointProgram, 'pointSize'), cube.dpr);
-      gl.uniform1f(this.uniform(this.pointProgram, 'spread'), cube.spread);
-      const phase = cube.formation === 'holding' ? 0 : cube.formation === 'scattering' ? 1 : 2;
-      gl.uniform1i(this.uniform(this.pointProgram, 'phase'), phase);
-      if (phase) gl.uniform1f(this.uniform(this.pointProgram, 'progress'), cube.formationProgress);
-      gl.activeTexture(gl.TEXTURE0);
-      gl.bindTexture(gl.TEXTURE_2D, this.depthTexture);
-      gl.uniform1i(this.uniform(this.pointProgram, 'surfaceDepth'), 0);
-      gl.bindVertexArray(arrays.points);
-      if (offsetsChanged) {
-        gl.bindBuffer(gl.ARRAY_BUFFER, this.offsetBuffer);
-        gl.bufferSubData(gl.ARRAY_BUFFER, 0, cube.offsets);
-      }
-      gl.enable(gl.BLEND);
-      gl.blendFuncSeparate(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA, gl.ONE, gl.ONE_MINUS_SRC_ALPHA);
-      gl.drawArrays(gl.POINTS, 0, COUNT);
-      for (let i = 0; i < cube.aura.length; i++) {
-        const point = cube.aura[i];
-        this.auraData[i * 3] = point.baseX + point.x;
-        this.auraData[i * 3 + 1] = point.baseY + point.y;
-        this.auraData[i * 3 + 2] = point.size * 2 * cube.dpr;
-      }
-      gl.uniform1i(this.uniform(this.pointProgram, 'aura'), 1);
-      gl.bindVertexArray(this.auraArray);
-      gl.bindBuffer(gl.ARRAY_BUFFER, this.auraBuffer);
-      gl.bufferSubData(gl.ARRAY_BUFFER, 0, this.auraData);
-      gl.drawArrays(gl.POINTS, 0, AURA_COUNT);
-    }
-  }
-
-  class CanvasRenderer {
-    constructor(canvas) {
-      this.ctx = canvas.getContext('2d');
-      if (!this.ctx) throw new Error('Canvas unavailable');
-      this.mesh = new Float32Array(Math.max(...shapes.map(shape => shape.vertices.length)));
-    }
-
-    resize(cube) {
-      this.ctx.setTransform(cube.dpr, 0, 0, cube.dpr, 0, 0);
-      this.depthWidth = 288;
-      this.depthHeight = Math.ceil(cube.height / cube.width * this.depthWidth);
-      this.depthScale = this.depthWidth / cube.width;
-      this.depth = new Float32Array(this.depthWidth * this.depthHeight);
-    }
-
-    triangle(a, b, c) {
-      const points = this.mesh;
-      const ax = points[a], ay = points[a + 1];
-      const bx = points[b], by = points[b + 1];
-      const cx = points[c], cy = points[c + 1];
-      const area = (by - cy) * (ax - cx) + (cx - bx) * (ay - cy);
-      if (area >= -1e-6) return;
-      const left = Math.max(0, Math.ceil(Math.min(ax, bx, cx) - 0.5));
-      const right = Math.min(this.depthWidth - 1, Math.floor(Math.max(ax, bx, cx) - 0.5));
-      const top = Math.max(0, Math.ceil(Math.min(ay, by, cy) - 0.5));
-      const bottom = Math.min(this.depthHeight - 1, Math.floor(Math.max(ay, by, cy) - 0.5));
-      for (let y = top; y <= bottom; y++) {
-        for (let x = left; x <= right; x++) {
-          const u = ((by - cy) * (x + 0.5 - cx) + (cx - bx) * (y + 0.5 - cy)) / area;
-          const v = ((cy - ay) * (x + 0.5 - cx) + (ax - cx) * (y + 0.5 - cy)) / area;
-          if (u < 0 || v < 0 || u + v > 1) continue;
-          const z = u * points[a + 2] + v * points[b + 2] + (1 - u - v) * points[c + 2];
-          const offset = y * this.depthWidth + x;
-          if (z > this.depth[offset]) this.depth[offset] = z;
-        }
-      }
-    }
-
-    draw(cube, modelChanged) {
-      const m = cube.matrix;
-      const { vertices, indices } = cube.shape;
-      if (modelChanged) {
-        this.depth.fill(-Infinity);
-        for (let i = 0; i < vertices.length; i += 3) {
-          const x = vertices[i], y = vertices[i + 1], z = vertices[i + 2];
-          this.mesh[i] = (cube.width / 2 + (m[0] * x + m[3] * y + m[6] * z) * cube.scale) * this.depthScale;
-          this.mesh[i + 1] = (cube.height / 2 - (m[1] * x + m[4] * y + m[7] * z) * cube.scale) * this.depthScale;
-          this.mesh[i + 2] = m[2] * x + m[5] * y + m[8] * z;
-        }
-        for (let i = 0; i < indices.length; i += 3) this.triangle(indices[i] * 3, indices[i + 1] * 3, indices[i + 2] * 3);
-      }
-      if (cube.projectedDirty) cube.project();
-      this.ctx.clearRect(0, 0, cube.width, cube.height);
-      this.ctx.fillStyle = pointColor.css;
-      const hidden = cube.spread > 0 && cube.spread < 1 ? new Path2D() : null;
-      this.ctx.beginPath();
-      for (let i = 0; i < COUNT; i++) {
-        const restX = cube.projected[i * 2];
-        const restY = cube.projected[i * 2 + 1];
-        const x = Math.floor(restX * this.depthScale);
-        const y = Math.floor(restY * this.depthScale);
-        const visible = x >= 0 && y >= 0 && x < this.depthWidth && y < this.depthHeight &&
-          cube.depth[i] >= this.depth[y * this.depthWidth + x] - 0.048;
-        const path = visible || cube.spread === 1 ? this.ctx : hidden;
-        if (!path) continue;
-        const px = restX + cube.offsets[i * 2];
-        const py = restY + cube.offsets[i * 2 + 1];
-        const radius = cube.radii[i];
-        path.moveTo(px + radius, py);
-        path.arc(px, py, radius, 0, Math.PI * 2);
-      }
-      this.ctx.fill();
-      if (hidden) {
-        this.ctx.globalAlpha = cube.spread;
-        this.ctx.fill(hidden);
-        this.ctx.globalAlpha = 1;
-      }
-    }
-  }
-
-  class TunnelCube {
-    constructor(element) {
-      this.element = element;
-      this.canvas = element.querySelector('canvas');
-      this.motion = matchMedia('(prefers-reduced-motion: reduce)');
-      this.shapeIndex = 0;
-      this.formation = 'holding';
-      this.formationTime = 0;
-      this.spread = 0;
-      this.matrix = new Float32Array(9);
-      this.offsets = new Float32Array(COUNT * 2);
-      this.cloud = new Float32Array(16);
-      this.velocity = new Float32Array(COUNT * 2);
-      this.projected = new Float32Array(COUNT * 2);
-      this.depth = new Float32Array(COUNT);
-      this.radii = new Float32Array(COUNT);
-      this.ease = Float32Array.from({ length: COUNT }, () => 0.04 + 0.04 * Math.random());
-      this.targetEase = Float32Array.from({ length: COUNT }, () => 0.2 + 0.2 * Math.random());
-      this.friction = Float32Array.from({ length: COUNT }, () => 0.8 + 0.15 * Math.random());
-      this.mouse = { x: -1000, y: -1000, active: false, timeout: 0 };
-      this.auraTime = 0;
-      this.aura = Array.from({ length: AURA_COUNT }, () => ({
-        phase: Math.random() * Math.PI * 2,
-        drift: Math.random() * Math.PI * 2,
-        radius: 1.55 + Math.random() * 0.6,
-        speed: (0.07 + Math.random() * 0.2) * (Math.random() < 0.5 ? -1 : 1),
-        size: 1.3 + Math.random() * 0.5,
-        baseX: 0, baseY: 0,
-        x: 0, y: 0, vx: 0, vy: 0,
-        ease: 0.035 + Math.random() * 0.035,
-        friction: 0.8 + Math.random() * 0.15
-      }));
-      this.angleX = 0.37;
-      this.angleY = -0.55;
-      this.frame = 0;
-      this.previousTime = 0;
-      this.accumulator = 0;
-      this.visible = true;
-      this.hasOffsets = false;
-      this.modelDirty = true;
-      this.projectedDirty = true;
-      this.tick = this.tick.bind(this);
-      try {
-        this.renderer = new GLRenderer(this.canvas);
-      } catch (error) {
-        const replacement = this.canvas.cloneNode();
-        this.canvas.replaceWith(replacement);
-        this.canvas = replacement;
-        this.renderer = new CanvasRenderer(this.canvas);
-      }
-      window.addEventListener('themechange', () => {
-        pointColor = readPaletteColor('--color-cube-particles');
-        const renderer = this.renderer;
-        if (renderer.gl) {
-          renderer.gl.useProgram(renderer.pointProgram);
-          renderer.gl.uniform4fv(renderer.uniform(renderer.pointProgram, 'pointColor'), pointColor.rgba);
-        }
-        if (this.width && this.height) this.draw(false);
-      });
-      element.parentElement.addEventListener('pointermove', event => this.move(event), { passive: true });
-      element.parentElement.addEventListener('pointerleave', () => this.release());
-      element.parentElement.addEventListener('pointercancel', () => this.release());
-      window.addEventListener('blur', () => this.release());
-      this.motion.addEventListener('change', () => {
-        this.release();
-        if (this.motion.matches) {
-          this.formation = 'holding';
-          this.formationTime = this.spread = 0;
-          this.offsets.fill(0);
-          this.velocity.fill(0);
-          for (const point of this.aura) point.x = point.y = point.vx = point.vy = 0;
-          this.hasOffsets = false;
-          this.draw(true);
-        }
-        this.sync();
-      });
-      document.addEventListener('visibilitychange', () => document.hidden ? this.release() : this.sync());
-      this.resizeObserver = new ResizeObserver(() => this.resize());
-      this.resizeObserver.observe(element);
-      this.intersectionObserver = new IntersectionObserver(entries => {
-        this.visible = entries[0].isIntersecting;
-        this.sync();
-      });
-      this.intersectionObserver.observe(element);
-      if ('pageLoading' in document.documentElement.dataset) {
-        document.addEventListener('page-loader:complete', () => this.sync(), { once: true });
-      }
-      window.addEventListener('pagehide', event => {
-        if (event.persisted) return;
-        clearTimeout(this.mouse.timeout);
-        this.stop();
-        this.resizeObserver.disconnect();
-        this.intersectionObserver.disconnect();
-      });
-      window.addEventListener('pageshow', () => this.sync());
-      this.resize();
-    }
-
-    get shape() {
-      return shapes[this.shapeIndex];
-    }
-
-    get formationProgress() {
-      return this.formationTime / (this.formation === 'scattering' ? SCATTER_TIME : ASSEMBLY_TIME);
-    }
-
-    resize() {
-      const rect = this.canvas.getBoundingClientRect();
-      if (!rect.width || !rect.height) {
-        this.release();
-        return;
-      }
-      const dpr = Math.min(devicePixelRatio || 1, 2, 2048 / Math.max(rect.width, rect.height));
-      if (rect.width === this.width && rect.height === this.height && dpr === this.dpr) return;
-      const previousScale = this.scale;
-      this.width = rect.width;
-      this.height = rect.height;
-      this.dpr = dpr;
-      this.scale = this.element.getBoundingClientRect().width * 0.315;
-      this.canvas.width = Math.round(this.width * this.dpr);
-      this.canvas.height = Math.round(this.height * this.dpr);
-      this.renderer.resize(this);
-      this.modelDirty = this.projectedDirty = true;
-      this.updateMatrix();
-      if (!previousScale) {
-        if (!staticPreview && !this.motion.matches) {
-          this.formation = 'assembling';
-          this.prepareScatter();
-        }
-      } else {
-        for (let i = 0; i < this.offsets.length; i++) {
-          this.offsets[i] *= this.scale / previousScale;
-          this.velocity[i] *= this.scale / previousScale;
-        }
-        for (const point of this.aura) {
-          point.x *= this.scale / previousScale;
-          point.y *= this.scale / previousScale;
-          point.vx *= this.scale / previousScale;
-          point.vy *= this.scale / previousScale;
-        }
-      }
-      if (this.formation !== 'holding') this.placeParticles();
-      this.updateAura();
-      this.draw(true);
-      this.sync();
-    }
-
-    updateMatrix() {
-      const sx = Math.sin(this.angleX), cx = Math.cos(this.angleX);
-      const sy = Math.sin(this.angleY), cy = Math.cos(this.angleY);
-      this.matrix.set([cy, sx * sy, -cx * sy, 0, cx, sx, sy, -sx * cy, cx * cy]);
-      this.modelDirty = this.projectedDirty = true;
-    }
-
-    project() {
-      const m = this.matrix;
-      const { positions, normals } = this.shape;
-      const lightLength = Math.hypot(-0.45, 0.75, 0.6);
-      const lx = (m[0] * -0.45 + m[1] * 0.75 + m[2] * 0.6) / lightLength;
-      const ly = (m[3] * -0.45 + m[4] * 0.75 + m[5] * 0.6) / lightLength;
-      const lz = (m[6] * -0.45 + m[7] * 0.75 + m[8] * 0.6) / lightLength;
-      for (let i = 0; i < COUNT; i++) {
-        const x = positions[i * 3], y = positions[i * 3 + 1], z = positions[i * 3 + 2];
-        this.projected[i * 2] = this.width / 2 + (m[0] * x + m[3] * y + m[6] * z) * this.scale;
-        this.projected[i * 2 + 1] = this.height / 2 - (m[1] * x + m[4] * y + m[7] * z) * this.scale;
-        if (this.renderer.gl) continue;
-        this.depth[i] = m[2] * x + m[5] * y + m[8] * z;
-        const nx = normals[i * 3], ny = normals[i * 3 + 1], nz = normals[i * 3 + 2];
-        const light = Math.max(0, nx * lx + ny * ly + nz * lz);
-        this.radii[i] = 0.65 + 0.65 * (1 - light);
-      }
-      this.projectedDirty = false;
-    }
-
-    move(event) {
-      if (narrowScreen.matches || staticPreview || this.motion.matches || event.pointerType === 'touch') return;
-      const rect = this.canvas.getBoundingClientRect();
-      this.mouse.x = event.clientX - rect.left;
-      this.mouse.y = event.clientY - rect.top;
-      this.mouse.active = true;
-      clearTimeout(this.mouse.timeout);
-      this.mouse.timeout = setTimeout(() => this.release(), 100);
-      this.sync();
-    }
-
-    release() {
-      clearTimeout(this.mouse.timeout);
-      this.mouse.timeout = 0;
-      this.mouse.active = false;
-      this.sync();
-    }
-
-    pointerOnShape() {
-      const x = (this.mouse.x - this.width / 2) / this.scale;
-      const y = (this.height / 2 - this.mouse.y) / this.scale;
-      if (x * x + y * y > shapeRadius * shapeRadius) return false;
-
-      // Проверяем проекцию граней, включая участки между частицами.
-      const m = this.matrix;
-      const { vertices, indices } = this.shape;
-      for (let i = 0; i < indices.length; i += 3) {
-        const a = indices[i] * 3;
-        const b = indices[i + 1] * 3;
-        const c = indices[i + 2] * 3;
-        const ax = m[0] * vertices[a] + m[3] * vertices[a + 1] + m[6] * vertices[a + 2] - x;
-        const bx = m[0] * vertices[b] + m[3] * vertices[b + 1] + m[6] * vertices[b + 2] - x;
-        const cx = m[0] * vertices[c] + m[3] * vertices[c + 1] + m[6] * vertices[c + 2] - x;
-        if (Math.min(ax, bx, cx) > 0 || Math.max(ax, bx, cx) < 0) continue;
-        const ay = m[1] * vertices[a] + m[4] * vertices[a + 1] + m[7] * vertices[a + 2] - y;
-        const by = m[1] * vertices[b] + m[4] * vertices[b + 1] + m[7] * vertices[b + 2] - y;
-        const cy = m[1] * vertices[c] + m[4] * vertices[c + 1] + m[7] * vertices[c + 2] - y;
-        const ab = ax * by - ay * bx;
-        const bc = bx * cy - by * cx;
-        const ca = cx * ay - cy * ax;
-        const area = ab + bc + ca;
-        if (area !== 0 && ab * area >= 0 && bc * area >= 0 && ca * area >= 0) return true;
-      }
-      return false;
-    }
-
-    updateAura() {
-      for (const point of this.aura) {
-        const angle = point.phase + this.auraTime * point.speed;
-        const radius = point.radius + 0.13 * Math.sin(this.auraTime * 0.81 + point.drift) + 0.07 * Math.sin(this.auraTime * 1.37 + point.phase);
-        point.baseX = this.width / 2 + (Math.cos(angle) * radius + 0.1 * Math.sin(this.auraTime * 0.73 + point.drift)) * this.scale;
-        point.baseY = this.height / 2 + (Math.sin(angle) * radius * 0.83 + 0.12 * Math.sin(this.auraTime * 0.93 + point.phase)) * this.scale;
-      }
-    }
-
-    drawAura() {
-      const ctx = this.renderer.ctx;
-      ctx.fillStyle = pointColor.css;
-      ctx.beginPath();
-      for (const point of this.aura) {
-        const radius = point.size;
-        ctx.moveTo(point.baseX + point.x + radius, point.baseY + point.y);
-        ctx.arc(point.baseX + point.x, point.baseY + point.y, radius, 0, Math.PI * 2);
-      }
-      ctx.fill();
-    }
-
-    physics() {
-      this.hasOffsets = false;
-      const radius = Math.sqrt(3000 / this.dpr) * 3;
-      if (this.formation === 'holding') {
-        if (this.mouse.active && this.projectedDirty) this.project();
-        for (let i = 0; i < COUNT; i++) {
-          const index = i * 2;
-          if (this.mouse.active) {
-            const dx = this.mouse.x - this.projected[index] - this.offsets[index];
-            const dy = this.mouse.y - this.projected[index + 1] - this.offsets[index + 1];
-            const squared = dx * dx + dy * dy;
-            if (squared > 0 && squared < radius * radius) {
-              this.ease[i] = this.targetEase[i];
-              const length = Math.sqrt(squared);
-              const force = -(radius - length) / radius * 150 / this.dpr * (0.5 + Math.random());
-              this.velocity[index] += dx / length * force + (Math.random() - 0.5) / this.dpr;
-              this.velocity[index + 1] += dy / length * force + (Math.random() - 0.5) / this.dpr;
-            }
-          }
-          this.velocity[index] *= this.friction[i];
-          this.velocity[index + 1] *= this.friction[i];
-          this.offsets[index] += this.velocity[index] - this.offsets[index] * this.ease[i];
-          this.offsets[index + 1] += this.velocity[index + 1] - this.offsets[index + 1] * this.ease[i];
-          if (Math.abs(this.offsets[index]) + Math.abs(this.offsets[index + 1]) + Math.abs(this.velocity[index]) + Math.abs(this.velocity[index + 1]) > 0.03) {
-            this.hasOffsets = true;
-          } else {
-            this.offsets[index] = this.offsets[index + 1] = 0;
-            this.velocity[index] = this.velocity[index + 1] = 0;
-          }
-        }
-      }
-      for (const point of this.aura) {
-        if (this.mouse.active) {
-          const dx = this.mouse.x - point.baseX - point.x;
-          const dy = this.mouse.y - point.baseY - point.y;
-          const squared = dx * dx + dy * dy;
-          if (squared > 0 && squared < radius * radius) {
-            const length = Math.sqrt(squared);
-            const force = -(radius - length) / radius * 150 / this.dpr * (0.5 + Math.random());
-            point.vx += dx / length * force + (Math.random() - 0.5) / this.dpr;
-            point.vy += dy / length * force + (Math.random() - 0.5) / this.dpr;
-          }
-        }
-        point.vx *= point.friction;
-        point.vy *= point.friction;
-        point.x += point.vx - point.x * point.ease;
-        point.y += point.vy - point.y * point.ease;
-        if (Math.abs(point.x) + Math.abs(point.y) + Math.abs(point.vx) + Math.abs(point.vy) > 0.03) this.hasOffsets = true;
-        else point.x = point.y = point.vx = point.vy = 0;
-      }
-    }
-
-    prepareScatter() {
-      const rotation = Math.random() * 2 * Math.PI;
-      for (let i = 0; i < 4; i++) {
-        const angle = rotation + (i + Math.random() * 0.65) * Math.PI / 2;
-        const distance = (0.35 + Math.random() * 0.45) * SCATTER_SCALE;
-        const tilt = angle + Math.random() - 0.5;
-        const radius = (1.2 + Math.random() * 0.38) * SCATTER_SCALE;
-        this.cloud.set([Math.cos(angle) * distance, Math.sin(angle) * distance,
-          Math.cos(tilt) * radius, Math.sin(tilt) * radius], i * 4);
-      }
-      this.velocity.fill(0);
-      if (this.renderer.gl) {
-        this.renderer.setCloud(this.cloud);
-        return;
-      }
-      this.scatterStart ??= new Float32Array(this.offsets.length);
-      this.scatterPoints ??= new Float32Array(this.offsets.length);
-      for (let i = 0; i < COUNT; i++) {
-        const lobe = (i % 4) * 4;
-        const x = scatterSamples[i * 3], y = scatterSamples[i * 3 + 1] * 0.72;
-        const a = this.cloud[lobe + 2], b = this.cloud[lobe + 3];
-        this.scatterPoints[i * 2] = this.cloud[lobe] + a * x - b * y;
-        this.scatterPoints[i * 2 + 1] = this.cloud[lobe + 1] + b * x + a * y;
-        this.scatterStart[i * 2] = this.offsets[i * 2] / this.scale;
-        this.scatterStart[i * 2 + 1] = this.offsets[i * 2 + 1] / this.scale;
-      }
-    }
-
-    placeParticles() {
-      const scattering = this.formation === 'scattering';
-      const progress = this.formationProgress;
-      this.spread = scattering ? progress ** 2 : (1 - progress) ** 3;
-      if (this.renderer.gl) return;
-      if (this.projectedDirty) this.project();
-      for (let i = 0; i < COUNT; i++) {
-        const index = i * 2;
-        const delay = scatterSamples[i * 3 + 2];
-        const time = Math.max(0, (progress - delay) / (1 - delay));
-        const spread = scattering ? time ** 2 : (1 - time) ** 3;
-        const startWeight = scattering ? (1 - spread) * this.scale : 0;
-        this.offsets[index] = (this.width / 2 + this.scatterPoints[index] * this.scale - this.projected[index]) * spread + this.scatterStart[index] * startWeight;
-        this.offsets[index + 1] = (this.height / 2 - this.scatterPoints[index + 1] * this.scale - this.projected[index + 1]) * spread + this.scatterStart[index + 1] * startWeight;
-      }
-    }
-
-    advanceFormation(delta) {
-      if (this.formation === 'holding' && this.mouse.active && this.pointerOnShape()) return false;
-      this.formationTime += delta;
-      if (this.formation === 'holding') {
-        if (this.formationTime < HOLD_TIME) return false;
-        this.formation = 'scattering';
-        this.formationTime = 0;
-        this.prepareScatter();
-      } else if (this.formation === 'scattering' && this.formationTime >= SCATTER_TIME) {
-        this.shapeIndex = (this.shapeIndex + 1) % shapes.length;
-        this.formation = 'assembling';
-        this.formationTime = 0;
-        this.modelDirty = this.projectedDirty = true;
-      } else if (this.formation === 'assembling' && this.formationTime >= ASSEMBLY_TIME) {
-        this.formation = 'holding';
-        this.formationTime = this.spread = 0;
-        this.offsets.fill(0);
-        return true;
-      }
-      this.placeParticles();
-      return false;
-    }
-
-    sync() {
-      if ('pageLoading' in document.documentElement.dataset ||
-          narrowScreen.matches || staticPreview || this.motion.matches || document.hidden || !this.visible) {
-        this.stop();
-      } else if (!this.frame) {
-        this.previousTime = 0;
-        this.accumulator = 0;
-        this.frame = requestAnimationFrame(this.tick);
-      }
-    }
-
-    stop() {
-      cancelAnimationFrame(this.frame);
-      this.frame = 0;
-      this.previousTime = 0;
-      this.accumulator = 0;
-    }
-
-    tick(time) {
-      this.frame = 0;
-      const delta = this.previousTime ? (time - this.previousTime) / 1000 : 1 / 60;
-      this.previousTime = time;
-      this.auraTime += delta;
-      this.angleX = (this.angleX + delta * 0.075) % (Math.PI * 2);
-      this.angleY = (this.angleY + delta * 0.13) % (Math.PI * 2);
-      this.updateMatrix();
-      this.updateAura();
-      let changed = this.advanceFormation(delta);
-      this.accumulator += Math.min(delta, 0.05);
-      while (this.accumulator >= 1 / 60 - 1e-8) {
-        if (this.mouse.active || this.hasOffsets) {
-          this.physics();
-          if (this.formation === 'holding') changed = true;
-        }
-        this.accumulator -= 1 / 60;
-      }
-      this.draw(changed);
-      this.frame = requestAnimationFrame(this.tick);
-    }
-
-    draw(offsetsChanged) {
-      this.renderer.draw(this, this.modelDirty, offsetsChanged);
-      if (this.renderer.ctx) this.drawAura();
-      this.modelDirty = false;
-    }
+@media (prefers-reduced-motion: reduce) {
+  .site-nav,
+  .site-nav::before {
+    transition: none;
   }
 
-  new TunnelCube(element);
-})().catch(error => console.warn('Hero cube:', error));
+  .site-nav--entering :is(.nav-logo, .nav-right) {
+    animation: none;
+  }
+}
+
+.page-loader {
+  display: none;
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  place-items: center;
+  overflow: hidden;
+  color: var(--color-page-loader);
+  background: currentColor;
+}
+
+:root[data-page-loading] {
+  overflow: hidden;
+}
+
+:root[data-page-loading] .page-loader,
+.page-loader--revealing {
+  display: grid;
+}
+
+:root[data-page-loading] .page-loader ~ :is(.site-nav, .page, .back-button) {
+  visibility: hidden;
+}
+
+.page-loader__progress {
+  position: relative;
+  color: #fff;
+  font-family: system-ui, sans-serif;
+  font-size: 24px;
+  letter-spacing: normal;
+  font-weight: 600;
+  line-height: 1.2;
+  font-variant-numeric: tabular-nums;
+}
+
+.page-loader--revealing {
+  background: transparent;
+  pointer-events: none;
+}
+
+.page-loader--revealing .page-loader__progress {
+  display: none;
+}
+
+.page-loader__spiral {
+  position: absolute;
+  inset: -15% auto auto -15%;
+  width: 130%;
+  height: 130%;
+}
+
+.page-loader__spiral path {
+  stroke: var(--color-page-loader-spiral, currentColor);
+  stroke-width: 30%;
+  stroke-dasharray: 1 1;
+  stroke-dashoffset: 0;
+}
+
+.page-loader--revealing .page-loader__spiral path {
+  animation: page-loader-unwind 1250ms ease-in forwards;
+  animation-timing-function: linear(0, 0.03125 12.5%, 0.125 25%, 0.28125 37.5%, 0.5 50%, 0.71875 62.5%, 0.875 75%, 0.96875 87.5%, 1);
+}
+
+@keyframes page-loader-unwind {
+  to {
+    stroke-width: 5%;
+    stroke-dashoffset: -1;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .page-loader--revealing .page-loader__spiral path {
+    animation: none;
+  }
+}
+
+.page:has(.hero) {
+  position: relative;
+  overflow-x: clip;
+  max-width: none;
+  padding-top: 0;
+  padding-inline: 0;
+}
+
+.page:has(.hero) > .container {
+  gap: 0;
+}
+
+.page:has(.hero) > .container > :is(.hero, .projects) {
+  margin-inline: var(--page-inline-edge);
+}
+
+.hero {
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr);
+  align-items: center;
+  text-align: left;
+  gap: clamp(24px, 4vw, 72px);
+  min-height: 100vh;
+  min-height: 100dvh;
+  padding: 150px 0 100px 0;
+}
+
+.hero__content {
+  container-type: inline-size;
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.hero__content > [data-reveal-delay] {
+  width: 100%;
+}
+
+.hero__cube {
+  position: relative;
+  align-self: stretch;
+  justify-self: end;
+  width: 100%;
+  max-width: 640px;
+}
+
+.hero__cube canvas {
+  position: absolute;
+  top: 45%;
+  left: 50%;
+  display: block;
+  width: 225%;
+  height: auto;
+  aspect-ratio: 1;
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+}
+
+.hero__name {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  width: 100%;
+  margin-bottom: 20px;
+  font-size: 100px;
+  font-weight: 600;
+  line-height: 1.04;
+  text-wrap: balance;
+  color: var(--color-text);
+}
+
+.hero__title-variant {
+  grid-area: 1 / 1;
+  font-size: min(1em, 17.5cqw);
+}
+
+.hero__title-suffix {
+  grid-area: 2 / 1;
+}
+
+.hero__title-variant:not([data-current]) {
+  visibility: hidden;
+}
+
+.hero__title-long-word {
+  font-size: min(1em, 14cqw);
+}
+
+.hero__name .weight-hover-letter {
+  position: relative;
+}
+
+[data-reveal-delay] > [data-intro-reveal="waiting"],
+:is(.hero__name, .card__title)[data-intro-reveal="waiting"] {
+  opacity: 0;
+}
+
+.card__title[data-intro-reveal="playing"] .weight-hover-word {
+  clip-path: inset(-0.15em -0.15em -0.2em);
+}
+
+.hero__name[data-intro-reveal="playing"] :is(.hero__title-variant[data-current], .hero__title-suffix),
+.hero__name[data-intro-reveal="rotating"] .hero__title-variant[data-current] {
+  overflow: clip;
+  overflow-clip-margin: 0.2em;
+}
+
+.hero__bio,
+.hero__skills {
+  font-size: 17px;
+  font-weight: 400;
+  line-height: 1.6;
+  color: var(--color-text);
+}
+
+.hero__bio {
+  max-width: 54ch;
+  margin-bottom: 16px;
+}
+
+.hero__skills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 32px;
+  list-style: none;
+}
+
+.hero__badge {
+  padding: 4px 10px;
+  border-radius: 8px;
+  background-color: var(--color-skill-badge-bg);
+}
+
+.hero__links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.hero__links .button {
+  border-radius: 999px;
+}
+
+.scroll-hint {
+  position: absolute;
+  bottom: 16px;
+  left: 50%;
+  translate: -50% 0;
+  width: 1px;
+  height: 64px;
+  overflow: hidden;
+  background-color: var(--color-border);
+  pointer-events: none;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .scroll-hint::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-color: var(--color-scroll-hint);
+    animation: scroll-hint-line 2.4s ease infinite;
+  }
+}
+
+@keyframes scroll-hint-line {
+  from { transform: translateY(-100%); }
+  to { transform: translateY(100%); }
+}
+
+.button,
+.site-nav .theme-btn {
+  --button-fill-duration: 240ms;
+  --button-roll-delay: 100ms;
+  --button-fill-ease: cubic-bezier(0.22, 0.61, 0.36, 0.7);
+  position: relative;
+  overflow: hidden;
+  background-color: transparent;
+  background-image: linear-gradient(var(--button-fill-color), var(--button-fill-color));
+  background-position: center bottom;
+  background-repeat: no-repeat;
+  background-size: 100% 0%;
+  transition:
+    background-size var(--button-fill-duration) var(--button-fill-ease),
+    box-shadow var(--button-fill-duration) var(--button-fill-ease);
+}
+
+.button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 48px;
+  padding: 0 24px;
+  border: 0;
+  border-radius: 12px;
+  font-family: inherit;
+  font-size: 17px;
+  font-weight: 500;
+  text-decoration: none;
+}
+
+.button.primary,
+.button.secondary {
+  font-weight: 400;
+}
+
+.button.primary {
+  --button-fill-color: var(--color-button-primary-bg-hover);
+  --button-ink-color: var(--color-button-primary-text-hover);
+  color: var(--color-button-text);
+  background-color: var(--color-button-bg);
+  box-shadow: inset 0 0 0 1px var(--color-button-bg);
+}
+
+:is(.button:has(.button__ink), .site-nav .theme-btn):is(:hover, :focus-visible) {
+  background-size: 100% 100%;
+}
+
+.button__ink {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: inherit;
+  color: var(--button-ink-color);
+  pointer-events: none;
+  clip-path: inset(100% 0 0);
+  transition: clip-path var(--button-fill-duration) var(--button-fill-ease);
+}
+
+:is(.button, .site-nav .theme-btn):is(:hover, :focus-visible) .button__ink {
+  clip-path: inset(0);
+}
+
+@supports (mask-position: 50% 50%) {
+  :is(.button, .site-nav .theme-btn):has(> .button__ink) {
+    background-image: none;
+  }
+
+  :is(.button, .site-nav .theme-btn) > .button__ink {
+    background-color: var(--button-fill-color);
+    border-radius: inherit;
+    box-shadow: inherit;
+    clip-path: none;
+    /* Закруглённый край входит снизу, вогнутый край уходит вверх. */
+    mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 400' preserveAspectRatio='none'%3E%3Cpath d='M0 150C0 122 22 100 50 100S100 122 100 150V300C100 272 78 250 50 250S0 272 0 300Z'/%3E%3C/svg%3E");
+    mask-position: 50% 0%;
+    mask-size: 100% 400%;
+    mask-repeat: no-repeat;
+    transition: none;
+  }
+
+  :is(.button, .site-nav .theme-btn):not([data-fill-motion]):is(:hover, :focus-visible) > .button__ink {
+    mask-position: 50% 50%;
+  }
+}
+
+.button__label {
+  line-height: 1.4;
+}
+
+.button__word {
+  display: inline-flex;
+  vertical-align: top;
+}
+
+.button__char-mask {
+  position: relative;
+  overflow: hidden;
+}
+
+.button__char {
+  display: block;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .button__char-mask[data-char]::after {
+    content: attr(data-char);
+    position: absolute;
+    inset: 0;
+    transform: translateY(100%);
+  }
+
+  .button__char-mask[data-char] > .button__char,
+  .button__char-mask[data-char]::after {
+    transition-property: transform;
+    transition-duration: 420ms;
+    transition-timing-function: cubic-bezier(0.2, 0.8, 0.2, 1);
+  }
+
+  .button__char-mask[data-char] > .button__char {
+    transition-property: transform, opacity;
+  }
+
+  .button:is(:hover, :focus-visible) .button__char-mask[data-char] > .button__char,
+  .button:is(:hover, :focus-visible) .button__char-mask[data-char]::after {
+    transition-delay: calc(var(--button-roll-delay) + min(var(--button-char-index) * 20ms, 200ms));
+  }
+
+  .button:is(:hover, :focus-visible) .button__char-mask[data-char] > .button__char {
+    transform: translateY(-100%);
+    opacity: 0;
+  }
+
+  .button:is(:hover, :focus-visible) .button__char-mask[data-char]::after {
+    transform: translateY(0);
+  }
+}
+
+.button.secondary,
+.site-nav .theme-btn {
+  --button-fill-color: var(--color-button-outline-hover);
+  --button-ink-color: var(--color-button-text);
+  box-shadow: inset 0 0 0 1px var(--color-button-outline);
+}
+
+.button.secondary {
+  color: var(--color-text);
+}
+
+:is(.button.secondary, .site-nav .theme-btn):is(:hover, :focus-visible) {
+  box-shadow: inset 0 0 0 1px var(--color-button-outline-hover);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .button,
+  .site-nav .theme-btn,
+  .button__ink {
+    transition: none;
+  }
+}
+
+.marquee-wrap {
+  overflow: hidden;
+  margin-block: 80px;
+  padding-block: 14px;
+  border-block: 1px solid var(--color-border);
+  color: var(--color-text-secondary);
+  font-family: 'Onest', Arial, Helvetica, sans-serif;
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 1.4;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.marquee-track {
+  display: flex;
+  width: max-content;
+  animation: marquee-scroll 28s linear infinite;
+}
+
+.marquee-group {
+  display: flex;
+  flex: none;
+  justify-content: space-between;
+  min-width: 100vw;
+  list-style: none;
+}
+
+.marquee-group li {
+  display: flex;
+  align-items: center;
+  gap: 56px;
+  padding-inline: 28px;
+  white-space: nowrap;
+}
+
+.marquee-group li::after {
+  content: '✦' / '';
+  font-size: 7px;
+}
+
+.marquee__accessible-label {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+}
+
+.marquee__letter {
+  position: relative;
+}
+
+@media (hover: hover) and (pointer: fine) and (prefers-reduced-motion: no-preference) {
+  .marquee__letter[data-scramble] {
+    color: transparent;
+  }
+
+  .marquee__letter[data-scramble]::after {
+    content: attr(data-scramble) / '';
+    position: absolute;
+    top: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    color: var(--color-text);
+    pointer-events: none;
+  }
+}
+
+@keyframes marquee-scroll {
+  to { transform: translateX(-50%); }
+}
+
+@media (hover: hover) {
+  .marquee-wrap:hover .marquee-track {
+    animation-play-state: paused;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .marquee-track {
+    width: auto;
+    animation: none;
+  }
+
+  .marquee-group {
+    flex: 1;
+    flex-wrap: wrap;
+    justify-content: flex-start;
+    gap: 8px 16px;
+    min-width: 0;
+    padding-inline: var(--page-inline-edge);
+  }
+
+  .marquee-group[aria-hidden="true"] {
+    display: none;
+  }
+
+  .marquee-group li {
+    gap: 16px;
+    padding-inline: 0;
+    white-space: normal;
+  }
+}
+
+.projects {
+  display: grid;
+  gap: 32px;
+}
+
+.projects__title {
+  scroll-margin-top: 88px;
+  font-size: 60px;
+  font-weight: 600;
+  line-height: 1.04;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  :root:has(.projects__title:target) {
+    scroll-behavior: smooth;
+  }
+}
+
+.projects__grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 100px 30px;
+}
+
+.card {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 30px;
+  color: inherit;
+  text-decoration: none;
+}
+
+.card__image {
+  width: 100%;
+  overflow: hidden;
+  border-radius: 32px; 
+  border: 1px solid var(--color-border);
+}
+
+.card__image img {
+  display: block;
+  width: 100%;
+  height: auto;
+  object-fit: cover;
+  transition: transform 0.32s ease;
+  transform-origin: center;
+}
+
+.card__image.has-project-cursor {
+  cursor: none;
+}
+
+.project-cursor {
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 150;
+  display: grid;
+  place-items: center;
+  width: 150px;
+  aspect-ratio: 1;
+  overflow: hidden;
+  border-radius: 50%;
+  background-color: var(--color-project-cursor-bg);
+  color: var(--color-project-cursor-icon);
+  mix-blend-mode: difference;
+  pointer-events: none;
+  opacity: 0;
+  transform: translate(-50%, -50%) scale(0.3);
+  transition: opacity 0.2s ease, transform 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.project-cursor.is-visible {
+  opacity: 1;
+  transform: translate(-50%, -50%) scale(1);
+}
+
+.project-cursor__arrow {
+  width: 32px;
+  height: 32px;
+}
+
+.project-cursor:not(.is-visible) .project-cursor__arrow {
+  visibility: hidden;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .project-cursor.is-visible .project-cursor__arrow {
+    animation: project-cursor-arrow 0.4s linear infinite;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .project-cursor {
+    transition: none;
+  }
+}
+
+@keyframes project-cursor-arrow {
+  from { transform: translateX(-92px); }
+  to { transform: translateX(92px); }
+}
+
+.card:hover .card__title {
+  color: var(--color-card-link-hover);
+}
+
+.card:hover .card__image img {
+  transform: scale(1.04);
+}
+
+.card__content {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.card__content .caption {
+  font-size: 18px;
+}
+
+.card__badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.card__title {
+  font-size: 34px;
+  font-weight: 600;
+  line-height: 1.04;
+  color: var(--color-text);
+  transition: color 0.12s ease;
+}
+
+.card__description {
+  font-size: 20px;
+  font-weight: 400;
+  line-height: 1.6;
+  color: var(--color-text);
+}
+
+.back-button {
+  position: fixed;
+  left: 50%;
+  bottom: 32px;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 48px;
+  padding: 0 24px 0 22px;
+  border-radius: 999px;
+  background: var(--color-button-bg);
+  color: var(--color-button-text);
+  font-size: 18px;
+  font-weight: 600;
+  line-height: 1;
+  text-decoration: none;
+  transform: translateX(-50%);
+  transition: transform 0.2s ease, opacity 0.2s ease;
+}
+
+.back-button:hover, 
+.back-button:active {
+  background: var(--color-button-back-bg-hover);
+}
+
+
+/* ==================================== */
+/* Adaptive */
+/* ==================================== */
+@media (max-width: 1440px) {
+  :root {
+    --page-gutter: 60px;
+  }
+
+  .page {
+    padding-block: 60px 240px;
+  }
+
+  .header__title {
+    font-size: 60px;
+  }
+
+  .header__image-right {
+    right: -80px;
+    width: 52%;
+    height: auto;
+  }
+
+  .header__content {
+    max-width: 720px;
+    padding: 48px 48px;
+  }
+
+  .projects {
+    gap: 28px;
+  }
+
+  .projects__title {
+    font-size: 52px;
+  }
+
+  .projects__grid {
+    row-gap: 80px;
+  }
+
+  .card {
+    gap: 24px;
+  }
+}
+
+@media (width < 1200px) {
+  .hero__name {
+    font-size: 80px;
+  }
+
+  .projects__grid {
+    row-gap: 60px;
+  }
+}
+
+@media (max-width: 1024px) {
+  :root {
+    --page-gutter: 32px;
+  }
+
+  .site-nav.scrolled {
+    --nav-scrolled-inset: 20%;
+    gap: 8px;
+  }
+
+  .page {
+    padding-block: 40px 180px;
+  }
+
+  .header {
+    min-height: 480px;
+    border-radius: 24px;
+  }
+
+  .header__content {
+    max-width: 58%;
+    padding: 40px 40px;
+  }
+
+  .header__title {
+    font-size: 48px;
+  }
+
+  .header__subtitle {
+    font-size: 20px;
+  }
+
+  .header__image-right {
+    right: -60px;
+  }
+
+  .content {
+    max-width: 800px;
+  }
+
+  .hero__name {
+    font-size: 64px;
+  }
+
+  .projects {
+    gap: 24px;
+  }
+
+  .projects__title {
+    font-size: 44px;
+  }
+  
+  .projects__grid {
+    row-gap: 52px;
+  }
+  
+  .card__image {
+    border-radius: 24px;
+  }
+
+  .card__content .caption {
+    font-size: 17px;
+  }
+
+  .card__title {
+    font-size: 30px;
+  }
+
+  .card__description {
+    font-size: 19px;
+  }
+}
+
+@media (max-width: 900px) {
+  .site-nav {
+    padding-block: 18px;
+  }
+
+  .site-nav.scrolled {
+    top: 12px;
+  }
+
+  .hero__links {
+    flex-direction: column;
+    width: 100%;
+    max-width: 300px;
+  }
+
+  .card {
+    gap: 20px;
+  }
+}
+
+@media (max-width: 768px) {
+  :root {
+    --page-gutter: 16px;
+  }
+
+  .page {
+    padding-block: 24px 240px;
+  }
+
+  .container {
+    gap: 48px;
+  }
+
+  .header {
+    flex-direction: column;
+    min-height: auto;
+    border-radius: 20px;
+  }
+
+  .header__content {
+    max-width: none;
+    padding: 40px 28px 0px;
+    gap: 28px;
+  }
+
+  .header__title {
+    font-size: 40px;
+  }
+
+  .header__image-right {
+    position: relative;
+    right: -24px;
+    width: 100%;
+  }
+
+  .header__image-right img {
+    height: auto;
+    object-fit: initial;
+  }
+
+  .content {
+    width: 100%;
+    gap: 72px;
+  }
+
+  .section__title {
+    font-size: 32px;
+  }
+
+  .footer-text {
+    font-size: 34px;
+  }
+
+  .section__text,
+  .section__list {
+    font-size: 20px;
+  }
+
+  .caption {
+    font-size: 18px;
+  }
+
+  .hero {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 16px;
+  }
+
+  .hero__cube {
+    display: none;
+  }
+
+  .hero__name {
+    font-size: 48px;
+  }
+
+  .projects {
+    gap: 20px;
+  }
+
+  .projects__title {
+    font-size: 38px;
+  }
+  
+  .projects__grid {
+    grid-template-columns: 1fr;
+    gap: 64px;
+  }
+  
+  .card__image {
+    border-radius: 20px;
+  }
+  
+  .back-button {
+    bottom: 16px;
+  }
+}
+
+@media (max-width: 480px) {
+  .site-nav.scrolled {
+    inset-inline: 16px;
+  }
+
+  .site-nav .nav-contact {
+    padding-inline: 8px;
+  }
+
+  .page {
+    padding-block-start: 16px;
+  }
+
+  .header__content {
+    gap: 20px;
+  }
+
+  .header__title {
+    font-size: 34px;
+  }
+
+  .header__subtitle {
+    font-size: 18px;
+  }
+
+  .header__badges {
+    gap: 8px;
+  }
+
+  .content {
+    gap: 56px;
+  }
+
+  .section__title {
+    font-size: 28px;
+  }
+
+  .footer-text {
+    font-size: 22px;
+  }
+
+  .section__text,
+  .section__list {
+    font-size: 18px;
+  }
+
+  .section__list {
+    padding-left: 20px;
+  }
+
+  .section-with-image {
+    gap: 28px;
+  }
+
+  .hero__links {
+    max-width: none;
+  }
+
+  .projects {
+    gap: 16px;
+  }
+
+  .projects__title {
+    font-size: 32px;
+  }
+
+  .projects__grid {
+    gap: 48px;
+  }
+  
+  .card {
+    gap: 16px;
+  }
+  
+  .card__image {
+    border-radius: 16px;
+  }
+  
+  .card__content .caption {
+    font-size: 16px;
+  }
+
+  .card__title {
+    font-size: 26px;
+  }
+
+  .card__description {
+    font-size: 18px;
+  }
+}
+
+@media (max-width: 360px) {
+  .projects__grid {
+    gap: 44px;
+  }
+}
