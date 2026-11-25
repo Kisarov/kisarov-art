@@ -111,10 +111,11 @@
         for (const character of part) {
           const mask = document.createElement('span');
           mask.className = 'button__char-mask';
+          mask.dataset.char = character;
+          mask.style.setProperty('--button-char-index', String(index++));
           const letter = document.createElement('span');
           letter.className = 'button__char';
           letter.textContent = character;
-          letter.style.setProperty('--button-char-index', String(index++));
           mask.append(letter);
           word.append(mask);
         }
