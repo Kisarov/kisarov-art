@@ -594,6 +594,34 @@
       this.sync();
     }
 
+    pointerOnShape() {
+      const x = (this.mouse.x - this.width / 2) / this.scale;
+      const y = (this.height / 2 - this.mouse.y) / this.scale;
+      if (x * x + y * y > shapeRadius * shapeRadius) return false;
+
+      // Проверяем проекцию граней, включая участки между частицами.
+      const m = this.matrix;
+      const { vertices, indices } = this.shape;
+      for (let i = 0; i < indices.length; i += 3) {
+        const a = indices[i] * 3;
+        const b = indices[i + 1] * 3;
+        const c = indices[i + 2] * 3;
+        const ax = m[0] * vertices[a] + m[3] * vertices[a + 1] + m[6] * vertices[a + 2] - x;
+        const bx = m[0] * vertices[b] + m[3] * vertices[b + 1] + m[6] * vertices[b + 2] - x;
+        const cx = m[0] * vertices[c] + m[3] * vertices[c + 1] + m[6] * vertices[c + 2] - x;
+        if (Math.min(ax, bx, cx) > 0 || Math.max(ax, bx, cx) < 0) continue;
+        const ay = m[1] * vertices[a] + m[4] * vertices[a + 1] + m[7] * vertices[a + 2] - y;
+        const by = m[1] * vertices[b] + m[4] * vertices[b + 1] + m[7] * vertices[b + 2] - y;
+        const cy = m[1] * vertices[c] + m[4] * vertices[c + 1] + m[7] * vertices[c + 2] - y;
+        const ab = ax * by - ay * bx;
+        const bc = bx * cy - by * cx;
+        const ca = cx * ay - cy * ax;
+        const area = ab + bc + ca;
+        if (area !== 0 && ab * area >= 0 && bc * area >= 0 && ca * area >= 0) return true;
+      }
+      return false;
+    }
+
     updateAura() {
       for (const point of this.aura) {
         const angle = point.phase + this.auraTime * point.speed;
@@ -692,6 +720,7 @@
     }
 
     advanceFormation(delta) {
+      if (this.formation === 'holding' && this.mouse.active && this.pointerOnShape()) return false;
       this.formationTime += delta;
       if (this.formation === 'holding') {
         if (this.formationTime < HOLD_TIME) return false;
