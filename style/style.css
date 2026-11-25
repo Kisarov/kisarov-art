@@ -840,18 +840,46 @@ h1, h2, h3, h4, h5, h6, [role="heading"] {
 }
 
 .button__char-mask {
+  position: relative;
   overflow: hidden;
 }
 
 .button__char {
   display: block;
-  text-shadow: 0 1lh currentColor;
-  transition: transform 420ms cubic-bezier(0.2, 0.8, 0.2, 1);
 }
 
-.button:is(:hover, :focus-visible) .button__char {
-  transform: translateY(-100%);
-  transition-delay: calc(var(--button-roll-delay) + min(var(--button-char-index) * 20ms, 200ms));
+@media (prefers-reduced-motion: no-preference) {
+  .button__char-mask[data-char]::after {
+    content: attr(data-char);
+    position: absolute;
+    inset: 0;
+    transform: translateY(100%);
+  }
+
+  .button__char-mask[data-char] > .button__char,
+  .button__char-mask[data-char]::after {
+    transition-property: transform;
+    transition-duration: 420ms;
+    transition-timing-function: cubic-bezier(0.2, 0.8, 0.2, 1);
+  }
+
+  .button__char-mask[data-char] > .button__char {
+    transition-property: transform, opacity;
+  }
+
+  .button:is(:hover, :focus-visible) .button__char-mask[data-char] > .button__char,
+  .button:is(:hover, :focus-visible) .button__char-mask[data-char]::after {
+    transition-delay: calc(var(--button-roll-delay) + min(var(--button-char-index) * 20ms, 200ms));
+  }
+
+  .button:is(:hover, :focus-visible) .button__char-mask[data-char] > .button__char {
+    transform: translateY(-100%);
+    opacity: 0;
+  }
+
+  .button:is(:hover, :focus-visible) .button__char-mask[data-char]::after {
+    transform: translateY(0);
+  }
 }
 
 .button.secondary,
@@ -872,13 +900,8 @@ h1, h2, h3, h4, h5, h6, [role="heading"] {
 @media (prefers-reduced-motion: reduce) {
   .button,
   .site-nav .theme-btn,
-  .button__ink,
-  .button__char {
+  .button__ink {
     transition: none;
-  }
-
-  .button:is(:hover, :focus-visible) .button__char {
-    transform: none;
   }
 }
 
