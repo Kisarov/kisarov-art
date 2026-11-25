@@ -26,6 +26,7 @@
   const staticPreview = new URLSearchParams(location.search).has('static');
   const AURA_COUNT = 220;
   const HOLD_TIME = 5;
+  const SCATTER_SCALE = 1.5;
   const SCATTER_TIME = 0.65;
   const ASSEMBLY_TIME = 1.8;
   const EDGE_BAND = 0.16;
@@ -560,7 +561,7 @@
       this.width = rect.width;
       this.height = rect.height;
       this.dpr = dpr;
-      this.scale = Math.min(this.width, this.height) * 0.21;
+      this.scale = this.element.getBoundingClientRect().width * 0.315;
       this.canvas.width = Math.round(this.width * this.dpr);
       this.canvas.height = Math.round(this.height * this.dpr);
       this.renderer.resize(this);
@@ -739,9 +740,9 @@
       const rotation = Math.random() * 2 * Math.PI;
       for (let i = 0; i < 4; i++) {
         const angle = rotation + (i + Math.random() * 0.65) * Math.PI / 2;
-        const distance = 0.35 + Math.random() * 0.45;
+        const distance = (0.35 + Math.random() * 0.45) * SCATTER_SCALE;
         const tilt = angle + Math.random() - 0.5;
-        const radius = 1.2 + Math.random() * 0.38;
+        const radius = (1.2 + Math.random() * 0.38) * SCATTER_SCALE;
         this.cloud.set([Math.cos(angle) * distance, Math.sin(angle) * distance,
           Math.cos(tilt) * radius, Math.sin(tilt) * radius], i * 4);
       }
