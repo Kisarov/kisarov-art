@@ -41,7 +41,7 @@
     const points = new Float32Array(COUNT * 3);
     const directions = new Float32Array(points.length);
     const radius = Math.max(...triangles.flat().map(point => Math.hypot(...point)));
-    const scale = shapeRadius / radius;
+    const scale = 0.85 * shapeRadius / radius;
     const edges = new Map();
 
     triangles.forEach(([a, b, c], index) => {
@@ -138,6 +138,16 @@
 
   const shapes = [{ positions, normals, vertices, indices }, createShape(crossTriangles()), createShape(icosahedronTriangles())];
 
+  // Local coordinates inside one of four overlapping clouds, plus a motion delay.
+  const scatterSamples = new Float32Array(COUNT * 3);
+  for (let i = 0; i < scatterSamples.length; i += 3) {
+    const angle = Math.random() * 2 * Math.PI;
+    const radius = Math.sqrt(1 - Math.cbrt(Math.random()));
+    scatterSamples[i] = Math.cos(angle) * radius;
+    scatterSamples[i + 1] = Math.sin(angle) * radius;
+    scatterSamples[i + 2] = Math.random() * 0.22;
+  }
+
   class GLRenderer {
     constructor(canvas) {
       this.gl = canvas.getContext('webgl2', { alpha: true, antialias: false, depth: false });
@@ -155,6 +165,10 @@
         layout(location=0) in vec3 position;
         layout(location=1) in vec3 normal;
         layout(location=2) in vec2 offset;
+        layout(location=3) in vec3 scatterSample;
+        uniform vec4 cloud[4];
+        uniform float progress;
+        uniform int phase; // 0 = holding, 1 = scattering, 2 = assembling
         ${transform}
         uniform sampler2D surfaceDepth;
         uniform vec2 pixelScale;
@@ -172,7 +186,17 @@
           vec4 rest = project(position);
           float depth = texture(surfaceDepth, rest.xy * 0.5 + 0.5).r;
           visible = mix(step(rest.z * 0.5 + 0.5, depth + 0.006), 1.0, spread);
-          gl_Position = vec4(rest.xy + offset * pixelScale, rest.zw);
+          gl_Position = rest;
+          if (phase != 2) gl_Position.xy += offset * pixelScale;
+          if (phase != 0) {
+            vec4 lobe = cloud[gl_VertexID % 4];
+            mat2 axes = mat2(lobe.zw, vec2(-lobe.w, lobe.z) * 0.72);
+            vec2 target = (lobe.xy + axes * scatterSample.xy) * scale;
+            float t = clamp((progress - scatterSample.z) / (1.0 - scatterSample.z), 0.0, 1.0);
+            float back = 1.0 - t;
+            float amount = phase == 1 ? t * t : back * back * back;
+            gl_Position.xy = mix(gl_Position.xy, target, amount);
+          }
           float light = max(dot(rotation * normal, normalize(vec3(-0.45, 0.75, 0.6))), 0.0);
           gl_PointSize = pointSize * (1.3 + 1.3 * (1.0 - light));
         }`, `#version 300 es
@@ -190,6 +214,9 @@
       this.offsetBuffer = gl.createBuffer();
       gl.bindBuffer(gl.ARRAY_BUFFER, this.offsetBuffer);
       gl.bufferData(gl.ARRAY_BUFFER, COUNT * 2 * Float32Array.BYTES_PER_ELEMENT, gl.DYNAMIC_DRAW);
+      const scatterBuffer = gl.createBuffer();
+      gl.bindBuffer(gl.ARRAY_BUFFER, scatterBuffer);
+      gl.bufferData(gl.ARRAY_BUFFER, scatterSamples, gl.STATIC_DRAW);
       this.shapeArrays = shapes.map(shape => {
         const mesh = gl.createVertexArray();
         gl.bindVertexArray(mesh);
@@ -204,6 +231,9 @@
         gl.bindBuffer(gl.ARRAY_BUFFER, this.offsetBuffer);
         gl.enableVertexAttribArray(2);
         gl.vertexAttribPointer(2, 2, gl.FLOAT, false, 0, 0);
+        gl.bindBuffer(gl.ARRAY_BUFFER, scatterBuffer);
+        gl.enableVertexAttribArray(3);
+        gl.vertexAttribPointer(3, 3, gl.FLOAT, false, 0, 0);
         return { mesh, points };
       });
       this.auraData = new Float32Array(AURA_COUNT * 3);
@@ -220,6 +250,11 @@
       this.uniforms = new Map();
       gl.useProgram(this.pointProgram);
       gl.uniform4fv(this.uniform(this.pointProgram, 'pointColor'), pointColor.rgba);
+    }
+
+    setCloud(cloud) {
+      this.gl.useProgram(this.pointProgram);
+      this.gl.uniform4fv(this.uniform(this.pointProgram, 'cloud[0]'), cloud);
     }
 
     program(vertexSource, fragmentSource) {
@@ -299,6 +334,9 @@
       gl.uniform2f(this.uniform(this.pointProgram, 'pixelScale'), 2 / cube.width, -2 / cube.height);
       gl.uniform1f(this.uniform(this.pointProgram, 'pointSize'), cube.dpr);
       gl.uniform1f(this.uniform(this.pointProgram, 'spread'), cube.spread);
+      const phase = cube.formation === 'holding' ? 0 : cube.formation === 'scattering' ? 1 : 2;
+      gl.uniform1i(this.uniform(this.pointProgram, 'phase'), phase);
+      if (phase) gl.uniform1f(this.uniform(this.pointProgram, 'progress'), cube.formationProgress);
       gl.activeTexture(gl.TEXTURE0);
       gl.bindTexture(gl.TEXTURE_2D, this.depthTexture);
       gl.uniform1i(this.uniform(this.pointProgram, 'surfaceDepth'), 0);
@@ -415,9 +453,7 @@
       this.spread = 0;
       this.matrix = new Float32Array(9);
       this.offsets = new Float32Array(COUNT * 2);
-      this.scatterPoints = new Float32Array(this.offsets.length);
-      this.scatterStart = new Float32Array(this.offsets.length);
-      this.scatterDelays = Float32Array.from({ length: COUNT }, () => Math.random() * 0.22);
+      this.cloud = new Float32Array(16);
       this.velocity = new Float32Array(COUNT * 2);
       this.projected = new Float32Array(COUNT * 2);
       this.depth = new Float32Array(COUNT);
@@ -506,6 +542,10 @@
 
     get shape() {
       return shapes[this.shapeIndex];
+    }
+
+    get formationProgress() {
+      return this.formationTime / (this.formation === 'scattering' ? SCATTER_TIME : ASSEMBLY_TIME);
     }
 
     resize() {
@@ -696,26 +736,47 @@
     }
 
     prepareScatter() {
-      for (let i = 0; i < this.offsets.length; i++) {
-        this.scatterStart[i] = this.offsets[i] / this.scale;
-        this.scatterPoints[i] = Math.random();
+      const rotation = Math.random() * 2 * Math.PI;
+      for (let i = 0; i < 4; i++) {
+        const angle = rotation + (i + Math.random() * 0.65) * Math.PI / 2;
+        const distance = 0.35 + Math.random() * 0.45;
+        const tilt = angle + Math.random() - 0.5;
+        const radius = 1.2 + Math.random() * 0.38;
+        this.cloud.set([Math.cos(angle) * distance, Math.sin(angle) * distance,
+          Math.cos(tilt) * radius, Math.sin(tilt) * radius], i * 4);
       }
       this.velocity.fill(0);
+      if (this.renderer.gl) {
+        this.renderer.setCloud(this.cloud);
+        return;
+      }
+      this.scatterStart ??= new Float32Array(this.offsets.length);
+      this.scatterPoints ??= new Float32Array(this.offsets.length);
+      for (let i = 0; i < COUNT; i++) {
+        const lobe = (i % 4) * 4;
+        const x = scatterSamples[i * 3], y = scatterSamples[i * 3 + 1] * 0.72;
+        const a = this.cloud[lobe + 2], b = this.cloud[lobe + 3];
+        this.scatterPoints[i * 2] = this.cloud[lobe] + a * x - b * y;
+        this.scatterPoints[i * 2 + 1] = this.cloud[lobe + 1] + b * x + a * y;
+        this.scatterStart[i * 2] = this.offsets[i * 2] / this.scale;
+        this.scatterStart[i * 2 + 1] = this.offsets[i * 2 + 1] / this.scale;
+      }
     }
 
     placeParticles() {
-      if (this.projectedDirty) this.project();
       const scattering = this.formation === 'scattering';
-      const progress = this.formationTime / (scattering ? SCATTER_TIME : ASSEMBLY_TIME);
+      const progress = this.formationProgress;
       this.spread = scattering ? progress ** 2 : (1 - progress) ** 3;
+      if (this.renderer.gl) return;
+      if (this.projectedDirty) this.project();
       for (let i = 0; i < COUNT; i++) {
         const index = i * 2;
-        const delay = this.scatterDelays[i];
+        const delay = scatterSamples[i * 3 + 2];
         const time = Math.max(0, (progress - delay) / (1 - delay));
         const spread = scattering ? time ** 2 : (1 - time) ** 3;
         const startWeight = scattering ? (1 - spread) * this.scale : 0;
-        this.offsets[index] = (this.scatterPoints[index] * this.width - this.projected[index]) * spread + this.scatterStart[index] * startWeight;
-        this.offsets[index + 1] = (this.scatterPoints[index + 1] * this.height - this.projected[index + 1]) * spread + this.scatterStart[index + 1] * startWeight;
+        this.offsets[index] = (this.width / 2 + this.scatterPoints[index] * this.scale - this.projected[index]) * spread + this.scatterStart[index] * startWeight;
+        this.offsets[index + 1] = (this.height / 2 - this.scatterPoints[index + 1] * this.scale - this.projected[index + 1]) * spread + this.scatterStart[index + 1] * startWeight;
       }
     }
 
@@ -739,7 +800,7 @@
         return true;
       }
       this.placeParticles();
-      return true;
+      return false;
     }
 
     sync() {
@@ -774,7 +835,7 @@
       while (this.accumulator >= 1 / 60 - 1e-8) {
         if (this.mouse.active || this.hasOffsets) {
           this.physics();
-          changed = true;
+          if (this.formation === 'holding') changed = true;
         }
         this.accumulator -= 1 / 60;
       }
