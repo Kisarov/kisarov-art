@@ -831,11 +831,11 @@ h1, h2, h3, h4, h5, h6, [role="heading"] {
 }
 
 @supports (mask-position: 50% 50%) {
-  .button:is(.primary, .secondary):has(> .button__ink) {
+  :is(.button, .site-nav .theme-btn):has(> .button__ink) {
     background-image: none;
   }
 
-  .button:is(.primary, .secondary) > .button__ink {
+  :is(.button, .site-nav .theme-btn) > .button__ink {
     background-color: var(--button-fill-color);
     border-radius: inherit;
     box-shadow: inherit;
@@ -848,7 +848,7 @@ h1, h2, h3, h4, h5, h6, [role="heading"] {
     transition: none;
   }
 
-  .button:is(.primary, .secondary):not([data-fill-motion]):is(:hover, :focus-visible) > .button__ink {
+  :is(.button, .site-nav .theme-btn):not([data-fill-motion]):is(:hover, :focus-visible) > .button__ink {
     mask-position: 50% 50%;
   }
 }
