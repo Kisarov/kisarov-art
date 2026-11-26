@@ -29,6 +29,7 @@
   const SCATTER_SCALE = 1.5;
   const SCATTER_TIME = 0.65;
   const ASSEMBLY_TIME = 1.8;
+  const SCROLL_SETTLE_TIME = 150;
   const EDGE_BAND = 0.16;
 
   let shapeRadius = 0;
@@ -478,6 +479,7 @@
       this.angleX = 0.37;
       this.angleY = -0.55;
       this.frame = 0;
+      this.scrollTimer = 0;
       this.previousTime = 0;
       this.accumulator = 0;
       this.visible = true;
@@ -520,6 +522,16 @@
         this.sync();
       });
       document.addEventListener('visibilitychange', () => document.hidden ? this.release() : this.sync());
+      const onScroll = () => {
+        if (!this.visible || (!this.frame && !this.scrollTimer)) return;
+        clearTimeout(this.scrollTimer);
+        this.scrollTimer = setTimeout(() => {
+          this.scrollTimer = 0;
+          this.sync();
+        }, SCROLL_SETTLE_TIME);
+        if (this.formation !== 'holding') this.stop();
+      };
+      window.addEventListener('scroll', onScroll, { passive: true });
       this.resizeObserver = new ResizeObserver(() => this.resize());
       this.resizeObserver.observe(element);
       this.intersectionObserver = new IntersectionObserver(entries => {
@@ -531,7 +543,10 @@
         document.addEventListener('page-loader:complete', () => this.sync(), { once: true });
       }
       window.addEventListener('pagehide', event => {
+        clearTimeout(this.scrollTimer);
+        this.scrollTimer = 0;
         if (event.persisted) return;
+        window.removeEventListener('scroll', onScroll);
         clearTimeout(this.mouse.timeout);
         this.stop();
         this.resizeObserver.disconnect();
@@ -786,6 +801,10 @@
       this.formationTime += delta;
       if (this.formation === 'holding') {
         if (this.formationTime < HOLD_TIME) return false;
+        if (this.scrollTimer) {
+          this.formationTime = HOLD_TIME;
+          return false;
+        }
         this.formation = 'scattering';
         this.formationTime = 0;
         this.prepareScatter();
@@ -806,7 +825,8 @@
 
     sync() {
       if ('pageLoading' in document.documentElement.dataset ||
-          narrowScreen.matches || staticPreview || this.motion.matches || document.hidden || !this.visible) {
+          narrowScreen.matches || staticPreview || this.motion.matches || document.hidden || !this.visible ||
+          (this.scrollTimer && this.formation !== 'holding')) {
         this.stop();
       } else if (!this.frame) {
         this.previousTime = 0;
