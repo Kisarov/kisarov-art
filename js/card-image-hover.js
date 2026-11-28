@@ -102,4 +102,15 @@
       }
     };
   };
+
+  // При ручном подключении эффекта изгиба он сам выбирает режим размытия.
+  if (document.querySelector('script[src="./js/card-scroll-warp.js"]')) return;
+  const covers = [...document.querySelectorAll('.projects .card__image')]
+    .filter(box => box.querySelector('img'))
+    .map(box => ({ box }));
+  if (!covers.length) return;
+
+  const narrowScreen = matchMedia('(max-width: 768px)');
+  const reducedMotion = matchMedia('(prefers-reduced-motion: reduce)');
+  window.setupCardImageBlur(covers, () => !narrowScreen.matches && !reducedMotion.matches && !document.hidden);
 })();
