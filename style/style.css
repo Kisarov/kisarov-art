@@ -38,7 +38,7 @@
   --color-scroll-line-start: #2a38ee;
   --color-scroll-line-end: #5a90ff;
   --color-scroll-hint: #1858c7;
-  --color-cube-particles: #a1a1a1;
+  --color-cube-particles: #b1b1b1;
 
   /* Белый слой нужен для инверсии изображения под курсором в обеих темах. */
   --color-project-cursor-bg: #fff;
@@ -89,7 +89,7 @@
   --color-scroll-line-start: #7b83ff;
   --color-scroll-line-end: #8db2ff;
   --color-scroll-hint: #79a6ff;
-  --color-cube-particles: #707070;
+  --color-cube-particles: #606060;
 
   --color-project-cursor-icon: #000;
 }
