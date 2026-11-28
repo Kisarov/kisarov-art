@@ -11,7 +11,8 @@
 
   const motion = matchMedia('(prefers-reduced-motion: reduce)');
   const narrowScreen = matchMedia('(max-width: 768px)');
-  const ENABLE_CARD_IMAGE_HOVER = false;
+  const ENABLE_CARD_SCROLL_WARP = false;
+  const ENABLE_CARD_IMAGE_HOVER = true;
   const BLUE_NOISE = new URL('../img/blue-noise.png', document.currentScript.src).href;
   while (narrowScreen.matches) {
     await new Promise(resolve => narrowScreen.addEventListener('change', resolve, { once: true }));
@@ -62,9 +63,11 @@ float roundedBoxDistance(vec2 point, vec2 halfSize, float radius) {
 }
 
 void main() {
-  vec2 screenUv = gl_FragCoord.xy / u_resolution;
   vec2 baseUv = v_uv;
-  baseUv.x -= (screenUv.x - 0.5) * (1.0 - sin(screenUv.y * 3.141592)) * u_rippleStrength;
+  if (u_rippleStrength > 0.0) {
+    vec2 screenUv = gl_FragCoord.xy / u_resolution;
+    baseUv.x -= (screenUv.x - 0.5) * (1.0 - sin(screenUv.y * 3.141592)) * u_rippleStrength;
+  }
   vec2 point = (baseUv - 0.5) * u_domWH;
   vec2 halfSize = u_domWH * (0.5 * mix(0.7, 1.0, u_showRatio));
   float edge = roundedBoxDistance(point, halfSize, u_globalRadius);
@@ -250,8 +253,10 @@ void main() {
     const scrollY = window.scrollY;
     if (layoutDirty) measureLayout(scrollY);
     if (!width || !height) return;
-    scrollStrength = Math.min(1, (scrollStrength + Math.abs(scrollY - previousScrollY) / height) * Math.exp(-10 * dt));
-    previousScrollY = scrollY;
+    if (ENABLE_CARD_SCROLL_WARP) {
+      scrollStrength = Math.min(1, (scrollStrength + Math.abs(scrollY - previousScrollY) / height) * Math.exp(-10 * dt));
+      previousScrollY = scrollY;
+    }
     const viewportBottom = scrollY + height;
     let hasVisibleCover = false;
     for (const cover of covers) {
