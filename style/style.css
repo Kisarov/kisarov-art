@@ -609,7 +609,7 @@ h1, h2, h3, h4, h5, h6, [role="heading"] {
   gap: 0;
 }
 
-.page:has(.hero) > .container > :is(.hero, .projects, .site-footer) {
+.page:has(.hero) > .container > :is(.hero, .projects) {
   margin-inline: var(--page-inline-edge);
 }
 
@@ -1066,7 +1066,7 @@ h1, h2, h3, h4, h5, h6, [role="heading"] {
   margin-block-start: 96px;
   padding-block: 24px;
   border-block-start: 1px solid var(--color-border);
-  color: var(--color-text-secondary);
+  color: var(--color-caption);
   font-size: 0.875rem;
   line-height: 1.5;
   text-align: center;
