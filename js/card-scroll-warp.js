@@ -5,14 +5,16 @@
   if (!projects) return;
   const covers = [...projects.querySelectorAll('.card__image')].map((box, index) => ({
     box, card: box.closest('.card'), image: box.querySelector('img'), index,
-    opacity: box.style.opacity, showTime: 0, zoom: 1, zoomVelocity: 0, zoomTarget: 1, imageScale: 1
+    opacity: box.style.opacity, imageScale: 1
   })).filter(cover => cover.image);
   if (!covers.length) return;
 
   const motion = matchMedia('(prefers-reduced-motion: reduce)');
   const narrowScreen = matchMedia('(max-width: 768px)');
+  // Изгиб, масштаб, наклон и смещение обложек при появлении.
   const ENABLE_CARD_SCROLL_WARP = false;
   const ENABLE_CARD_IMAGE_HOVER = true;
+  if (!ENABLE_CARD_SCROLL_WARP && !ENABLE_CARD_IMAGE_HOVER) return;
   const BLUE_NOISE = new URL('../img/blue-noise.png', document.currentScript.src).href;
   while (narrowScreen.matches) {
     await new Promise(resolve => narrowScreen.addEventListener('change', resolve, { once: true }));
@@ -41,6 +43,7 @@ uniform vec3 u_position;uniform vec4 u_quaternion;uniform vec3 u_scale;uniform v
 varying vec2 v_uv;void main(){vec3 basePos=getBasePosition(position);vec3 screenPos=getScreenPosition(basePos);gl_Position=projectionMatrix*modelViewMatrix*vec4(screenPos,1.0);v_uv=padUv(uv);}`;
 
   const fragmentShader = `#extension GL_OES_standard_derivatives : enable
+#define ENABLE_SCROLL_WARP ${ENABLE_CARD_SCROLL_WARP ? 1 : 0}
 precision highp float;
 #define BLUR_SAMPLES 6
 uniform sampler2D u_texture;
@@ -64,17 +67,23 @@ float roundedBoxDistance(vec2 point, vec2 halfSize, float radius) {
 
 void main() {
   vec2 baseUv = v_uv;
+  #if ENABLE_SCROLL_WARP
   if (u_rippleStrength > 0.0) {
     vec2 screenUv = gl_FragCoord.xy / u_resolution;
     baseUv.x -= (screenUv.x - 0.5) * (1.0 - sin(screenUv.y * 3.141592)) * u_rippleStrength;
   }
+  #endif
   vec2 point = (baseUv - 0.5) * u_domWH;
-  vec2 halfSize = u_domWH * (0.5 * mix(0.7, 1.0, u_showRatio));
+  vec2 halfSize = u_domWH * 0.5;
+  #if ENABLE_SCROLL_WARP
+  halfSize *= mix(0.7, 1.0, u_showRatio);
+  #endif
   float edge = roundedBoxDistance(point, halfSize, u_globalRadius);
   float alpha = 1.0 - smoothstep(-max(fwidth(edge), 0.0001), 0.0, edge);
   if (alpha <= 0.0) discard;
 
   vec2 fit = u_textureSize * max(u_domWH.x / u_textureSize.x, u_domWH.y / u_textureSize.y);
+  #if ENABLE_SCROLL_WARP
   // Preserve the framing of the flat cover across the entrance zoom.
   float framing = mix(10.0, 5.0, u_zoomRatio);
   float zoom = mix(0.75, 1.0, u_showRatio) * mix(0.975, 1.0, u_zoomRatio) * framing / (framing + 0.15);
@@ -96,10 +105,14 @@ void main() {
     color += texture2D(u_texture, uv + offset).rgb;
   }
   gl_FragColor = vec4(color / float(BLUR_SAMPLES), alpha);
+  #else
+  vec2 uv = 0.5 + point / (fit * u_imageScale);
+  gl_FragColor = vec4(texture2D(u_texture, uv).rgb, alpha);
+  #endif
 }`;
 
   const MAX_CANVAS_PIXELS = 2560 * 1440;
-  const noise = new Image();
+  const noise = ENABLE_CARD_SCROLL_WARP ? new Image() : null;
   let program;
   let uniforms;
   let frame = 0;
@@ -158,12 +171,25 @@ void main() {
         new Float32Array([1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1]));
       gl.uniform3f(uniforms.u_scale, 1, 1, 1);
       gl.uniform1i(uniforms.u_texture, 0);
-      gl.uniform1i(uniforms.u_blueNoiseTexture, 1);
-      gl.uniform2f(uniforms.u_blueNoiseTexelSize, 1 / noise.naturalWidth, 1 / noise.naturalHeight);
-      texture(noise, 1);
+      if (ENABLE_CARD_SCROLL_WARP) {
+        gl.uniform1i(uniforms.u_blueNoiseTexture, 1);
+        gl.uniform2f(uniforms.u_blueNoiseTexelSize, 1 / noise.naturalWidth, 1 / noise.naturalHeight);
+        texture(noise, 1);
+      }
+      gl.uniform3f(uniforms.u_position, 0, 0, 0);
+      gl.uniform4f(uniforms.u_quaternion, 0, 0, 0, 1);
+      gl.uniform4f(uniforms.u_domPadding, 0, 0, 0, 0);
       gl.enable(gl.BLEND);
       gl.blendFuncSeparate(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA, gl.ONE, gl.ONE_MINUS_SRC_ALPHA);
-      for (const cover of covers) { cover.texture = null; cover.source = ''; }
+      for (const cover of covers) {
+        cover.texture = null;
+        cover.source = '';
+        if (ENABLE_CARD_SCROLL_WARP) {
+          cover.showTime = 0;
+          cover.zoom = cover.zoomTarget = 1;
+          cover.zoomVelocity = 0;
+        }
+      }
       enabled = true;
       invalidateLayout();
     } catch (error) {
@@ -261,7 +287,7 @@ void main() {
     let hasVisibleCover = false;
     for (const cover of covers) {
       const cardVisible = cover.cardTop < viewportBottom && cover.cardBottom > scrollY;
-      cover.showTime = cardVisible ? cover.showTime + dt : 0;
+      if (ENABLE_CARD_SCROLL_WARP) cover.showTime = cardVisible ? cover.showTime + dt : 0;
       cover.visible = cardVisible && cover.width > 0 && cover.height > 0 &&
         cover.top < viewportBottom && cover.top + cover.height > scrollY;
       if (cover.visible) hasVisibleCover = true;
@@ -282,7 +308,6 @@ void main() {
       canvas.width = pixelWidth;
       canvas.height = pixelHeight;
     }
-    const ripple = Math.min(.15, scrollStrength * .5);
     // Finish style reads before replacing the visible DOM covers.
     for (const cover of covers) {
       if (cover.visible && (cover.imageScaling || cover.measureImageScale)) {
@@ -294,10 +319,13 @@ void main() {
     const hoverAnimating = cardHover?.begin(time, dt, width, height, pixelWidth, pixelHeight);
     gl.viewport(0, 0, pixelWidth, pixelHeight);
     gl.clear(gl.COLOR_BUFFER_BIT);
-    gl.uniform2f(uniforms.u_resolution, pixelWidth, pixelHeight);
-    gl.uniform1f(uniforms.u_rippleStrength, ripple);
-    gl.uniform2f(uniforms.u_blueNoiseCoordOffset, Math.random(), Math.random());
-    let animating = hoverAnimating || scrollStrength > .00001;
+    const ripple = ENABLE_CARD_SCROLL_WARP ? Math.min(.15, scrollStrength * .5) : 0;
+    if (ENABLE_CARD_SCROLL_WARP) {
+      gl.uniform2f(uniforms.u_resolution, pixelWidth, pixelHeight);
+      gl.uniform1f(uniforms.u_rippleStrength, ripple);
+      gl.uniform2f(uniforms.u_blueNoiseCoordOffset, Math.random(), Math.random());
+    }
+    let animating = hoverAnimating || (ENABLE_CARD_SCROLL_WARP && scrollStrength > .00001);
     for (const cover of covers) {
       if (!cover.visible) continue;
       if (!cover.image.complete || !cover.image.naturalWidth || cover.failed) {
@@ -318,24 +346,29 @@ void main() {
       }
       gl.activeTexture(gl.TEXTURE0);
       gl.bindTexture(gl.TEXTURE_2D, cover.texture);
-      const reveal = expoOut(cover.showTime / 2);
-      const rotation = (1 - reveal) * (cover.index % 2 - .5) * .1;
-      gl.uniform3f(uniforms.u_position, (1 - reveal) * (cover.index % 2 - .5) * -width * .1, 0, 0);
-      gl.uniform4f(uniforms.u_quaternion, 0, 0, Math.sin(rotation / 2), Math.cos(rotation / 2));
+      if (ENABLE_CARD_SCROLL_WARP) {
+        const reveal = expoOut(cover.showTime / 2);
+        const rotation = (1 - reveal) * (cover.index % 2 - .5) * .1;
+        gl.uniform3f(uniforms.u_position, (1 - reveal) * (cover.index % 2 - .5) * -width * .1, 0, 0);
+        gl.uniform4f(uniforms.u_quaternion, 0, 0, Math.sin(rotation / 2), Math.cos(rotation / 2));
+        const padding = Math.ceil(cover.width * ripple * .5) + 2;
+        gl.uniform4f(uniforms.u_domPadding, cover.index % 2 ? 0 : padding, cover.index % 2 ? padding : 0, 0, 0);
+        gl.uniform1f(uniforms.u_showRatio, expoOut(cover.showTime / 1.5));
+        gl.uniform1f(uniforms.u_zoomRatio, cover.zoom);
+      }
       gl.uniform2f(uniforms.u_domXY, cover.left, cover.top - scrollY);
       gl.uniform2f(uniforms.u_domWH, Math.ceil(cover.width), Math.ceil(cover.height));
       gl.uniform2f(uniforms.u_domPivot, Math.ceil(cover.width) * .5, Math.ceil(cover.height) * .5);
-      const padding = Math.ceil(cover.width * ripple * .5) + 2;
-      gl.uniform4f(uniforms.u_domPadding, cover.index % 2 ? 0 : padding, cover.index % 2 ? padding : 0, 0, 0);
       gl.uniform2f(uniforms.u_textureSize, cover.image.naturalWidth, cover.image.naturalHeight);
       gl.uniform1f(uniforms.u_globalRadius, cover.radius);
-      gl.uniform1f(uniforms.u_showRatio, expoOut(cover.showTime / 1.5));
-      gl.uniform1f(uniforms.u_zoomRatio, cover.zoom);
       gl.uniform1f(uniforms.u_imageScale, cover.imageScale);
       gl.drawArrays(gl.TRIANGLES, 0, 6);
       cover.box.style.opacity = '0';
-      updateZoom(cover, dt);
-      animating ||= cover.imageScaling || cover.showTime < 2 || Math.abs(cover.zoom) > .00001 || Math.abs(cover.zoomVelocity) > .00001;
+      if (ENABLE_CARD_SCROLL_WARP) {
+        updateZoom(cover, dt);
+        animating ||= cover.showTime < 2 || Math.abs(cover.zoom) > .00001 || Math.abs(cover.zoomVelocity) > .00001;
+      }
+      animating ||= cover.imageScaling;
     }
     cardHover?.end();
     canvas.hidden = false;
@@ -372,7 +405,11 @@ void main() {
       cover.image.addEventListener(type, syncImageScale);
     }
   }
-  noise.onload = init;
-  noise.onerror = () => { stop(); enabled = false; };
-  noise.src = BLUE_NOISE;
+  if (ENABLE_CARD_SCROLL_WARP) {
+    noise.onload = init;
+    noise.onerror = () => { stop(); enabled = false; };
+    noise.src = BLUE_NOISE;
+  } else {
+    init();
+  }
 })().catch(error => console.warn('Card scroll warp:', error));
