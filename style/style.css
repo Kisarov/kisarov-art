@@ -601,7 +601,7 @@ h1, h2, h3, h4, h5, h6, [role="heading"] {
   position: relative;
   overflow-x: clip;
   max-width: none;
-  padding-top: 0;
+  padding-block: 0;
   padding-inline: 0;
 }
 
@@ -609,7 +609,7 @@ h1, h2, h3, h4, h5, h6, [role="heading"] {
   gap: 0;
 }
 
-.page:has(.hero) > .container > :is(.hero, .projects) {
+.page:has(.hero) > .container > :is(.hero, .projects, .site-footer) {
   margin-inline: var(--page-inline-edge);
 }
 
@@ -1062,6 +1062,16 @@ h1, h2, h3, h4, h5, h6, [role="heading"] {
   gap: 100px 30px;
 }
 
+.site-footer {
+  margin-block-start: 96px;
+  padding-block: 24px;
+  border-block-start: 1px solid var(--color-border);
+  color: var(--color-text-secondary);
+  font-size: 0.875rem;
+  line-height: 1.5;
+  text-align: center;
+}
+
 .card {
   min-width: 0;
   display: flex;
@@ -1298,6 +1308,10 @@ h1, h2, h3, h4, h5, h6, [role="heading"] {
     --page-gutter: 32px;
   }
 
+  .site-footer {
+    margin-block-start: 64px;
+  }
+
   .site-nav.scrolled {
     --nav-scrolled-inset: 20%;
     gap: 8px;
@@ -1389,6 +1403,11 @@ h1, h2, h3, h4, h5, h6, [role="heading"] {
 @media (max-width: 768px) {
   :root {
     --page-gutter: 16px;
+  }
+
+  .site-footer {
+    margin-block-start: 48px;
+    padding-block: 16px;
   }
 
   .page {
