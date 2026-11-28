@@ -14,7 +14,11 @@
   // Изгиб, масштаб, наклон и смещение обложек при появлении.
   const ENABLE_CARD_SCROLL_WARP = false;
   const ENABLE_CARD_IMAGE_HOVER = true;
-  if (!ENABLE_CARD_SCROLL_WARP && !ENABLE_CARD_IMAGE_HOVER) return;
+  const canAnimate = () => !motion.matches && !narrowScreen.matches && !document.hidden;
+  if (!ENABLE_CARD_SCROLL_WARP) {
+    if (ENABLE_CARD_IMAGE_HOVER) window.setupCardImageBlur?.(covers, canAnimate);
+    return;
+  }
   const BLUE_NOISE = new URL('../img/blue-noise.png', document.currentScript.src).href;
   while (narrowScreen.matches) {
     await new Promise(resolve => narrowScreen.addEventListener('change', resolve, { once: true }));
@@ -28,7 +32,11 @@
   document.body.append(canvas);
 
   const gl = canvas.getContext('webgl', { alpha: true, antialias: false, depth: false });
-  if (!gl || !gl.getExtension('OES_standard_derivatives')) { canvas.remove(); return; }
+  if (!gl || !gl.getExtension('OES_standard_derivatives')) {
+    canvas.remove();
+    if (ENABLE_CARD_IMAGE_HOVER) window.setupCardImageBlur?.(covers, canAnimate);
+    return;
+  }
 
   const cardHover = ENABLE_CARD_IMAGE_HOVER ? window.createCardImageHover?.(covers, schedule, canRun) : null;
 
@@ -242,11 +250,11 @@ void main() {
   }
 
   function canRun() {
-    return enabled && !motion.matches && !narrowScreen.matches;
+    return enabled && canAnimate();
   }
 
   function schedule() {
-    if (!frame && canRun() && !document.hidden) frame = requestAnimationFrame(render);
+    if (!frame && canRun()) frame = requestAnimationFrame(render);
   }
 
   function invalidateLayout() {
@@ -302,7 +310,7 @@ void main() {
 
   function render(time) {
     frame = 0;
-    if (!canRun() || document.hidden) return;
+    if (!canRun()) return;
     const dt = previousTime ? Math.max(.0001, Math.min((time - previousTime) / 1000, .05)) : 1 / 60;
     previousTime = time;
     const scrollY = window.scrollY;
