@@ -1081,7 +1081,36 @@ h1, h2, h3, h4, h5, h6, [role="heading"] {
   display: block;
   width: 100%;
   height: auto;
+  aspect-ratio: auto 1690 / 1078;
   object-fit: cover;
+}
+
+@media (width > 768px) and (prefers-reduced-motion: no-preference) {
+  .card__image.has-card-blur {
+    position: relative;
+  }
+
+  .card__image.has-card-blur::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 192px;
+    height: 192px;
+    transform: translate(calc(var(--card-blur-x, 0px) - 50%), calc(var(--card-blur-y, 0px) - 50%));
+    pointer-events: none;
+    -webkit-backdrop-filter: blur(3px);
+    backdrop-filter: blur(3px);
+    -webkit-mask-image: radial-gradient(circle, #000 24px, transparent 96px);
+    mask-image: radial-gradient(circle, #000 24px, transparent 96px);
+    opacity: 0;
+    transition: opacity 250ms ease-out;
+  }
+
+  .card__image.is-card-blurred::after {
+    opacity: 1;
+    transition-duration: 350ms;
+  }
 }
 
 .card__image.has-project-cursor {
