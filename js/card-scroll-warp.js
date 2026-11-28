@@ -11,6 +11,7 @@
 
   const motion = matchMedia('(prefers-reduced-motion: reduce)');
   const narrowScreen = matchMedia('(max-width: 768px)');
+  const ENABLE_CARD_IMAGE_HOVER = false;
   const BLUE_NOISE = new URL('../img/blue-noise.png', document.currentScript.src).href;
   while (narrowScreen.matches) {
     await new Promise(resolve => narrowScreen.addEventListener('change', resolve, { once: true }));
@@ -26,7 +27,7 @@
   const gl = canvas.getContext('webgl', { alpha: true, antialias: false, depth: false });
   if (!gl || !gl.getExtension('OES_standard_derivatives')) { canvas.remove(); return; }
 
-  const cardHover = window.createCardImageHover?.(covers, schedule, canRun);
+  const cardHover = ENABLE_CARD_IMAGE_HOVER ? window.createCardImageHover?.(covers, schedule, canRun) : null;
 
   const vertexShader = `precision highp float;
 attribute vec3 position;
